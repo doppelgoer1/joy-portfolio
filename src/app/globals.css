@@ -273,8 +273,8 @@ body {
 .door-copy-box {
   left: 50%;
   top: 50%;
-  width: min(74vw, 1180px);
-  min-height: clamp(176px, 28vw, 430px);
+  width: var(--door-panel-width, 2vw);
+  height: var(--door-panel-height, 2dvh);
   transform: translate(-50%, -50%);
   display: grid;
   place-items: center;
@@ -283,16 +283,11 @@ body {
   background: #060606;
   box-shadow: 0 28px 90px rgba(0, 0, 0, 0.18);
   clip-path: inset(0 round 0);
-}
-
-.door-copy-box {
-  transform: translate(-50%, -50%) scale(var(--door-box-scale, 0.02));
-  transform-origin: 50% 50%;
-  will-change: transform;
+  will-change: width, height;
 }
 
 .door-manifesto {
-  width: 100%;
+  width: min(74vw, 1180px);
   padding: clamp(22px, 3vw, 48px);
   text-align: center;
   font-size: clamp(46px, 7.5vw, 132px);
@@ -301,6 +296,10 @@ body {
   font-weight: 950;
   color: #f4f4f4;
   mix-blend-mode: normal;
+  opacity: var(--door-text-opacity, 0);
+  transform: scale(var(--door-text-scale, 0));
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
 }
 
 .door-manifesto span {
@@ -437,11 +436,12 @@ body {
   }
 
   .door-copy-box {
-    width: 88vw;
-    min-height: clamp(154px, 46vw, 260px);
+    width: var(--door-panel-width, 2vw);
+    height: var(--door-panel-height, 2dvh);
   }
 
   .door-manifesto {
+    width: 88vw;
     font-size: clamp(36px, 13vw, 70px);
     line-height: 0.86;
   }
