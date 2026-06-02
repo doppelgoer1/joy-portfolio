@@ -66,8 +66,9 @@ export function JoyHero() {
       const curtainGrow = easeInOut(mapRange(p, 0.16, 0.3, 0, 1));
       const curtainOpen = easeInOut(mapRange(p, 0.28, 0.4, 0, 1));
       const doorLayer = mapRange(p, 0.54, 0.56, 0, 1);
-      const doorPanelGrow = easeSoft(mapRange(p, 0.56, 0.76, 0, 1));
-      const doorTextGrow = easeOutExpo(mapRange(p, 0.56, 0.62, 0, 1));
+      const doorPanelGrow = easeSoft(mapRange(p, 0.56, 0.75, 0, 1));
+      const doorPanelScale = lerp(0.02, 1.12, doorPanelGrow);
+      const doorTextIn = easeOutExpo(mapRange(p, 0.56, 0.62, 0, 1));
       const doorOpen = easeInOut(mapRange(p, 0.72, 0.88, 0, 1));
       const stackQuiet = easeOut(mapRange(p, 0.62, 0.72, 0, 1));
 
@@ -79,10 +80,10 @@ export function JoyHero() {
       root.style.setProperty("--split-opacity", mapRange(curtainGrow, 0.82, 1, 0, 1).toFixed(4));
       root.style.setProperty("--curtain-open", curtainOpen.toFixed(4));
       root.style.setProperty("--door-layer-opacity", doorLayer.toFixed(4));
-      root.style.setProperty("--door-panel-width", `${lerp(2, 112, doorPanelGrow).toFixed(2)}vw`);
-      root.style.setProperty("--door-panel-height", `${lerp(2, 112, doorPanelGrow).toFixed(2)}dvh`);
-      root.style.setProperty("--door-text-scale", lerp(0, 1, doorTextGrow).toFixed(4));
-      root.style.setProperty("--door-text-opacity", mapRange(doorTextGrow, 0, 0.08, 0, 1).toFixed(4));
+      root.style.setProperty("--door-panel-width", `${(doorPanelScale * 100).toFixed(2)}vw`);
+      root.style.setProperty("--door-panel-height", `${(doorPanelScale * 100).toFixed(2)}dvh`);
+      root.style.setProperty("--door-text-scale", lerp(0, 1, doorTextIn).toFixed(4));
+      root.style.setProperty("--door-text-opacity", mapRange(doorTextIn, 0, 0.08, 0, 1).toFixed(4));
       root.style.setProperty("--door-open", doorOpen.toFixed(4));
       root.style.setProperty("--dock-copy-opacity", easeOut(mapRange(p, 0.9, 1, 0, 1)).toFixed(4));
 
