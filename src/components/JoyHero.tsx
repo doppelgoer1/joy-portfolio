@@ -67,8 +67,8 @@ export function JoyHero() {
       const curtainGrow = easeInOut(mapRange(p, 0.16, 0.3, 0, 1));
       const curtainOpen = easeInOut(mapRange(p, 0.28, 0.4, 0, 1));
       const stackQuiet = easeOut(mapRange(p, 0.62, 0.72, 0, 1));
-      const css1DoorOpen = easeInOut(mapRange(p, 0.64, 0.78, 0, 1));
-      const css1Reveal = easeOut(mapRange(p, 0.66, 0.78, 0, 1));
+      const css1DoorOpen = easeInOut(mapRange(p, 0.68, 0.88, 0, 1));
+      const css1Reveal = easeOut(mapRange(p, 0.7, 0.88, 0, 1));
 
       root.style.setProperty("--p", p.toFixed(4));
       root.style.setProperty("--title-y", "0px");
