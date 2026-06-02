@@ -210,10 +210,8 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   pointer-events: none;
-  opacity: var(--door-print, 0);
-  filter: blur(calc((1 - var(--door-print, 0)) * 8px));
-  transform: translateY(calc((1 - var(--door-print, 0)) * 18px));
-  will-change: opacity, filter, transform;
+  opacity: var(--door-layer-opacity, 0);
+  will-change: opacity;
 }
 
 .manifest-door__panel {
@@ -257,7 +255,7 @@ body {
 }
 
 .door-kicker,
-.door-manifesto,
+.door-copy-box,
 .door-meta,
 .door-note {
   position: absolute;
@@ -272,16 +270,37 @@ body {
   font-weight: 900;
 }
 
-.door-manifesto {
+.door-copy-box {
   left: 50%;
   top: 50%;
   width: min(74vw, 1180px);
+  min-height: clamp(176px, 28vw, 430px);
   transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  background: #060606;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.18);
+  clip-path: inset(0 round 0);
+}
+
+.door-copy-box {
+  transform: translate(-50%, -50%) scale(var(--door-box-scale, 0.02));
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.door-manifesto {
+  width: 100%;
+  padding: clamp(22px, 3vw, 48px);
   text-align: center;
   font-size: clamp(46px, 7.5vw, 132px);
   line-height: 0.82;
   letter-spacing: 0;
   font-weight: 950;
+  color: #f4f4f4;
+  mix-blend-mode: normal;
 }
 
 .door-manifesto span {
@@ -417,8 +436,12 @@ body {
     font-size: 9px;
   }
 
-  .door-manifesto {
+  .door-copy-box {
     width: 88vw;
+    min-height: clamp(154px, 46vw, 260px);
+  }
+
+  .door-manifesto {
     font-size: clamp(36px, 13vw, 70px);
     line-height: 0.86;
   }

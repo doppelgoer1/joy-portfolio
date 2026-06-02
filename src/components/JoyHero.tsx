@@ -65,6 +65,7 @@ export function JoyHero() {
       const curtainHeight = easeInOut(mapRange(p, 0.06, 0.16, 0, 1));
       const curtainGrow = easeInOut(mapRange(p, 0.16, 0.3, 0, 1));
       const curtainOpen = easeInOut(mapRange(p, 0.28, 0.4, 0, 1));
+      const doorLayer = mapRange(p, 0.54, 0.56, 0, 1);
       const doorPrint = easeOut(mapRange(p, 0.56, 0.68, 0, 1));
       const doorOpen = easeInOut(mapRange(p, 0.72, 0.88, 0, 1));
       const stackQuiet = easeOut(mapRange(p, 0.62, 0.72, 0, 1));
@@ -76,7 +77,9 @@ export function JoyHero() {
       root.style.setProperty("--curtain-width", `${lerp(24, window.innerWidth, curtainGrow).toFixed(2)}px`);
       root.style.setProperty("--split-opacity", mapRange(curtainGrow, 0.82, 1, 0, 1).toFixed(4));
       root.style.setProperty("--curtain-open", curtainOpen.toFixed(4));
+      root.style.setProperty("--door-layer-opacity", doorLayer.toFixed(4));
       root.style.setProperty("--door-print", doorPrint.toFixed(4));
+      root.style.setProperty("--door-box-scale", lerp(0.02, 1, doorPrint).toFixed(4));
       root.style.setProperty("--door-open", doorOpen.toFixed(4));
       root.style.setProperty("--dock-copy-opacity", easeOut(mapRange(p, 0.9, 1, 0, 1)).toFixed(4));
 
@@ -183,10 +186,12 @@ export function JoyHero() {
             <div className={`manifest-door__panel manifest-door__panel--${side}`} key={side}>
               <div className="manifest-door__surface">
                 <div className="door-kicker">Portfolio / 2026</div>
-                <div className="door-manifesto">
-                  <span>I build interfaces</span>
-                  <span>that feel fast,</span>
-                  <span>clear, and alive.</span>
+                <div className="door-copy-box">
+                  <div className="door-manifesto">
+                    <span>I build interfaces</span>
+                    <span>that feel fast,</span>
+                    <span>clear, and alive.</span>
+                  </div>
                 </div>
                 <div className="door-meta door-meta--left">
                   <span>React</span>
