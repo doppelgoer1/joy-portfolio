@@ -107,8 +107,12 @@ export function JoyHero() {
         const targetY = Number(styles.getPropertyValue("--target-y")) || 0;
         const dockTargetX =
           window.innerWidth <= 780 ? -window.innerWidth * 0.34 : -window.innerWidth * 0.36;
+        const stackExitX =
+          window.innerWidth <= 780 ? -window.innerWidth * 0.34 : -window.innerWidth * 0.3;
         const isCss1 = index === 6;
-        const dockX = isCss1 ? 0 : lerp(0, dockTargetX, dock);
+        const dockX = isCss1
+          ? 0
+          : lerp(0, dockTargetX, dock) + lerp(0, stackExitX, css1DoorOpen);
         const dockY = isCss1 ? 0 : lerp(0, targetY, dock);
         const scale = isCss1
           ? lerp(0, 1, textIn)
