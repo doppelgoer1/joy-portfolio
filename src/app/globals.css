@@ -207,41 +207,47 @@ body {
   position: absolute;
   inset: 0;
   z-index: 18;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   pointer-events: none;
   opacity: var(--door-layer-opacity, 0);
   will-change: opacity;
 }
 
 .manifest-door__panel {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--door-panel-width, 2vw) / 2);
+  height: var(--door-panel-height, 2dvh);
   overflow: hidden;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.84), rgba(210, 210, 210, 0.74)),
-    #ececec;
-  will-change: transform;
+  background: #060606;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.18);
+  will-change: width, height, transform;
 }
 
 .manifest-door__panel--left {
-  transform: translateX(calc(var(--door-open, 0) * -101%));
+  transform:
+    translate(-100%, -50%)
+    translateX(calc(var(--door-open, 0) * -101vw));
 }
 
 .manifest-door__panel--right {
-  transform: translateX(calc(var(--door-open, 0) * 101%));
+  transform:
+    translate(0, -50%)
+    translateX(calc(var(--door-open, 0) * 101vw));
 }
 
 .manifest-door__surface {
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 100vw;
-  height: 100dvh;
+  left: 0;
+  top: 0;
+  width: var(--door-panel-width, 2vw);
+  height: var(--door-panel-height, 2dvh);
   color: #060606;
   text-transform: uppercase;
 }
 
 .manifest-door__panel--right .manifest-door__surface {
-  transform: translateX(-50vw);
+  transform: translateX(calc(var(--door-panel-width, 2vw) / -2));
 }
 
 .manifest-door__surface::before {
@@ -252,6 +258,12 @@ body {
     linear-gradient(90deg, rgba(0, 0, 0, 0.08), transparent 8%, transparent 92%, rgba(0, 0, 0, 0.08)),
     repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.035) 0 1px, transparent 1px 74px);
   opacity: 0.34;
+}
+
+.door-kicker,
+.door-meta,
+.door-note {
+  display: none;
 }
 
 .door-kicker,
@@ -271,19 +283,12 @@ body {
 }
 
 .door-copy-box {
-  left: 50%;
-  top: 50%;
-  width: var(--door-panel-width, 2vw);
-  height: var(--door-panel-height, 2dvh);
-  transform: translate(-50%, -50%);
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: grid;
   place-items: center;
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.22);
-  background: #060606;
-  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.18);
-  clip-path: inset(0 round 0);
-  will-change: width, height;
 }
 
 .door-manifesto {
@@ -436,8 +441,8 @@ body {
   }
 
   .door-copy-box {
-    width: var(--door-panel-width, 2vw);
-    height: var(--door-panel-height, 2dvh);
+    width: 100%;
+    height: 100%;
   }
 
   .door-manifesto {
