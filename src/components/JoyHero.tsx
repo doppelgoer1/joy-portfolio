@@ -65,6 +65,9 @@ export function JoyHero() {
       const curtainHeight = easeInOut(mapRange(p, 0.06, 0.16, 0, 1));
       const curtainGrow = easeInOut(mapRange(p, 0.16, 0.3, 0, 1));
       const curtainOpen = easeInOut(mapRange(p, 0.28, 0.4, 0, 1));
+      const doorPrint = easeOut(mapRange(p, 0.56, 0.68, 0, 1));
+      const doorOpen = easeInOut(mapRange(p, 0.72, 0.88, 0, 1));
+      const stackQuiet = easeOut(mapRange(p, 0.62, 0.72, 0, 1));
 
       root.style.setProperty("--p", p.toFixed(4));
       root.style.setProperty("--title-y", "0px");
@@ -73,6 +76,8 @@ export function JoyHero() {
       root.style.setProperty("--curtain-width", `${lerp(24, window.innerWidth, curtainGrow).toFixed(2)}px`);
       root.style.setProperty("--split-opacity", mapRange(curtainGrow, 0.82, 1, 0, 1).toFixed(4));
       root.style.setProperty("--curtain-open", curtainOpen.toFixed(4));
+      root.style.setProperty("--door-print", doorPrint.toFixed(4));
+      root.style.setProperty("--door-open", doorOpen.toFixed(4));
       root.style.setProperty("--dock-copy-opacity", easeOut(mapRange(p, 0.9, 1, 0, 1)).toFixed(4));
 
       cardRefs.current.forEach((card, index) => {
@@ -98,7 +103,7 @@ export function JoyHero() {
         const dockX = lerp(0, dockTargetX, dock);
         const dockY = lerp(0, targetY, dock);
         const scale = lerp(0, 1, textIn) * lerp(1, 0.34, dock);
-        const opacity = grow > 0.01 ? 1 : 0;
+        const opacity = grow > 0.01 ? lerp(1, 0.38, stackQuiet) : 0;
 
         text.style.setProperty("--text-scale", scale.toFixed(4));
         text.style.setProperty("--text-x", dockX.toFixed(2));
@@ -169,6 +174,38 @@ export function JoyHero() {
               }}
             >
               {stack}
+            </div>
+          ))}
+        </div>
+
+        <div className="manifest-door" aria-hidden="true">
+          {["left", "right"].map((side) => (
+            <div className={`manifest-door__panel manifest-door__panel--${side}`} key={side}>
+              <div className="manifest-door__surface">
+                <div className="door-kicker">Portfolio / 2026</div>
+                <div className="door-manifesto">
+                  <span>I build interfaces</span>
+                  <span>that feel fast,</span>
+                  <span>clear, and alive.</span>
+                </div>
+                <div className="door-meta door-meta--left">
+                  <span>React</span>
+                  <span>Next.js</span>
+                  <span>TypeScript</span>
+                  <span>NestJS</span>
+                  <span>MariaDB</span>
+                  <span>CSS</span>
+                </div>
+                <p className="door-note">
+                  Six years building product UI with frontend motion,
+                  backend fluency, and production-minded delivery.
+                </p>
+                <div className="door-meta door-meta--right">
+                  <span>Frontend</span>
+                  <span>Motion</span>
+                  <span>Systems</span>
+                </div>
+              </div>
             </div>
           ))}
         </div>

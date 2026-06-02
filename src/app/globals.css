@@ -203,6 +203,126 @@ body {
 .stack-text:nth-child(5) { --target-y: 140; }
 .stack-text:nth-child(6) { --target-y: 250; }
 
+.manifest-door {
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  pointer-events: none;
+  opacity: var(--door-print, 0);
+  filter: blur(calc((1 - var(--door-print, 0)) * 8px));
+  transform: translateY(calc((1 - var(--door-print, 0)) * 18px));
+  will-change: opacity, filter, transform;
+}
+
+.manifest-door__panel {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.84), rgba(210, 210, 210, 0.74)),
+    #ececec;
+  will-change: transform;
+}
+
+.manifest-door__panel--left {
+  transform: translateX(calc(var(--door-open, 0) * -101%));
+}
+
+.manifest-door__panel--right {
+  transform: translateX(calc(var(--door-open, 0) * 101%));
+}
+
+.manifest-door__surface {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100vw;
+  height: 100dvh;
+  color: #060606;
+  text-transform: uppercase;
+}
+
+.manifest-door__panel--right .manifest-door__surface {
+  transform: translateX(-50vw);
+}
+
+.manifest-door__surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.08), transparent 8%, transparent 92%, rgba(0, 0, 0, 0.08)),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.035) 0 1px, transparent 1px 74px);
+  opacity: 0.34;
+}
+
+.door-kicker,
+.door-manifesto,
+.door-meta,
+.door-note {
+  position: absolute;
+  z-index: 1;
+}
+
+.door-kicker {
+  left: 50%;
+  top: 18px;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.door-manifesto {
+  left: 50%;
+  top: 50%;
+  width: min(74vw, 1180px);
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: clamp(46px, 7.5vw, 132px);
+  line-height: 0.82;
+  letter-spacing: 0;
+  font-weight: 950;
+}
+
+.door-manifesto span {
+  display: block;
+}
+
+.door-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  font-size: clamp(20px, 2.4vw, 42px);
+  line-height: 0.82;
+  font-weight: 950;
+}
+
+.door-meta--left {
+  left: 11vw;
+  top: 27dvh;
+  color: rgba(255, 255, 255, 0.76);
+  mix-blend-mode: difference;
+}
+
+.door-meta--right {
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  align-items: flex-end;
+  color: #fff;
+  mix-blend-mode: difference;
+}
+
+.door-note {
+  left: 18px;
+  bottom: 18px;
+  max-width: 39ch;
+  margin: 0;
+  font-size: clamp(12px, 1.05vw, 18px);
+  line-height: 1.08;
+  font-weight: 950;
+}
+
 .dock-copy {
   position: absolute;
   right: 7vw;
@@ -291,6 +411,39 @@ body {
   .stack-text:nth-child(4) { --target-y: 22; }
   .stack-text:nth-child(5) { --target-y: 106; }
   .stack-text:nth-child(6) { --target-y: 190; }
+
+  .door-kicker {
+    top: 12px;
+    font-size: 9px;
+  }
+
+  .door-manifesto {
+    width: 88vw;
+    font-size: clamp(36px, 13vw, 70px);
+    line-height: 0.86;
+  }
+
+  .door-meta {
+    gap: 10px;
+    font-size: clamp(16px, 6vw, 30px);
+  }
+
+  .door-meta--left {
+    left: 18px;
+    top: 22dvh;
+  }
+
+  .door-meta--right {
+    right: 12px;
+  }
+
+  .door-note {
+    left: 12px;
+    right: 12px;
+    bottom: 62px;
+    max-width: 30ch;
+    font-size: 11px;
+  }
 
   .dock-copy {
     left: 18px;
