@@ -274,6 +274,23 @@ body {
     scale(var(--text-scale, 0));
 }
 
+.stack-text:nth-child(7) .split-text {
+  display: block;
+  will-change: transform;
+}
+
+.stack-text:nth-child(7) .split-text--left {
+  clip-path: inset(0 50% 0 0);
+  transform: translateX(calc(var(--css1-door-open, 0) * -102vw));
+}
+
+.stack-text:nth-child(7) .split-text--right {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 0 0 50%);
+  transform: translateX(calc(var(--css1-door-open, 0) * 102vw));
+}
+
 .dock-copy {
   position: absolute;
   right: 7vw;

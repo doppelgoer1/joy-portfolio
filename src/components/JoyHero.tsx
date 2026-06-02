@@ -109,7 +109,7 @@ export function JoyHero() {
           : lerp(0, 1, textIn) * lerp(1, 0.34, dock);
         const opacity =
           grow > 0.01
-            ? lerp(1, 0.38, stackQuiet) * (isCss1 ? 1 - css1DoorOpen : 1)
+            ? lerp(1, 0.38, stackQuiet)
             : 0;
 
         text.style.setProperty("--text-scale", scale.toFixed(4));
@@ -194,7 +194,14 @@ export function JoyHero() {
                 textRefs.current[index] = node;
               }}
             >
-              {stack}
+              {index === 6 ? (
+                <>
+                  <span className="split-text split-text--left">{stack}</span>
+                  <span className="split-text split-text--right">{stack}</span>
+                </>
+              ) : (
+                stack
+              )}
             </div>
           ))}
         </div>
