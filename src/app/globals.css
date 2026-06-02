@@ -281,14 +281,14 @@ body {
 
 .stack-text:nth-child(7) .split-text--left {
   clip-path: inset(0 50% 0 0);
-  transform: translateX(calc(var(--css1-door-open, 0) * -102%));
+  transform: translateX(var(--css1-text-left-x, 0px));
 }
 
 .stack-text:nth-child(7) .split-text--right {
   position: absolute;
   inset: 0;
   clip-path: inset(0 0 0 50%);
-  transform: translateX(calc(var(--css1-door-open, 0) * 102%));
+  transform: translateX(var(--css1-text-right-x, 0px));
 }
 
 .dock-copy {

@@ -91,6 +91,12 @@ export function JoyHero() {
         card.style.setProperty("--panel-width", `${(scale * 100).toFixed(2)}vw`);
         card.style.setProperty("--panel-height", `${(scale * 100).toFixed(2)}dvh`);
         card.style.setProperty("--card-opacity", visible.toFixed(3));
+
+        if (index === 6) {
+          const css1PanelShift = css1DoorOpen * scale * window.innerWidth * 0.51;
+          root.style.setProperty("--css1-text-left-x", `${(-css1PanelShift).toFixed(2)}px`);
+          root.style.setProperty("--css1-text-right-x", `${css1PanelShift.toFixed(2)}px`);
+        }
       });
 
       textRefs.current.forEach((text, index) => {
