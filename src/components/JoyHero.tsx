@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 
 const STACKS = ["React", "Next.js", "TypeScript", "NestJS", "MariaDB", "CSS"];
+const STACKS2 = ["React", "Next.js", "TypeScript", "NestJS", "MariaDB", "CSS", "CSS1"];
 
 const clamp = (value: number, min = 0, max = 1) =>
   Math.min(max, Math.max(min, value));
@@ -66,6 +67,8 @@ export function JoyHero() {
       const curtainGrow = easeInOut(mapRange(p, 0.16, 0.3, 0, 1));
       const curtainOpen = easeInOut(mapRange(p, 0.28, 0.4, 0, 1));
       const stackQuiet = easeOut(mapRange(p, 0.62, 0.72, 0, 1));
+      const css1DoorOpen = easeInOut(mapRange(p, 0.64, 0.78, 0, 1));
+      const css1Reveal = easeOut(mapRange(p, 0.66, 0.78, 0, 1));
 
       root.style.setProperty("--p", p.toFixed(4));
       root.style.setProperty("--title-y", "0px");
@@ -75,6 +78,8 @@ export function JoyHero() {
       root.style.setProperty("--split-opacity", mapRange(curtainGrow, 0.82, 1, 0, 1).toFixed(4));
       root.style.setProperty("--curtain-open", curtainOpen.toFixed(4));
       root.style.setProperty("--dock-copy-opacity", easeOut(mapRange(p, 0.9, 1, 0, 1)).toFixed(4));
+      root.style.setProperty("--css1-door-open", css1DoorOpen.toFixed(4));
+      root.style.setProperty("--css1-reveal-opacity", css1Reveal.toFixed(4));
 
       cardRefs.current.forEach((card, index) => {
         if (!card) return;
@@ -96,10 +101,16 @@ export function JoyHero() {
         const targetY = Number(styles.getPropertyValue("--target-y")) || 0;
         const dockTargetX =
           window.innerWidth <= 780 ? -window.innerWidth * 0.34 : -window.innerWidth * 0.36;
-        const dockX = lerp(0, dockTargetX, dock);
-        const dockY = lerp(0, targetY, dock);
-        const scale = lerp(0, 1, textIn) * lerp(1, 0.34, dock);
-        const opacity = grow > 0.01 ? lerp(1, 0.38, stackQuiet) : 0;
+        const isCss1 = index === 6;
+        const dockX = isCss1 ? 0 : lerp(0, dockTargetX, dock);
+        const dockY = isCss1 ? 0 : lerp(0, targetY, dock);
+        const scale = isCss1
+          ? lerp(0, 1, textIn)
+          : lerp(0, 1, textIn) * lerp(1, 0.34, dock);
+        const opacity =
+          grow > 0.01
+            ? lerp(1, 0.38, stackQuiet) * (isCss1 ? 1 - css1DoorOpen : 1)
+            : 0;
 
         text.style.setProperty("--text-scale", scale.toFixed(4));
         text.style.setProperty("--text-x", dockX.toFixed(2));
@@ -148,7 +159,7 @@ export function JoyHero() {
         </div>
 
         <div className="card-layer" aria-hidden="true">
-          {STACKS.map((stack, index) => (
+          {STACKS2.map((stack, index) => (
             <div
               className="stack-card"
               data-stack={stack}
@@ -156,12 +167,26 @@ export function JoyHero() {
               ref={(node) => {
                 cardRefs.current[index] = node;
               }}
-            />
+            >
+              {index === 6 ? (
+                <div className="door-reveal-layer" aria-hidden="true">
+                  <span>Next</span>
+                  <h2>
+                    Selected
+                    <br />
+                    Product Work
+                  </h2>
+                  <p>
+                    Case studies, shipped interfaces, and product systems continue here.
+                  </p>
+                </div>
+              ) : null}
+            </div>
           ))}
         </div>
 
         <div className="text-layer">
-          {STACKS.map((stack, index) => (
+          {STACKS2.map((stack, index) => (
             <div
               className="stack-text"
               key={stack}

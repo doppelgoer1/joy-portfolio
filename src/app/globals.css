@@ -173,6 +173,71 @@ body {
     #f4f4f4;
   z-index: 6;
 }
+.stack-card:nth-child(7) {
+  background: #f2f2f2;
+  z-index: 7;
+}
+
+.stack-card:nth-child(7)::before,
+.stack-card:nth-child(7)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 50%;
+  background:
+    linear-gradient(135deg, rgba(193, 73, 73, 0.9), rgba(20, 18, 18, 0.55)),
+    #f4f4f4;
+  will-change: transform;
+}
+
+.stack-card:nth-child(7)::before {
+  left: 0;
+  transform: translateX(calc(var(--css1-door-open, 0) * -102%));
+}
+
+.stack-card:nth-child(7)::after {
+  right: 0;
+  transform: translateX(calc(var(--css1-door-open, 0) * 102%));
+}
+
+.door-reveal-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  gap: 18px;
+  padding: 8vw;
+  color: var(--ink);
+  opacity: var(--css1-reveal-opacity, 0);
+}
+
+.door-reveal-layer span {
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.door-reveal-layer h2 {
+  margin: 0;
+  max-width: 10ch;
+  font-size: clamp(52px, 10vw, 150px);
+  line-height: 0.82;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  font-weight: 950;
+}
+
+.door-reveal-layer p {
+  max-width: 42ch;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.42;
+  text-transform: uppercase;
+  font-weight: 800;
+}
 
 .stack-text {
   position: absolute;
@@ -202,6 +267,12 @@ body {
 .stack-text:nth-child(4) { --target-y: 30; }
 .stack-text:nth-child(5) { --target-y: 140; }
 .stack-text:nth-child(6) { --target-y: 250; }
+.stack-text:nth-child(7) { 
+  --target-y: 0;
+  transform:
+    translate(-50%, -50%)
+    scale(var(--text-scale, 0));
+}
 
 .dock-copy {
   position: absolute;
@@ -281,7 +352,7 @@ body {
   }
 
   .stack-text {
-    font-size: clamp(24px, 11vw, 48px);
+    /* font-size: clamp(24px, 11vw, 48px); */
     letter-spacing: -2px;
   }
 
@@ -291,6 +362,7 @@ body {
   .stack-text:nth-child(4) { --target-y: 22; }
   .stack-text:nth-child(5) { --target-y: 106; }
   .stack-text:nth-child(6) { --target-y: 190; }
+  .stack-text:nth-child(7) { --target-y: 0; }
 
   .dock-copy {
     left: 18px;
