@@ -302,7 +302,9 @@ body {
   color: #f4f4f4;
   mix-blend-mode: normal;
   opacity: var(--door-text-opacity, 0);
-  transform: scale(var(--door-text-scale, 0));
+  transform:
+    translate(calc(var(--door-text-x, 0) * 1px), calc(var(--door-text-y, 0) * 1px))
+    scale(var(--door-text-scale, 0));
   transform-origin: 50% 50%;
   will-change: transform, opacity;
 }
