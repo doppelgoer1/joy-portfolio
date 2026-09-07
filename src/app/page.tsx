@@ -21,7 +21,15 @@ export default function Home() {
               <p className="eyebrow">01 / Selected work</p>
               <div className="intro-heading"><h2 id="work-title">만들고,<br /><span>운영합니다.</span></h2><p>화면에서 끝나지 않는 개발.<br />설계와 구현, 그리고 운영으로 이어진<br />세 가지 프로젝트입니다.</p></div>
               <nav className="work-index" aria-label="선택한 프로젝트">
-                {projects.map((project, index) => <a key={project.id} href={`#${project.id}`}><span className="eyebrow">0{index + 1}</span>{project.name}<span aria-hidden="true">↘</span></a>)}
+                {projects.map((project, index) => (
+                  <a key={project.id} href={`#${project.id}`}>
+                    <span className="work-index-number" aria-hidden="true">0{index + 1}</span>
+                    <span className="work-index-name">{project.name}</span>
+                    <span className="work-index-meta eyebrow">{project.category}</span>
+                    <span className="work-index-period eyebrow">{project.period}</span>
+                    <span aria-hidden="true">↘</span>
+                  </a>
+                ))}
               </nav>
             </div>
             <div className="project-stack">
@@ -31,8 +39,9 @@ export default function Home() {
           <section className="career-section section-pad" id="career" aria-labelledby="career-title">
             <div className="section-heading"><p className="eyebrow">02 / Career</p><h2 id="career-title">이어온 일.</h2><p>새로운 기능을 만들고,<br />서비스의 다음 단계를 함께합니다.</p></div>
             <ol className="career-list">
-              {career.map((job) => (
+              {career.map((job, index) => (
                 <li key={job.company}>
+                  <span className="career-index" aria-hidden="true">0{index + 1}</span>
                   <p className="career-period eyebrow">{job.period}</p>
                   <div>
                     <div className="career-company"><h3>{job.company}</h3><span>{job.title}</span></div>

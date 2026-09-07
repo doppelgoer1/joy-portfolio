@@ -1,4 +1,5 @@
 import type { Project } from "../data/portfolio";
+import { PhaseStrip } from "./PhaseStrip";
 import { ProjectPlate } from "./ProjectPlate";
 
 export function ProjectCase({ project, index }: { project: Project; index: number }) {
@@ -22,7 +23,11 @@ export function ProjectCase({ project, index }: { project: Project; index: numbe
           <div className="contribution">
             <h5>담당 범위</h5>
             <p className="case-role">{project.role}</p>
-            <ul>{project.contributions.map((item) => <li key={item}>{item}</li>)}</ul>
+            <ol className="contribution-list">
+              {project.contributions.map((item, itemIndex) => (
+                <li key={item}><span aria-hidden="true">0{itemIndex + 1}</span>{item}</li>
+              ))}
+            </ol>
           </div>
           <ul className="tech-list" aria-label={`${project.name} 사용 기술`}>
             {project.stack.map((tech) => <li key={tech}>{tech}</li>)}
@@ -33,6 +38,10 @@ export function ProjectCase({ project, index }: { project: Project; index: numbe
             <span aria-hidden="true">↗</span>
           </a>
         </div>
+      </div>
+      <div className="case-phases">
+        <p className="eyebrow">참여 흐름</p>
+        <PhaseStrip project={project} compact />
       </div>
     </article>
   );
