@@ -13,7 +13,8 @@ const pages = new Map([
   ...projects.map((project) => [`/projects/${project.id}`, rendered(`out/projects/${project.id}.html`)]),
 ]);
 
-test("복원된 JoyHero 전체·원본 CSS prefix·기존 모션 테스트를 바이트 단위로 보존", () => {
+test("9a4ec88 기준 JoyHero 전체·CSS prefix·갱신한 모션 테스트 snapshot 보존", () => {
+  assert.equal(baseline.sourceCommit, "9a4ec88fabe7159458a33848d320cae911a4e130");
   assert.equal(hash(read("src/components/JoyHero.tsx")), baseline.heroSha256);
   const css = Buffer.from(read("src/app/globals.css"));
   assert.equal(hash(css.subarray(0, baseline.cssPrefixBytes)), baseline.cssPrefixSha256);

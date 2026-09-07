@@ -56,10 +56,20 @@ test("회사 기간, Bull-Finder 기간, Azure OpenAI, 이름 변경의 단일 �
   assert.match(archive.find(({ name }) => name.includes("Guidy")).detail, /하나의 서비스/);
 });
 
-test("완성 HTML에서 프로토타입 문구와 미확인 과장 제거", () => {
-  assert.doesNotMatch(text, /fullscreen stack reveal|scroll scrub|CSS1|project cases start here|six years|frontend product builder/i);
+test("최신 prod의 CSS1 라벨·분할 마크업을 유지하고 새 본문의 과장 방지", () => {
+  const labels = [...rendered.matchAll(/class="stack-card" data-stack="([^"]+)"/g)].map((match) => match[1]);
+  assert.deepEqual(labels, ["React", "Next.js", "TypeScript", "NestJS", "MariaDB", "CSS", "CSS1"]);
+  assert.equal((rendered.match(/class="stack-text"/g) || []).length, 7);
+  for (const side of ["left", "right"]) {
+    assert.ok(rendered.includes(`<span class="split-text split-text--${side}">CSS1</span>`));
+  }
+  assert.match(rendered, /class="door-reveal-layer" aria-hidden="true"/);
+  assert.match(text, /Selected\s+Product Work/);
+  const portfolioText = rendered.slice(rendered.indexOf('<div class="portfolio-content">')).replace(/<[^>]+>/g, " ");
+  assert.doesNotMatch(portfolioText, /fullscreen stack reveal|scroll scrub|CSS1|project cases start here/i);
+  assert.doesNotMatch(text, /six years|frontend\s+product\s+builder/i);
   assert.doesNotMatch(text, /침투|RDS|무중단|자동 롤백|공식 API|정책 준수|심사 승인|스토어 출시|전체 웹서비스.*단독/);
-  assert.match(text, /풀스택 개발자 장준영/);
+  assert.match(text, /장준영 · Fullstack developer/);
   assert.equal((rendered.match(/서비스 화면 아님/g) || []).length, 3);
   assert.doesNotMatch(rendered, /href="mailto:/);
 });

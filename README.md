@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-기본 주소는 `http://127.0.0.1:3000`입니다. 루트 `index.html`은 `7e12d41`의 원본 프로토타입을 참고용으로 보존합니다. 실제 진입점은 `src/app/page.tsx`입니다.
+기본 주소는 `http://127.0.0.1:3000`입니다. 루트 프로토타입 `index.html`은 최신 prod(`9a4ec88`)에서 삭제되어 그대로 제거했습니다. 실제 진입점은 `src/app/page.tsx`입니다.
 
 ## 검증
 
@@ -22,7 +22,7 @@ npm run typecheck
 npm test
 ```
 
-`lint`는 TypeScript의 미사용 지역 변수·매개변수 검사입니다. 기존 `next lint`는 Next.js 16에서 사용할 수 없어 교체했습니다. ESLint 설치는 포함하지 않습니다. `test`는 `7e12d41`과 모션 코드·원본 CSS·참고용 프로토타입을 비교하고 생성된 홈·프로젝트 상세 HTML과 경력 데이터를 함께 검사하므로 먼저 빌드해야 합니다. 복원된 히어로 전체의 SHA-256, 신규 CSS의 범위, 내부 경로·앵커·복귀 링크도 검사합니다.
+`lint`는 TypeScript의 미사용 지역 변수·매개변수 검사입니다. 기존 `next lint`는 Next.js 16에서 사용할 수 없어 교체했습니다. ESLint 설치는 포함하지 않습니다. `test`는 `9a4ec88`과 히어로 전체(풀스택 사실 문구 두 곳 제외)·모션 코드·CSS 원문 접두부를 비교하고 프로토타입 삭제 여부, CSS1 문 열림·텍스트 분할·기존 스택 퇴장 및 생성된 홈·프로젝트 상세 HTML과 경력 데이터를 함께 검사하므로 먼저 빌드해야 합니다. 복원된 히어로 전체의 SHA-256, 신규 CSS의 범위, 내부 경로·앵커·복귀 링크도 검사합니다.
 
 브라우저 검증은 설치된 Playwright와 Chrome을 사용합니다. 로컬 서버를 실행한 뒤:
 
@@ -35,7 +35,7 @@ PLAYWRIGHT_MODULE=/absolute/path/to/playwright npm run test:browser
 ## 주요 파일
 
 - `src/data/portfolio.ts`: 확인된 기여·기술·기간과 출처 링크
-- `src/components/JoyHero.tsx`: 원본 6개 카드 확장·커튼·텍스트 도킹·0.12 스크롤 보간·`?p=0.34` 디버그 모션
+- `src/components/JoyHero.tsx`: 최신 prod의 7개 카드 확장·커튼·CSS1 문과 텍스트 분할·스택 도킹 및 퇴장·0.12 스크롤 보간·`?p=0.34` 디버그 모션
 - `src/components/ProjectCase.tsx`, `src/components/ProjectPlate.tsx`: 홈 프로젝트 요약과 담당 범위 타이포그래피
 - `src/app/projects/[slug]/page.tsx`: H-Works·FateSpoiler·모두ERP 정적 상세 페이지, 목차·담당 범위·참여 흐름·다음 프로젝트
 - `src/app/portfolio-editorial.css`: `.portfolio-content`에 한정한 추가 디자인과 상세 페이지 스타일
@@ -54,4 +54,4 @@ PLAYWRIGHT_MODULE=/absolute/path/to/playwright npm run test:browser
 node scripts/package-preview.mjs
 ```
 
-이 명령은 자체 포함 정적 미리보기와 export SHA-256 목록을 만듭니다. `preview.html`은 JS를 제외한 정적 참고 파일이며 원본 스크롤 모션 검증용으로 사용하지 않습니다. 기존 `artifacts/portfolio-upgrade/`의 미리보기는 복원 전 기록입니다. 실제 앱 모션은 `out/`을 HTTP로 제공할 때 검증합니다. 이번 작업에서는 푸시·배포를 수행하지 않았습니다.
+이 명령은 자체 포함 정적 미리보기와 export SHA-256 목록을 만듭니다. `preview.html`은 JS를 제외한 정적 참고 파일이며 원본 스크롤 모션 검증용으로 사용하지 않습니다. 기존 `artifacts/portfolio-upgrade/`의 미리보기는 복원 전 기록입니다. 실제 앱 모션은 `out/`을 HTTP로 제공할 때 검증합니다.
