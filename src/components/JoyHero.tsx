@@ -218,15 +218,15 @@ export function JoyHero() {
 
         <div className="dock-copy">
           <h2>
-            Frontend
+            Fullstack
             <br />
             <span>Product</span>
             <br />
             Builder
           </h2>
           <p>
-            Six years building React and Next.js products with TypeScript,
-            backend fluency, and motion-focused interface craft.
+            서비스와 데이터베이스 설계부터 프론트엔드·백엔드 개발,
+            업무 자동화, 배포와 운영까지.
           </p>
         </div>
       </div>

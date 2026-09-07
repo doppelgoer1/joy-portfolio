@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "9a4ec88fabe7159458a33848d320cae911a4e130",
+  "approvedCopyChanges": [
+    "Frontend → Fullstack",
+    "Six years paragraph → verified fullstack responsibilities"
+  ],
+  "productionHeroSha256": "55a6c5b984d174a61836b61e16bf483c2ce9bf8fca71199c6d52186a22fcf019",
+  "heroSha256": "7689ad941377e0a9678a78c1cf81ae8792fb34f14785d88893021d443d48e28b",
+  "cssPrefixSha256": "47731a9bfd54cdbca38e5c335deb137eabbf8fc10e5f63f0d29e171625a6eca2",
+  "cssPrefixBytes": 8073,
+  "motionTestSha256": "14e5b38f68d7c3ccbdce5abb7c64a46217352d6ab7fdfa2c2d692b209d9c58b4"
+}
