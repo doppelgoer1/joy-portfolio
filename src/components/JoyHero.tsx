@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-const STACKS = ["React", "Next.js", "TypeScript", "NestJS", "MariaDB", "CSS"];
+const STACKS = ["H-Works", "FateSpoiler", "모두ERP", "ENG-SPARK", "WhaleAI", "MYRO"];
 
 const clamp = (value: number, min = 0, max = 1) =>
   Math.min(max, Math.max(min, value));
@@ -125,8 +125,8 @@ export function JoyHero() {
       <div className="joy-pin">
         <nav className="joy-nav" aria-label="Portfolio navigation">
           <span>[ + ] Joy</span>
-          <span>Fullscreen stack reveal</span>
-          <span>Scroll scrub</span>
+          <span>풀스택 개발자 장준영</span>
+          <span>Selected work</span>
         </nav>
         <div className="scroll-progress" aria-hidden="true">
           <div className="scroll-progress__bar" />
@@ -175,15 +175,15 @@ export function JoyHero() {
 
         <div className="dock-copy">
           <h2>
-            Frontend
+            Fullstack
             <br />
             <span>Product</span>
             <br />
             Builder
           </h2>
           <p>
-            Six years building React and Next.js products with TypeScript,
-            backend fluency, and motion-focused interface craft.
+            서비스와 데이터베이스 설계부터 프론트엔드·백엔드 개발,
+            업무 자동화, 배포와 운영까지.
           </p>
         </div>
       </div>
