@@ -33,7 +33,7 @@ export function WorkStage({ projects }: { projects: Project[] }) {
 
   // A deep link such as /#fatespoiler selects that project, then realigns after the other panels hide.
   useEffect(() => {
-    if (!scrollTarget.current) return;
+    if (!enhanced || !scrollTarget.current) return;
     document.getElementById(scrollTarget.current)?.scrollIntoView();
     scrollTarget.current = null;
   }, [selected, enhanced]);
