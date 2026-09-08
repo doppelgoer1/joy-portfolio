@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { PhaseStrip } from "../../../components/PhaseStrip";
 import { ProjectPlate } from "../../../components/ProjectPlate";
 import { projects } from "../../../data/portfolio";
 import "../../portfolio-editorial.css";
@@ -45,11 +46,17 @@ export default async function ProjectPage({ params }: Props) {
       <main id="case-top">
         <header className="detail-cover">
           <div className="detail-kicker eyebrow"><span>Project notes / 0{index + 1}</span><span>H-Solution · {project.period}</span></div>
-          <h1>{project.name}</h1>
+          <div className="detail-cover-title">
+            <span className="detail-cover-index" aria-hidden="true">0{index + 1}</span>
+            <h1>{project.name}</h1>
+          </div>
           <div className="detail-cover-bottom">
             <p>{project.headline}</p>
             <a className="text-link" href={project.url} target="_blank" rel="noreferrer">서비스 방문<span aria-hidden="true">↗</span><span className="sr-only">: {project.name} (새 창)</span></a>
           </div>
+          <ol className="detail-cover-scope" aria-label="담당 범위 요약">
+            {project.focus.map((item) => <li key={item.label}><span className="eyebrow">{item.label}</span><span>{item.value}</span></li>)}
+          </ol>
         </header>
         <section id="case-overview" className="detail-overview" aria-labelledby="overview-title">
           <div className="detail-overview-copy">
@@ -77,22 +84,22 @@ export default async function ProjectPage({ params }: Props) {
           <div className="detail-chapters">
             {project.caseStudy.chapters.map((chapter, chapterIndex) => (
               <section className="detail-chapter" id={chapter.id} key={chapter.id} aria-labelledby={`${chapter.id}-title`}>
+                <span className="detail-chapter-index" aria-hidden="true">0{chapterIndex + 1}</span>
                 <p className="eyebrow">0{chapterIndex + 1} / {chapter.label}</p>
                 <h2 id={`${chapter.id}-title`}>{chapter.title}</h2>
                 <p className="chapter-description">{chapter.description}</p>
                 <dl className="responsibility-list">
-                  {chapter.items.map((item) => <div key={item.title}><dt>{item.title}</dt><dd>{item.description}</dd></div>)}
+                  {chapter.items.map((item, itemIndex) => (
+                    <div key={item.title}><dt><span aria-hidden="true">0{itemIndex + 1}</span>{item.title}</dt><dd>{item.description}</dd></div>
+                  ))}
                 </dl>
               </section>
             ))}
             <section className="detail-chapter detail-timeline" id="timeline" aria-labelledby="timeline-title">
+              <span className="detail-chapter-index" aria-hidden="true">↘</span>
               <p className="eyebrow">Project timeline</p>
               <h2 id="timeline-title">참여의 흐름.</h2>
-              <ol>
-                {project.caseStudy.phases.map((phase) => (
-                  <li key={phase.period}><p className="eyebrow">{phase.period}</p><h3>{phase.title}</h3><p>{phase.description}</p></li>
-                ))}
-              </ol>
+              <PhaseStrip project={project} titleTag="h3" />
             </section>
           </div>
         </div>
