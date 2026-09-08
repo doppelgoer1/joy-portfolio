@@ -125,6 +125,13 @@ try {
 
     await checkHero(page, name);
     for (const id of ["work", "h-works", "fatespoiler", "moduerp", "career", "archive", "contact"]) {
+      const tab = page.locator(`#${id}-tab`);
+      if (await tab.count()) {
+        await tab.click();
+        await page.waitForTimeout(900);
+        assert.equal(await tab.getAttribute("aria-selected"), "true");
+        assert.equal(await tab.getAttribute("data-position"), "0");
+      }
       await page.locator(`#${id}`).evaluate((element) => element.scrollIntoView());
       await page.waitForTimeout(150);
       await checkPage(page, `${name}-${id}`);
@@ -149,7 +156,18 @@ try {
     assert.equal(await page.evaluate(() => document.activeElement.className), "skip-link");
     await page.keyboard.press("Enter");
     assert.ok(page.url().endsWith("#work"));
+    // Arrow keys move both selection and focus between the stage cards; only the selected panel stays visible.
+    await page.locator("#h-works-tab").focus();
+    await page.keyboard.press("ArrowRight");
+    assert.equal(await page.evaluate(() => document.activeElement.id), "fatespoiler-tab");
+    assert.equal(await page.locator("#fatespoiler").isVisible(), true);
+    assert.equal(await page.locator("#h-works").isHidden(), true);
+    await page.keyboard.press("End");
+    assert.equal(await page.evaluate(() => document.activeElement.id), "moduerp-tab");
+    assert.equal(await page.locator("#moduerp-tab").getAttribute("data-position"), "0");
     for (const project of ["h-works", "fatespoiler", "moduerp"]) {
+      await page.locator(`#${project}-tab`).click();
+      await page.waitForTimeout(600);
       const link = page.locator(`#${project} a[target="_blank"]`);
       await link.focus();
       assert.equal(await link.evaluate((element) => {
