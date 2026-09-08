@@ -19,7 +19,7 @@ export default function Home() {
           <section id="work" className="work-section" aria-labelledby="work-title">
             <div className="section-intro">
               <p className="eyebrow">01 / Selected work</p>
-              <div className="intro-heading"><h2 id="work-title">만들고,<br /><span>운영합니다.</span></h2><p>화면에서 끝나지 않는 개발.<br />설계와 구현, 그리고 운영으로 이어진<br />세 가지 프로젝트입니다.<br />카드를 골라 담당 업무를 확인하세요.</p></div>
+              <div className="intro-heading"><h2 id="work-title">주요<br /><span>프로젝트</span></h2><p>H-Solution에서 맡은<br />세 가지 프로젝트입니다.<br />카드를 골라 담당 업무를 확인하세요.</p></div>
             </div>
             <WorkStage projects={projects} />
           </section>
