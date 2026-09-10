@@ -121,15 +121,34 @@
 .portfolio-content .career-work-links a { display: inline-flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; border-bottom: 1px solid var(--line); font-size: 14px; }
 .portfolio-content .career-work-links a:hover { color: var(--accent); }
 
-/* ---------- Archive: serif index, slower colour change ---------- */
+/* ---------- Archive: screenshot cards in two columns, serif index, one link per card ---------- */
 .portfolio-content .archive-number { font-family: var(--serif); font-size: 24px; letter-spacing: -.04em; color: var(--red); text-transform: none; }
-.portfolio-content .archive-list a { transition: color 200ms ease-out; }
+.portfolio-content .archive-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(28px, 4vw, 56px) clamp(24px, 3vw, 40px); border-top: 1px solid var(--line); padding-top: clamp(28px, 4vw, 48px); }
+/* Each screenshot keeps its own ratio; the frame sits at the row's bottom so copy lines up across a pair. */
+.portfolio-content .archive-card { display: grid; grid-template-rows: 1fr auto; gap: 20px; border: 0; }
+.portfolio-content .archive-grid > li:last-child { border-bottom: 0; }
+.portfolio-content .archive-shot { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; align-self: end; padding: 0; border: 1px solid var(--line); background: var(--ink); overflow: hidden; transition: border-color 240ms ease-out, box-shadow 400ms var(--ease-out), transform 520ms var(--ease-out); }
+.portfolio-content .archive-shot img { display: block; width: 100%; height: auto; transition: transform 900ms var(--ease-out); }
+.portfolio-content .archive-shot-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 14px; background: var(--ink); color: var(--paper); font-size: 10px; letter-spacing: .06em; }
+.portfolio-content .archive-shot-cta { font-weight: 700; white-space: nowrap; }
+.portfolio-content .archive-shot-cta span { display: inline-block; transition: transform 240ms var(--ease-out); }
+.portfolio-content .archive-shot:hover { border-color: var(--ink); box-shadow: 0 30px 50px -30px oklch(0 0 0 / .5); transform: translateY(-4px); }
+.portfolio-content .archive-shot:hover img { transform: scale(1.025); }
+.portfolio-content .archive-shot:hover .archive-shot-cta span { transform: translate(3px, -3px); }
+.portfolio-content .archive-shot:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+.portfolio-content .archive-card:has(.archive-shot:hover) h3 { color: var(--red); }
+.portfolio-content .archive-copy { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 8px 20px; align-items: start; }
+.portfolio-content .archive-copy .archive-number { grid-row: 1 / span 2; padding-top: 4px; }
+.portfolio-content .archive-copy h3 { font-size: clamp(25px, 2.4vw, 38px); transition: color 200ms ease-out; }
+.portfolio-content .archive-copy .archive-meta { grid-column: 2; }
 
 /* ---------- Standalone project pages: the same voice, a quieter reading surface ---------- */
 .portfolio-content.project-detail { min-height: 100dvh; }
 .portfolio-content .detail-cover { padding: 44px var(--gutter) clamp(48px, 6vw, 96px); background: var(--red); --cover-line: oklch(0.6 0.08 27); --num: var(--paper); }
 .portfolio-content.project-detail--fatespoiler .detail-cover { background: var(--paper); color: var(--red); --cover-line: oklch(0.78 0.04 27); --num: var(--red); }
 .portfolio-content.project-detail--moduerp .detail-cover { background: var(--ink); --cover-line: var(--line); --num: var(--accent); }
+.portfolio-content.project-detail--archive .detail-cover { background: var(--ink); --cover-line: var(--line); --num: var(--accent); }
+.portfolio-content .detail-status { flex-shrink: 0; align-self: end; padding: 12px 14px; border: 1px solid var(--cover-line); color: var(--muted); }
 .portfolio-content .detail-kicker { display: flex; justify-content: space-between; gap: 20px; padding-bottom: 24px; border-bottom: 1px solid var(--cover-line); }
 .portfolio-content .detail-cover-title { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 24px clamp(24px, 4vw, 64px); margin-block: clamp(40px, 6vw, 96px) clamp(48px, 7vw, 112px); }
 .portfolio-content .detail-cover-index { order: 2; font-family: var(--serif); font-size: clamp(120px, 20vw, 340px); line-height: .78; letter-spacing: -.1em; color: var(--num); }
@@ -155,6 +174,17 @@
 .portfolio-content .detail-overview .plate-number { color: var(--accent); }
 .portfolio-content .detail-overview .scope-cells li { border-color: color-mix(in oklch, var(--accent) 60%, transparent); }
 
+/* Previous projects: the real screenshot first, whole and uncropped, then only the facts on record. */
+.portfolio-content .detail-shot-section { padding: clamp(40px, 6vw, 88px) var(--gutter) 0; background: var(--paper); color: var(--ink); }
+.portfolio-content .detail-shot { display: grid; gap: 12px; }
+.portfolio-content .archive-shot--detail { align-self: auto; border-color: oklch(0.73 0.005 25); }
+.portfolio-content .archive-shot--detail img { object-fit: contain; }
+.portfolio-content .detail-shot figcaption { color: oklch(0.42 0.005 25); }
+.portfolio-content .detail-overview--archive { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); padding-top: clamp(48px, 6vw, 88px); }
+.portfolio-content .detail-overview--archive .detail-facts { margin-top: 0; border-bottom: 1px solid oklch(0.73 0.005 25); }
+.portfolio-content .detail-overview--archive .detail-facts .text-link { min-height: 0; padding-block: 0; font-size: inherit; gap: 6px; }
+.portfolio-content .detail-overview--archive .detail-facts .text-link > span[aria-hidden] { font-size: 18px; }
+
 .portfolio-content .detail-reading { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(0, 2.8fr); gap: clamp(44px, 8vw, 140px); padding: clamp(64px, 8vw, 120px) var(--gutter); --num: var(--accent); }
 .portfolio-content .detail-contents { align-self: start; position: sticky; top: calc(var(--header-height) + 40px); }
 .portfolio-content .detail-contents > p { color: var(--accent); }
@@ -174,6 +204,11 @@
 .portfolio-content .responsibility-list dd { margin: 0; font-size: 15px; line-height: 1.9; color: var(--muted); word-break: keep-all; overflow-wrap: anywhere; max-width: 65ch; }
 .portfolio-content .detail-timeline { margin-bottom: 0; }
 .portfolio-content .detail-timeline .phase-strip { grid-column: 2; margin-top: 48px; }
+/* Previous projects have one chapter and no contents column: the chapter takes the full reading width. */
+.portfolio-content .detail-reading--archive { display: block; }
+.portfolio-content .detail-reading--archive .detail-chapter { margin-bottom: 0; }
+.portfolio-content .detail-reading--archive .contribution-list { grid-column: 2; margin-top: 32px; max-width: 72ch; }
+.portfolio-content .detail-reading--archive .contribution-list li { font-size: 15px; }
 
 .portfolio-content .detail-next { padding: clamp(48px, 6vw, 96px) var(--gutter) 36px; background: var(--paper); color: var(--ink); }
 .portfolio-content .detail-next-project { display: block; padding-bottom: 52px; }
@@ -228,6 +263,7 @@
   .portfolio-content .career-list li > div { grid-column: 2; }
   .portfolio-content .detail-cover-index { font-size: clamp(120px, 24vw, 220px); }
   .portfolio-content .detail-overview { grid-template-columns: 1fr; }
+  .portfolio-content .detail-overview--archive { grid-template-columns: 1fr; }
   .portfolio-content .detail-overview-copy { max-width: 72ch; }
   .portfolio-content .detail-reading { grid-template-columns: minmax(150px, 1fr) minmax(0, 3fr); gap: 36px; }
   .portfolio-content .detail-chapter { grid-template-columns: minmax(48px, 64px) minmax(0, 1fr); column-gap: 20px; }
@@ -275,6 +311,9 @@
   .portfolio-content .career-list li > div { grid-column: 1 / -1; }
   .portfolio-content .career-company h3 { font-size: 30px; }
   .portfolio-content .archive-number { font-size: 20px; }
+  .portfolio-content .archive-grid { grid-template-columns: 1fr; gap: 40px; }
+  .portfolio-content .archive-copy { grid-template-columns: 32px minmax(0, 1fr); gap: 6px 12px; }
+  .portfolio-content .archive-copy .archive-number { padding-top: 6px; }
   .portfolio-content .detail-cover { padding-top: 28px; }
   .portfolio-content .detail-kicker { flex-direction: column; gap: 8px; font-size: 10px; }
   .portfolio-content .detail-cover-title { grid-template-columns: 1fr; margin-block: 40px 48px; gap: 8px; }
@@ -282,6 +321,9 @@
   .portfolio-content .detail-cover h1 { font-size: clamp(40px, 12vw, 72px); line-height: 1.05; }
   .portfolio-content .detail-cover-bottom { flex-direction: column; align-items: start; gap: 28px; }
   .portfolio-content .detail-cover-bottom > p { font-size: 28px; }
+  .portfolio-content .detail-status { align-self: start; font-size: 10px; }
+  .portfolio-content .detail-shot-section { padding-top: 32px; }
+  .portfolio-content .detail-reading--archive .contribution-list { margin-top: 24px; }
   .portfolio-content .detail-cover-scope { grid-template-columns: 1fr; gap: 0; margin-top: 44px; }
   .portfolio-content .detail-cover-scope li { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 16px; padding-block: 14px; font-size: 14px; text-align: right; }
   .portfolio-content .detail-cover-scope li .eyebrow { text-align: left; }
@@ -320,6 +362,8 @@
   .portfolio-content .contribution-list li { animation: none; opacity: 1; transform: none; }
   .portfolio-content .career-list li { animation: none; opacity: 1; transform: none; }
   .portfolio-content .archive-list li { animation: none; opacity: 1; transform: none; }
+  .portfolio-content .archive-shot, .portfolio-content .archive-shot img, .portfolio-content .archive-shot-cta span { transition: none; }
+  .portfolio-content .archive-shot:hover, .portfolio-content .archive-shot:hover img, .portfolio-content .archive-shot:hover .archive-shot-cta span { transform: none; }
   .portfolio-content .detail-cover-scope li { animation: none; opacity: 1; transform: none; }
   .portfolio-content .responsibility-list > div { animation: none; opacity: 1; transform: none; }
   .portfolio-content .detail-chapter-index { animation: none; opacity: 1; transform: none; }
