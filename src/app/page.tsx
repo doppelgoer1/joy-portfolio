@@ -13,7 +13,7 @@ export default function Home() {
           <header className="site-header">
             <a className="wordmark" href="#top" aria-label="Joy 포트폴리오 처음으로"><span aria-hidden="true">[ + ]</span> Joy</a>
             <nav aria-label="주요 메뉴">
-              <a href="#work">작업</a><a href="#career">경력</a><a href="#archive">아카이브</a><a href="#contact">연락</a>
+              <a href="#work">작업</a><a href="#career">경력</a><a href="#archive">이전 프로젝트</a><a href="#contact">연락</a>
             </nav>
           </header>
           <section id="work" className="work-section" aria-labelledby="work-title">
@@ -42,9 +42,25 @@ export default function Home() {
             </ol>
           </section>
           <section className="archive-section section-pad" id="archive" aria-labelledby="archive-title">
-            <div className="section-heading"><p className="eyebrow">03 / Earlier work</p><h2 id="archive-title">그동안의 기록.</h2><p>이전 프로젝트의 상세 소개는<br />기존 포트폴리오에서 이어집니다.</p></div>
-            <ul className="archive-list">
-              {archive.map((project, index) => <li key={project.name} id={`archive-${project.id}`}><a href={previousPortfolio} target="_blank" rel="noreferrer"><span className="archive-number eyebrow">0{index + 1}</span><div><h3>{project.name}</h3><p>{project.detail}</p></div><span className="archive-meta">{project.meta}</span><span className="archive-arrow" aria-hidden="true">↗</span><span className="sr-only">: 기존 포트폴리오에서 상세 기록 보기 (새 창)</span></a></li>)}
+            <div className="section-heading"><p className="eyebrow">03 / Previous projects</p><h2 id="archive-title">이전 프로젝트.</h2><p>이전에 참여한 서비스의 실제 화면입니다.<br />카드를 눌러 프로젝트 기록을 확인하세요.</p></div>
+            <ul className="archive-list archive-grid">
+              {archive.map((project, index) => (
+                <li key={project.id} id={`archive-${project.id}`} className="archive-card">
+                  <a className="archive-shot" href={`/projects/${project.id}`}>
+                    <img src={project.image.src} alt={project.image.alt} width={project.image.width} height={project.image.height} loading="lazy" decoding="async" />
+                    <span className="archive-shot-bar eyebrow">
+                      <span>실제 서비스 화면</span>
+                      <span className="archive-shot-cta">프로젝트 보기 <span aria-hidden="true">↗</span></span>
+                    </span>
+                    <span className="sr-only">: {project.name} 프로젝트 기록</span>
+                  </a>
+                  <div className="archive-copy">
+                    <span className="archive-number eyebrow" aria-hidden="true">0{projects.length + index + 1}</span>
+                    <div className="archive-text"><h3>{project.name}</h3><p>{project.detail}</p></div>
+                    <span className="archive-meta">{[project.company, project.period].filter(Boolean).join(" · ") || "기존 포트폴리오 기록"}</span>
+                  </div>
+                </li>
+              ))}
             </ul>
             <div className="education" id="education"><div><p className="eyebrow">Education</p><h3>학력 · 교육</h3></div><a className="text-link" href={previousPortfolio} target="_blank" rel="noreferrer">기존 이력에서 확인 <span aria-hidden="true">↗</span><span className="sr-only"> (새 창)</span></a></div>
           </section>

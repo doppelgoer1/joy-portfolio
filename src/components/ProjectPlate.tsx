@@ -6,7 +6,7 @@ export function ProjectPlate({ project, index }: { project: Project; index: numb
   return (
     <figure className="project-poster work-plate">
       <div className="plate-heading">
-        <p className="eyebrow">Selected work / H-Solution</p>
+        <p className="eyebrow">Selected work / {project.company}</p>
         <span className="plate-number" aria-hidden="true">0{index + 1}</span>
         <p className="plate-name">{project.name}</p>
       </div>

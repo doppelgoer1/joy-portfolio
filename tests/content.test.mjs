@@ -1,10 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { archive, career, projects } from "../src/data/portfolio.ts";
 
 const html = readFileSync(new URL("../out/index.html", import.meta.url), "utf8");
-const rendered = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "");
+// React separates adjacent text nodes with <!-- --> markers; drop them so text reads as rendered.
+const rendered = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "").replace(/<!--[\s\S]*?-->/g, "");
 const text = rendered.replace(/<[^>]+>/g, " ");
 
 test("선택 작업 순서와 실제 서비스 URL", () => {
@@ -50,10 +51,52 @@ test("모두ERP의 초기 프론트 개발과 이후 유지보수 구분", () =>
 
 test("회사 기간, Bull-Finder 기간, Azure OpenAI, 이름 변경의 단일 기록", () => {
   assert.deepEqual(career.map(({ period }) => period), ["2025.12 ~ 현재", "2024.09 ~ 2025.12", "2021.09 ~ 2024.02"]);
-  assert.equal(archive.find(({ name }) => name === "Bull-Finder").meta, "2025.03 ~ 2025.05");
+  assert.equal(archive.find(({ name }) => name === "Bull-Finder").period, "2025.03 ~ 2025.05");
   assert.match(archive.find(({ name }) => name === "ENG-SPARK").detail, /Azure OpenAI/);
   assert.equal(archive.filter(({ name }) => /Guidy|Gaime/.test(name)).length, 1);
   assert.match(archive.find(({ name }) => name.includes("Guidy")).detail, /하나의 서비스/);
+});
+
+test("이전 프로젝트 카드: 실제 스크린샷, 카드마다 내부 상세 링크 하나, 외부 링크 없음", () => {
+  assert.deepEqual(archive.map(({ id }) => id), ["eng-spark", "whaleai", "myro", "bull-finder", "guidy-gaime", "onbooth"]);
+  assert.deepEqual(archive.filter(({ url }) => url).map(({ id, url }) => [id, url]), [
+    ["eng-spark", "https://eng-spark.com"],
+    ["whaleai", "https://whaleai.ai"],
+  ]);
+  const archiveHtml = rendered.slice(rendered.indexOf('id="archive"'), rendered.indexOf('id="education"'));
+  assert.match(archiveHtml, /<h2 id="archive-title">이전 프로젝트\.<\/h2>/);
+  assert.doesNotMatch(archiveHtml, /기존 포트폴리오에서 이어집니다|Earlier work|그동안의 기록/);
+  assert.match(rendered, /href="#archive">이전 프로젝트</);
+  for (const [index, project] of archive.entries()) {
+    assert.ok(existsSync(new URL(`../public${project.image.src}`, import.meta.url)), project.image.src);
+    assert.ok(existsSync(new URL(`../out${project.image.src}`, import.meta.url)), `export 누락: ${project.image.src}`);
+    assert.ok(project.image.alt.startsWith(project.name.split(" ")[0]), project.id);
+    assert.ok(archiveHtml.includes(`id="archive-${project.id}"`));
+    assert.ok(archiveHtml.includes(`src="${project.image.src}"`));
+    assert.ok(archiveHtml.includes(`alt="${project.image.alt}"`));
+    assert.ok(archiveHtml.includes(`class="archive-shot" href="/projects/${project.id}"`), `${project.id} 내부 상세 링크`);
+    assert.ok(archiveHtml.includes(`aria-hidden="true">0${projects.length + index + 1}</span>`), `${project.id} 번호는 주요 프로젝트 다음부터`);
+  }
+  assert.equal((archiveHtml.match(/<img\b/g) || []).length, archive.length);
+  assert.equal((archiveHtml.match(/<a\b/g) || []).length, archive.length, "카드마다 링크 하나, 죽은 버튼 없음");
+  assert.doesNotMatch(archiveHtml, /target="_blank"|href="https?:|서비스 방문|화면 크게 보기|<button\b/);
+  assert.equal((archiveHtml.match(/프로젝트 보기/g) || []).length, archive.length);
+  const careerHtml = rendered.slice(rendered.indexOf('id="career"'), rendered.indexOf('id="archive"'));
+  for (const id of ["eng-spark", "whaleai", "bull-finder", "guidy-gaime", "myro"]) assert.ok(careerHtml.includes(`href="/projects/${id}"`), `경력에서 ${id} 상세로`);
+  assert.doesNotMatch(careerHtml, /href="#archive-/);
+  const onbooth = archive.find(({ id }) => id === "onbooth");
+  assert.equal(onbooth.name, "온부스");
+  assert.equal(onbooth.detail, "기업에 다양한 워크샵 프로그램을 제공하는 서비스");
+  assert.equal(onbooth.url, undefined);
+  assert.doesNotMatch(JSON.stringify(onbooth), /BFAI|H-Solution|20\d\d\./);
+  assert.ok(archiveHtml.includes("기존 포트폴리오 기록"), "온부스 카드는 소속·기간 대신 출처만 표기");
+  const gaime = archive.find(({ id }) => id === "guidy-gaime");
+  assert.ok(gaime.name.includes("Gaime") && gaime.name.includes("Guidy"));
+  assert.match(archive.find(({ id }) => id === "whaleai").detail, /B2B 프로젝트 매칭/);
+  assert.match(archive.find(({ id }) => id === "bull-finder").detail, /영업 리드/);
+  assert.match(archive.find(({ id }) => id === "myro").detail, /여행 일정/);
+  assert.match(gaime.detail, /게임 가이드/);
+  assert.doesNotMatch(text, /명함|business card|010-|@h-solution/i);
 });
 
 test("최신 prod의 CSS1 라벨·분할 마크업을 유지하고 새 본문의 과장 방지", () => {
