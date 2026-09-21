@@ -1,3 +1,4 @@
+import { GlassNav } from "../components/GlassNav";
 import { JoyHero } from "../components/JoyHero";
 import { WorkStage } from "../components/WorkStage";
 import { archive, career, githubUrl, previousPortfolio, projects } from "../data/portfolio";
@@ -7,6 +8,7 @@ export default function Home() {
   return (
     <>
       <a className="skip-link" href="#work">프로젝트로 바로가기</a>
+      <GlassNav />
       <main id="top">
         <JoyHero />
         <div className="portfolio-content">
