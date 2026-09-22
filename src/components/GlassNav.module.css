@@ -1,0 +1,82 @@
+/* Transparent backdrop glass, not physical refraction. Only the enhanced header loses its old opaque surface; original mode is untouched. */
+:global(.site-header):has(> .pill) { position: static; background: var(--paper); border-bottom-color: transparent; pointer-events: none; }
+:global(.site-header):has(> .pill) > :global(.wordmark) { visibility: hidden; }
+.pill { pointer-events: auto; }
+.pill.pill {
+  position: fixed;
+  top: calc(48px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  box-sizing: border-box;
+  width: 54px;
+  height: 54px;
+  max-width: calc(100vw - 24px);
+  padding: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.5);
+  border-top-color: rgba(255,255,255,.92);
+  border-radius: 999px;
+  background: linear-gradient(150deg, rgba(255,255,255,.24), rgba(255,255,255,.04) 45%, rgba(255,255,255,.12)), rgba(12,12,12,.24);
+  color: #fff;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.5), inset 0 -1px 1px rgba(255,255,255,.18), 0 6px 22px rgba(0,0,0,.16);
+  -webkit-backdrop-filter: blur(9px) saturate(150%);
+  backdrop-filter: blur(9px) saturate(150%);
+  transition: width 380ms cubic-bezier(.22,1,.36,1), box-shadow 250ms ease;
+}
+.pill.pill[data-open="true"] { width: 344px; }
+.toggle {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: inherit;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0,0,0,.22);
+  cursor: pointer;
+}
+.icon { width: 18px; height: 16px; position: relative; display: block; }
+.icon span { position: absolute; left: 0; width: 18px; height: 1.5px; background: currentColor; box-shadow: 0 1px 2px #000; transition: transform 280ms ease, top 280ms ease; }
+.icon span:first-child { top: 4px; }
+.icon span:last-child { top: 11px; }
+.pill[data-open="true"] .icon span:first-child { top: 7px; transform: rotate(45deg); }
+.pill[data-open="true"] .icon span:last-child { top: 7px; transform: rotate(-45deg); }
+.links { display: flex; align-items: center; justify-content: space-evenly; flex: 1 0 288px; opacity: 0; visibility: hidden; transform: translateX(-8px); transition: opacity 180ms ease, transform 300ms ease, visibility 180ms; }
+.pill[data-open="true"] .links { opacity: 1; visibility: visible; transform: translateX(0); transition-delay: 70ms; }
+.pill .link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: inherit;
+  font-family: Arial,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
+  text-shadow: 0 1px 3px #000, 0 0 5px rgba(0,0,0,.85);
+  white-space: nowrap;
+  transition: background-color 160ms ease-out;
+}
+.pill .link:hover, .toggle:hover { background-color: rgba(0,0,0,.26); }
+.pill .link:focus-visible, .toggle:focus-visible { outline: 2px solid white; outline-offset: -3px; background-color: #7a0c07; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .pill.pill { background: rgba(5,5,5,.88); } }
+@media (max-width: 780px) {
+  .pill.pill { top: calc(88px + env(safe-area-inset-top, 0px)); }
+  .pill.pill[data-open="true"] { width: min(322px, calc(100vw - 24px)); }
+  .links { flex-basis: 0; min-width: 0; }
+  .pill .link { padding-inline: 8px; min-width: 36px; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pill.pill, .pill .link, .links, .icon span { transition: none; }
+}
+@media print { .pill.pill { display: none; } }
