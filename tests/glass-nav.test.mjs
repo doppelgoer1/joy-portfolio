@@ -21,6 +21,9 @@ function render(search, server = false) {
       removeEventListener: (name) => listeners.delete(name),
     } }),
     require: (name) => name === "react" ? {
+      useState: () => [false, () => {}],
+      useRef: () => ({ current: null }),
+      useEffect: () => {},
       useSyncExternalStore: (subscribe, snapshot, serverSnapshot) => {
         if (server) return serverSnapshot();
         const cleanup = subscribe(() => {});
@@ -46,7 +49,7 @@ test("glass preview: default on, exact nav=original off, hero debug query indepe
     const nav = render(search);
     assert.equal(nav.type, "nav");
     assert.equal(nav.props["aria-label"], "주요 메뉴");
-    assert.deepEqual(Array.from(nav.props.children, (link) => [link.props.href, link.props.children]), [
+    assert.deepEqual(Array.from(nav.props.children[1].props.children, (link) => [link.props.href, link.props.children]), [
       ["#work", "작업"], ["#career", "경력"], ["#archive", "이전 프로젝트"], ["#contact", "연락"],
     ]);
   }
@@ -59,7 +62,7 @@ test("glass preview: isolated CSS, accessible targets and reduced motion", () =>
   assert.match(css, /min-height: 44px/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /prefers-reduced-motion: reduce/);
-  assert.doesNotMatch(css, /scroll-behavior|\.joy-|\.site-header|\bhtml\b|\bbody\b|:root/);
+  assert.doesNotMatch(css, /scroll-behavior|\.joy-|\bhtml\b|\bbody\b|:root/);
   assert.match(page, /<GlassNav \/>/);
   assert.match(page, /<header className="site-header">/);
 });
@@ -68,4 +71,17 @@ test("header owns exactly one menu, no duplicate standalone nav", () => {
  assert.equal((page.match(/<GlassNav \/>/g) || []).length, 1);
  assert.match(page, /<header className="site-header">[\s\S]*?<GlassNav \/>[\s\S]*?<\/header>/);
  assert.doesNotMatch(page, /<nav aria-label="주요 메뉴">/);
+});
+
+test("collapsed disclosure and local smooth navigation contracts", () => {
+ const nav = render("");
+ assert.equal(nav.props["data-open"], false);
+ assert.equal(nav.props.children[0].props["aria-expanded"], false);
+ assert.equal(nav.props.children[1].props.inert, true);
+ assert.match(source, /window.scrollTo/);
+ assert.match(source, /"smooth"/);
+ assert.match(source, /prefers-reduced-motion/);
+ assert.match(source, /event.metaKey/);
+ assert.match(source, /onPointerLeave/);
+ assert.match(source, /"Escape"/);
 });
