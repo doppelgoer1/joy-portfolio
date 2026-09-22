@@ -38,19 +38,19 @@ function render(search, server = false) {
 }
 
 test("glass preview: SSR never reads window or flashes the original variant", () => {
-  assert.equal(render("", true), null);
+  assert.equal(render("", true).props.className, undefined);
 });
 
 test("glass preview: default on, exact nav=original off, hero debug query independent", () => {
   for (const search of ["", "?p=0.78", "?nav=glass", "?nav=originally"]) {
     const nav = render(search);
     assert.equal(nav.type, "nav");
-    assert.equal(nav.props["aria-label"], "빠른 메뉴");
+    assert.equal(nav.props["aria-label"], "주요 메뉴");
     assert.deepEqual(Array.from(nav.props.children, (link) => [link.props.href, link.props.children]), [
-      ["#work", "프로젝트"], ["#career", "경력"], ["#contact", "연락"],
+      ["#work", "작업"], ["#career", "경력"], ["#archive", "이전 프로젝트"], ["#contact", "연락"],
     ]);
   }
-  for (const search of ["?nav=original", "?p=0.78&nav=original"]) assert.equal(render(search), null);
+  for (const search of ["?nav=original", "?p=0.78&nav=original"]) assert.equal(render(search).props.className, undefined);
 });
 
 test("glass preview: isolated CSS, accessible targets and reduced motion", () => {
@@ -62,4 +62,10 @@ test("glass preview: isolated CSS, accessible targets and reduced motion", () =>
   assert.doesNotMatch(css, /scroll-behavior|\.joy-|\.site-header|\bhtml\b|\bbody\b|:root/);
   assert.match(page, /<GlassNav \/>/);
   assert.match(page, /<header className="site-header">/);
+});
+
+test("header owns exactly one menu, no duplicate standalone nav", () => {
+ assert.equal((page.match(/<GlassNav \/>/g) || []).length, 1);
+ assert.match(page, /<header className="site-header">[\s\S]*?<GlassNav \/>[\s\S]*?<\/header>/);
+ assert.doesNotMatch(page, /<nav aria-label="주요 메뉴">/);
 });

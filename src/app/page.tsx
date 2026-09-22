@@ -8,15 +8,12 @@ export default function Home() {
   return (
     <>
       <a className="skip-link" href="#work">프로젝트로 바로가기</a>
-      <GlassNav />
       <main id="top">
         <JoyHero />
         <div className="portfolio-content">
           <header className="site-header">
             <a className="wordmark" href="#top" aria-label="Joy 포트폴리오 처음으로"><span aria-hidden="true">[ + ]</span> Joy</a>
-            <nav aria-label="주요 메뉴">
-              <a href="#work">작업</a><a href="#career">경력</a><a href="#archive">이전 프로젝트</a><a href="#contact">연락</a>
-            </nav>
+            <GlassNav />
           </header>
           <section id="work" className="work-section" aria-labelledby="work-title">
             <div className="section-intro">

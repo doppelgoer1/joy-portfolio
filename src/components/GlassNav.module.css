@@ -1,5 +1,5 @@
 /* Preview-only surface: bounded backdrop blur, not simulated refraction. */
-.pill {
+.pill.pill {
   position: fixed;
   top: calc(48px + env(safe-area-inset-top, 0px));
   left: 50%;
@@ -21,7 +21,7 @@
   backdrop-filter: blur(18px) saturate(115%);
 }
 
-.link {
+.pill .link {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,26 +39,27 @@
   transition: background-color 160ms ease-out;
 }
 
-.link:hover { background-color: rgba(255, 255, 255, .12); }
-.link:active { background-color: #7a0c07; }
-.link:focus-visible {
+.pill .link:hover { background-color: rgba(255, 255, 255, .12); }
+.pill .link:active { background-color: #7a0c07; }
+.pill .link:focus-visible {
   outline: 2px solid #f2f2f2;
   outline-offset: -3px;
   background-color: #7a0c07;
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .pill { background: rgba(5, 5, 5, .94); }
+  .pill.pill { background: rgba(5, 5, 5, .94); }
 }
 
 @media (max-width: 780px) {
-  .pill { top: calc(104px + env(safe-area-inset-top, 0px)); }
+  .pill.pill { top: calc(88px + env(safe-area-inset-top, 0px)); }
+  .pill .link { padding-inline: 12px; min-width: 44px; font-size: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .link { transition: none; }
+  .pill .link { transition: none; }
 }
 
 @media print {
-  .pill { display: none; }
+  .pill.pill { display: none; }
 }
