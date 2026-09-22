@@ -4,3 +4,5 @@
 body:has(nav[data-glass="true"]) .joy-stage .door-reveal-layer,
 body:has(nav[data-glass="true"]) .joy-stage .dock-copy { display: none; }
 body:has(nav[data-glass="true"]) .joy-stage + .portfolio-content { margin-top: -180dvh; }
+/* Let the final heading reach the same anchor position instead of hitting page end. */
+body:has(nav[data-glass="true"]) .contact-section { min-height: calc(100svh + 80px); }

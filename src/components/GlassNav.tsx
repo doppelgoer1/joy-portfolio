@@ -37,8 +37,11 @@ export function GlassNav() {
     const target = document.getElementById(id);
     if (!target) return;
     event.preventDefault();
-    const offset = Math.max(parseFloat(getComputedStyle(target).scrollMarginTop) || 0, 160);
-    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - offset);
+    const destination = () => {
+      const heading = target.querySelector("h2") ?? target;
+      const clearance = (root.current?.getBoundingClientRect().bottom ?? 0) + 24;
+      return Math.max(0, heading.getBoundingClientRect().top + window.scrollY - clearance);
+    };
     history.pushState(null, "", `#${id}`);
     if (event.detail === 0 && keyboard.current) {
       toggle.current?.focus({ preventScroll: true });
@@ -48,7 +51,7 @@ export function GlassNav() {
     }
     setOpen(false);
     cancelScroll.current?.();
-    cancelScroll.current = animateMenuScroll(top);
+    cancelScroll.current = animateMenuScroll(destination);
   }
 
   if (!glass) return <nav aria-label="주요 메뉴">{links.map(([id, label]) => <a key={id} href={`#${id}`}>{label}</a>)}</nav>;

@@ -78,7 +78,7 @@ test("collapsed disclosure and local smooth navigation contracts", () => {
  assert.equal(nav.props["data-open"], false);
  assert.equal(nav.props.children[0].props["aria-expanded"], false);
  assert.equal(nav.props.children[1].props.inert, true);
- assert.match(source, /animateMenuScroll\(top\)/);
+ assert.match(source, /animateMenuScroll\(destination\)/);
  assert.match(source, /cancelScroll.current\?\.\(\)/);
  assert.match(source, /event.metaKey/);
  assert.match(source, /onPointerLeave/);

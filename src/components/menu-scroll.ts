@@ -13,8 +13,9 @@ export function scrollSegments(from: number, to: number, heroEnd: number) {
 }
 
 // Only menu-driven movement is animated. Native wheel/touch scrolling stays untouched.
-export function animateMenuScroll(top: number): () => void {
-  const target = Math.min(top, Math.max(0, document.documentElement.scrollHeight - innerHeight));
+export function animateMenuScroll(destination: number | (() => number)): () => void {
+  const resolveTarget = () => Math.min(typeof destination === "function" ? destination() : destination, Math.max(0, document.documentElement.scrollHeight - innerHeight));
+  const target = resolveTarget();
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
     window.scrollTo({ top: target, behavior: "instant" });
     return () => {};
@@ -45,7 +46,8 @@ export function animateMenuScroll(top: number): () => void {
     const p = segment.duration === 0 ? 1 : Math.min(1, (now - started) / segment.duration);
     // Gentle starts/stops while retaining enough time for the original hero's 0.12 interpolation.
     const eased = p * p * (3 - 2 * p);
-    window.scrollTo({ top: segment.from + (segment.to - segment.from) * eased, behavior: "instant" });
+    const end = index === segments.length - 1 ? resolveTarget() : segment.to;
+    window.scrollTo({ top: segment.from + (end - segment.from) * eased, behavior: "instant" });
     if (p === 1) {
       index++;
       started = null;
