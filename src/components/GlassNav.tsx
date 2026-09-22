@@ -40,7 +40,12 @@ export function GlassNav() {
     const offset = Math.max(parseFloat(getComputedStyle(target).scrollMarginTop) || 0, 160);
     const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - offset);
     history.pushState(null, "", `#${id}`);
-    toggle.current?.focus({ preventScroll: true });
+    if (event.detail === 0 && keyboard.current) {
+      toggle.current?.focus({ preventScroll: true });
+    } else {
+      keyboard.current = false;
+      (document.activeElement as HTMLElement | null)?.blur();
+    }
     setOpen(false);
     cancelScroll.current?.();
     cancelScroll.current = animateMenuScroll(top);
@@ -56,7 +61,7 @@ export function GlassNav() {
       onFocusCapture={(event) => { if (event.target.matches(":focus-visible")) { keyboard.current = true; setOpen(true); } }}
       onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) { keyboard.current = false; setOpen(false); } }}
       onKeyDown={(event) => { keyboard.current = true; if (event.key === "Escape") { event.preventDefault(); toggle.current?.focus(); setOpen(false); } }}>
-      <button ref={toggle} type="button" className={styles.toggle} aria-label={open ? "메뉴 닫기" : "메뉴 열기"} aria-expanded={open} aria-controls="glass-menu-links" onClick={() => setOpen(!open)}>
+      <button ref={toggle} type="button" className={styles.toggle} aria-label={open ? "메뉴 닫기" : "메뉴 열기"} aria-expanded={open} aria-controls="glass-menu-links" onClick={(event) => { setOpen(!open); if (event.detail > 0) { keyboard.current = false; if (open) event.currentTarget.blur(); } }}>
         <span className={styles.icon} aria-hidden="true"><span /><span /></span>
       </button>
       <div id="glass-menu-links" className={styles.links} inert={!open} aria-hidden={!open}>

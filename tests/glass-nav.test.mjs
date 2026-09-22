@@ -84,3 +84,16 @@ test("collapsed disclosure and local smooth navigation contracts", () => {
  assert.match(source, /onPointerLeave/);
  assert.match(source, /"Escape"/);
 });
+
+test("pointer navigation releases focus but keyboard activation retains it", () => {
+ assert.match(source, /event.detail === 0 && keyboard.current/);
+ assert.match(source, /document.activeElement/);
+ assert.match(source, /\?\.blur\(\)/);
+});
+test("preview removes duplicate slate and its scroll hold without editing original hero", () => {
+ const css = readFileSync(new URL("../src/app/preview-transitions.css", import.meta.url), "utf8");
+ assert.match(css, /body:has\(nav\[data-glass="true"\]\)/);
+ assert.match(css, /\.door-reveal-layer/);
+ assert.match(css, /\.dock-copy/);
+ assert.match(css, /margin-top: -180dvh/);
+});

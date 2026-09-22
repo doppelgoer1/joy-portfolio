@@ -3,6 +3,7 @@ import { JoyHero } from "../components/JoyHero";
 import { WorkStage } from "../components/WorkStage";
 import { archive, career, githubUrl, previousPortfolio, projects } from "../data/portfolio";
 import "./portfolio-editorial.css";
+import "./preview-transitions.css";
 
 export default function Home() {
   return (

@@ -1,0 +1,6 @@
+/* Preview only: remove the duplicate end slate, keep the original hero implementation
+   and early stack timing intact. The real work section enters as the CSS1 doors open,
+   rather than adding an empty viewport after hidden text. Original query stays intact. */
+body:has(nav[data-glass="true"]) .joy-stage .door-reveal-layer,
+body:has(nav[data-glass="true"]) .joy-stage .dock-copy { display: none; }
+body:has(nav[data-glass="true"]) .joy-stage + .portfolio-content { margin-top: -180dvh; }
