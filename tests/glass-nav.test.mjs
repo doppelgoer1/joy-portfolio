@@ -32,7 +32,7 @@ function render(search, server = false) {
         assert.equal(listeners.size, 0);
         return snapshot();
       },
-    } : name.endsWith(".css") ? { default: { pill: "pill", link: "link" } } : require(name),
+    } : name === "./menu-scroll" ? { animateMenuScroll: () => () => {} } : name.endsWith(".css") ? { default: { pill: "pill", link: "link" } } : require(name),
   };
   vm.runInNewContext(ts.transpileModule(source, { compilerOptions: {
     jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS,
@@ -78,9 +78,8 @@ test("collapsed disclosure and local smooth navigation contracts", () => {
  assert.equal(nav.props["data-open"], false);
  assert.equal(nav.props.children[0].props["aria-expanded"], false);
  assert.equal(nav.props.children[1].props.inert, true);
- assert.match(source, /window.scrollTo/);
- assert.match(source, /"smooth"/);
- assert.match(source, /prefers-reduced-motion/);
+ assert.match(source, /animateMenuScroll\(top\)/);
+ assert.match(source, /cancelScroll.current\?\.\(\)/);
  assert.match(source, /event.metaKey/);
  assert.match(source, /onPointerLeave/);
  assert.match(source, /"Escape"/);

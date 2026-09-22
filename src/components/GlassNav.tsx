@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
 import styles from "./GlassNav.module.css";
+import { animateMenuScroll } from "./menu-scroll";
 
 function subscribe(onChange: () => void) {
   window.addEventListener("popstate", onChange);
@@ -19,6 +20,8 @@ export function GlassNav() {
   const root = useRef<HTMLElement>(null);
   const toggle = useRef<HTMLButtonElement>(null);
   const keyboard = useRef(false);
+  const cancelScroll = useRef<(() => void) | null>(null);
+  useEffect(() => () => cancelScroll.current?.(), []);
 
   useEffect(() => {
     if (!glass || !open) return;
@@ -39,7 +42,8 @@ export function GlassNav() {
     history.pushState(null, "", `#${id}`);
     toggle.current?.focus({ preventScroll: true });
     setOpen(false);
-    window.scrollTo({ top, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    cancelScroll.current?.();
+    cancelScroll.current = animateMenuScroll(top);
   }
 
   if (!glass) return <nav aria-label="주요 메뉴">{links.map(([id, label]) => <a key={id} href={`#${id}`}>{label}</a>)}</nav>;
