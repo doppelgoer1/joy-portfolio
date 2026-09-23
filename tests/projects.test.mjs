@@ -23,10 +23,10 @@ test("9a4ec88 기준 JoyHero 전체·CSS prefix·갱신한 모션 테스트 snap
   assert.equal(hash(read("tests/motion.test.mjs")), baseline.motionTestSha256);
 });
 
-test("WorkStage는 이전 프로젝트 상세 추가 이전과 바이트 단위로 동일, 주요 프로젝트는 여전히 셋", () => {
-  assert.equal(hash(read("src/components/WorkStage.tsx")), "7e35aea19ead15d089d9d497feca56288ba05b2a4abc28dc273a39e6a0c369af");
+test("스크롤 쇼케이스의 주요 프로젝트는 여전히 셋, 상세 내용은 개별 페이지 보존", () => {
   assert.deepEqual(projects.map(({ id }) => id), ["h-works", "fatespoiler", "moduerp"]);
-  assert.match(pages.get("/"), /class="stage-counter eyebrow" aria-live="polite">01 \/ 03 · H-Works</);
+  assert.match(pages.get("/"), /class="scroll-showcase"/);
+  assert.doesNotMatch(pages.get("/"), /role="tablist"/);
 });
 
 test("신규 CSS의 모든 일반 선택자는 portfolio-content 하위에만 적용", () => {

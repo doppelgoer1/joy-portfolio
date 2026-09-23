@@ -4,6 +4,7 @@ import { WorkStage } from "../components/WorkStage";
 import { archive, career, githubUrl, previousPortfolio, projects } from "../data/portfolio";
 import "./portfolio-editorial.css";
 import "./preview-transitions.css";
+import "./scroll-showcase.css";
 
 export default function Home() {
   return (
@@ -17,9 +18,9 @@ export default function Home() {
             <GlassNav />
           </header>
           <section id="work" className="work-section" aria-labelledby="work-title">
-            <div className="section-intro">
-              <p className="eyebrow">01 / Selected work</p>
-              <div className="intro-heading"><h2 id="work-title">주요<br /><span>프로젝트</span></h2><p>H-Solution에서 맡은<br />세 가지 프로젝트입니다.<br />카드를 골라 담당 업무를 확인하세요.</p></div>
+            <div className="showcase-intro">
+              <h2 id="work-title">주요 프로젝트 / Selected work</h2>
+              <p className="eyebrow">Scroll to explore ↓</p>
             </div>
             <WorkStage projects={projects} />
           </section>

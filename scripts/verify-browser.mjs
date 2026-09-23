@@ -17,6 +17,9 @@ async function capture(page, name) {
 }
 
 async function checkPage(page, name) {
+  await page.evaluate(async () => {
+    await Promise.all([...document.images].map(image => { image.loading = 'eager'; return image.decode().catch(() => {}); }));
+  });
   const metrics = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth - innerWidth,
     headings: document.querySelectorAll("h1").length,
@@ -48,6 +51,7 @@ async function checkHero(page, name) {
       doorOpen: Number(document.documentElement.style.getPropertyValue("--css1-door-open")),
       reveal: Number(document.documentElement.style.getPropertyValue("--css1-reveal-opacity")),
       splitX: ["left", "right"].map((side) => parseFloat(document.documentElement.style.getPropertyValue(`--css1-text-${side}-x`))),
+      doorWidth: ["::before", "::after"].map((pseudo) => parseFloat(getComputedStyle(document.querySelector('[data-stack="CSS1"]'), pseudo).width)),
       doorX: ["::before", "::after"].map((pseudo) => new DOMMatrixReadOnly(getComputedStyle(document.querySelector('[data-stack="CSS1"]'), pseudo).transform).m41),
       textX: [...document.querySelectorAll(".split-text")].map((text) => new DOMMatrixReadOnly(getComputedStyle(text).transform).m41),
       revealOpacity: Number(getComputedStyle(document.querySelector(".door-reveal-layer")).opacity),
@@ -72,7 +76,7 @@ async function checkHero(page, name) {
         // Root variables are rounded to four decimals; pseudo doors are 50.1% wide.
         assert.ok(Math.abs(state.splitX[index] - direction * shift) < 0.1);
         assert.ok(Math.abs(state.textX[index] - state.splitX[index]) < 0.02);
-        assert.ok(Math.abs(state.doorX[index] - direction * state.doorOpen * 1.12 * state.width * 0.501 * 1.02) < 0.15);
+        assert.ok(Math.abs(state.doorX[index] - direction * state.doorOpen * state.doorWidth[index] * 1.02) < 0.15);
       }
       assert.equal(state.text[6].x, 0);
       assert.equal(state.text[6].y, 0);
@@ -124,68 +128,88 @@ try {
     await capture(page, `${name}-hero`);
 
     await checkHero(page, name);
-    for (const id of ["work", "h-works", "fatespoiler", "moduerp", "career", "archive", "contact"]) {
-      const tab = page.locator(`#${id}-tab`);
-      if (await tab.count()) {
-        await tab.click();
-        await page.waitForTimeout(900);
-        assert.equal(await tab.getAttribute("aria-selected"), "true");
-        assert.equal(await tab.getAttribute("data-position"), "0");
+    await page.evaluate(() => scrollTo(0, 0));
+    const positions = await page.locator('.showcase-panel').evaluateAll(els => els.map(el => el.getBoundingClientRect().top + scrollY));
+    const compact = await page.evaluate(() => document.querySelector('#h-works').getBoundingClientRect().top - document.querySelector('#work').getBoundingClientRect().top);
+    assert.ok(compact < 110, `${name}: compact intro ${compact}`);
+    const animated = options.viewport.width >= 1000 && options.viewport.height >= 700 && options.reducedMotion !== 'reduce';
+    const samples = [];
+    for (const [index, y] of [positions[0] - 80, positions[0] - 80 + 300, positions[0] - 80 + 500, positions[0] - 80 + 300, positions[0] - 80].entries()) {
+      await page.evaluate(y => scrollTo(0, y), y);
+      await page.waitForTimeout(120);
+      const sample = await page.locator('#h-works .showcase-surface').evaluate(el => ({ transform: getComputedStyle(el).transform, scale: new DOMMatrixReadOnly(getComputedStyle(el).transform).a }));
+      samples.push(sample);
+      await capture(page, `${name}-scroll-${index}`);
+    }
+    if (animated) {
+      assert.ok(samples[1].scale < samples[0].scale, `${name}: forward recedes`);
+      assert.ok(samples[2].scale < samples[1].scale);
+      assert.ok(Math.abs(samples[3].scale - samples[1].scale) < .0001, `${name}: reversible`);
+      assert.ok(Math.abs(samples[4].scale - samples[0].scale) < .0001);
+    } else assert.ok(samples.every(s => s.transform === 'none'));
+    results.push({ name: `${name}-reversible`, animated, samples });
+    for (const [index, id] of ['h-works', 'fatespoiler', 'moduerp'].entries()) {
+      await page.evaluate(y => scrollTo(0, y - 80), positions[index]);
+      await page.waitForTimeout(120);
+      assert.equal(await page.locator(`#${id}`).isVisible(), true);
+      if (animated) {
+        const bottom = await page.locator(`#${id} .showcase-foot`).evaluate(el => el.getBoundingClientRect().bottom);
+        assert.ok(bottom <= options.viewport.height + 1, `${name}: ${id} must fit, bottom=${bottom}`);
       }
-      await page.locator(`#${id}`).evaluate((element) => element.scrollIntoView());
-      await page.waitForTimeout(150);
       await checkPage(page, `${name}-${id}`);
       await capture(page, `${name}-${id}`);
+      for (const selector of ['.case-read-link', '.showcase-service']) {
+        const link = page.locator(`#${id} ${selector}`);
+        await link.focus();
+        assert.equal(await link.evaluate(el => { const r=el.getBoundingClientRect(); return el.contains(document.elementFromPoint(r.x+r.width/2, r.y+r.height/2)); }), true, `${name}: ${id} ${selector} unobscured`);
+        await link.evaluate(el => el.blur());
+      }
     }
-    if (name === "desktop") {
-      await page.locator("#fatespoiler").evaluate((element) => {
-        scrollTo(0, scrollY + element.getBoundingClientRect().top - innerHeight * 0.6);
-      });
-      await capture(page, "desktop-project-overlap");
-      await page.emulateMedia({ reducedMotion: "reduce" });
-      assert.equal(await page.locator(".joy-pin").evaluate((element) => getComputedStyle(element).position), "sticky");
-      assert.equal(await page.locator(".project-case").first().evaluate((element) => getComputedStyle(element).position), "relative");
-      await page.emulateMedia({ reducedMotion: "no-preference" });
-      assert.equal(await page.locator(".joy-pin").evaluate((element) => getComputedStyle(element).position), "sticky");
+    if (animated) {
+      await page.locator('#h-works .showcase-service').focus();
+      await page.evaluate(y => scrollTo(0, y - 80), positions[1]);
+      await page.mouse.wheel(0, 40);
+      await page.waitForTimeout(200);
+      assert.equal(await page.evaluate(() => document.elementFromPoint(innerWidth / 2, 300)?.closest('article')?.id), 'fatespoiler', `${name}: manual scroll releases old panel focus elevation`);
     }
-    if (name.includes("mobile") || name === "reduced-motion") {
-      assert.equal(await page.locator(".project-case").first().evaluate((element) => getComputedStyle(element).position), "relative");
+    for (const id of ['career', 'archive', 'contact']) {
+      await page.locator(`#${id}`).evaluate(el => el.scrollIntoView());
+      await page.waitForTimeout(120);
+      await checkPage(page, `${name}-${id}`);
     }
-    await page.goto(url, { waitUntil: "networkidle" });
-    await page.keyboard.press("Tab");
-    assert.equal(await page.evaluate(() => document.activeElement.className), "skip-link");
-    await page.keyboard.press("Enter");
-    assert.ok(page.url().endsWith("#work"));
-    // Arrow keys move both selection and focus between the stage cards; only the selected panel stays visible.
-    await page.locator("#h-works-tab").focus();
-    await page.keyboard.press("ArrowRight");
-    assert.equal(await page.evaluate(() => document.activeElement.id), "fatespoiler-tab");
-    assert.equal(await page.locator("#fatespoiler").isVisible(), true);
-    assert.equal(await page.locator("#h-works").isHidden(), true);
-    await page.keyboard.press("End");
-    assert.equal(await page.evaluate(() => document.activeElement.id), "moduerp-tab");
-    assert.equal(await page.locator("#moduerp-tab").getAttribute("data-position"), "0");
-    for (const project of ["h-works", "fatespoiler", "moduerp"]) {
-      await page.locator(`#${project}-tab`).click();
-      await page.waitForTimeout(600);
-      const link = page.locator(`#${project} a[target="_blank"]`);
-      await link.focus();
-      assert.equal(await link.evaluate((element) => {
-        const rect = element.getBoundingClientRect();
-        const point = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
-        return element.contains(point);
-      }), true, `${name}: ${project} link must be unobscured on focus`);
+    if (animated) {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      assert.equal(await page.locator('.showcase-panel').first().evaluate(el => getComputedStyle(el).position), 'relative');
+      assert.equal(await page.locator('.showcase-surface').first().evaluate(el => getComputedStyle(el).transform), 'none');
     }
+    await page.goto(url, { waitUntil: 'networkidle' });
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => document.activeElement.className), 'skip-link');
+    await page.keyboard.press('Enter');
+    assert.ok(page.url().endsWith('#work'));
+    await page.goto(`${url}/#fatespoiler`, { waitUntil: 'networkidle' });
+    assert.equal(await page.locator('#fatespoiler').isVisible(), true);
+    await page.locator('#fatespoiler .case-read-link').click();
+    await page.waitForURL('**/projects/fatespoiler');
+    assert.equal(await page.locator('h1').textContent(), 'FateSpoiler');
+    await page.goBack({ waitUntil: 'networkidle' });
+    assert.ok(page.url().endsWith('#fatespoiler'));
     assert.deepEqual(errors, [], `${name}: console errors`);
     await page.close();
   }
 
-  const page = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
-  await page.goto(url);
-  assert.equal(await page.locator(".project-case").count(), 3);
-  await checkPage(page, "no-javascript");
-  await capture(page, "no-javascript-hero");
-  await page.close();
+  for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1100 }]) {
+    const page = await browser.newPage({ javaScriptEnabled: false, viewport });
+    await page.goto(url);
+    assert.equal(await page.locator('.showcase-panel').count(), 3);
+    for (const id of ['h-works', 'fatespoiler', 'moduerp']) {
+      await page.locator(`#${id}`).evaluate(el => el.scrollIntoView());
+      assert.equal(await page.locator(`#${id}`).isVisible(), true);
+      await capture(page, `no-javascript-${viewport.width}-${id}`);
+    }
+    await checkPage(page, `no-javascript-${viewport.width}`);
+    await page.close();
+  }
   await writeFile(join(output, "results.json"), JSON.stringify({ status: "passed", results }, null, 2));
   console.log(`Browser checks passed. Screenshots: ${output}`);
 } catch (error) {
