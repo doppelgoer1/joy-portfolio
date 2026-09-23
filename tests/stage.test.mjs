@@ -8,7 +8,7 @@ const stage = home.slice(home.indexOf('class="scroll-showcase"'), home.indexOf('
 
 test("native showcase: all three semantic articles visible in SSR, no carousel", () => {
   assert.equal((stage.match(/<article /g) || []).length, 3);
-  assert.doesNotMatch(stage, /role="tab|\shidden=|<button|<img|<canvas/);
+  assert.doesNotMatch(stage, /role="tab|\shidden=|<img|<canvas/);
   let previous = -1;
   for (const project of projects) {
     const start = stage.indexOf(`id="${project.id}"`);
@@ -23,26 +23,27 @@ test("native showcase: all three semantic articles visible in SSR, no carousel",
     assert.doesNotMatch(panel, /chapter-card|contribution-list/);
   }
 });
-test("scroll is passive, frame-coalesced, reversible and cleaned up", () => {
-  const source = read('src/components/WorkStage.tsx');
+test("scene scroll is passive, frame-coalesced and cleaned up; no blur/elevation kludge", () => {
+  const source = read('src/components/HWorksScene.tsx');
   assert.match(source, /passive: true/);
   assert.match(source, /if \(!frame\) frame = requestAnimationFrame/);
   assert.match(source, /cancelAnimationFrame\(frame\)/);
   assert.match(source, /removeEventListener\("scroll"/);
   assert.match(source, /media.removeEventListener/);
-  assert.doesNotMatch(source, /preventDefault|\shidden=|setInterval/);
-  for (const event of ['wheel', 'touchmove']) {
-    assert.ok(source.includes(`addEventListener("${event}", releasePointerFocus, { passive: true })`));
-    assert.ok(source.includes(`removeEventListener("${event}", releasePointerFocus)`));
-  }
-  assert.match(source, /element.contains\(active\)\) active.blur\(\)/);
+  assert.doesNotMatch(source, /preventDefault|setInterval/);
+  const panels = read('src/components/WorkStage.tsx');
+  assert.match(panels, /addEventListener\("focusin", revealFocus\)/);
+  assert.match(panels, /elementFromPoint/);
+  assert.match(panels, /siblings.slice\(0, siblings.indexOf\(panel\)\)/);
+  assert.doesNotMatch(panels, /\.blur\(|releasePointerFocus|--recede/);
 });
-test("scoped sticky panels with short/mobile/reduced fallback and compact intro", () => {
+test("scoped, measured sticky panels with static/mobile/reduced fallback", () => {
   const css = read('src/app/scroll-showcase.css');
-  assert.match(css, /position: sticky; top: 80px/);
+  assert.match(css, /data-sticky="true"/);
   assert.match(css, /min-height: 700px/);
   assert.match(css, /prefers-reduced-motion: reduce/);
-  assert.match(css, /:focus-within/);
+  assert.doesNotMatch(css, /:focus-within/);
+  assert.match(read('src/components/WorkStage.tsx'), /heights\[index\] <= innerHeight - 80/);
   assert.doesNotMatch(css, /\.joy-|\.stack-|:root|(?:^|})\s*body\s*\{/);
   assert.doesNotMatch(read('src/app/page.tsx'), /className="section-intro"|카드를 골라/);
 });

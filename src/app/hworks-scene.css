@@ -1,0 +1,88 @@
+/* Static, readable document first. Only the measured JS enhancement pins it. */
+.portfolio-content .hworks-scene { --hw-red: #b51c13; position: relative; background: var(--ink); color: var(--paper); scroll-margin-top: 88px; }
+.portfolio-content .hworks-visual { position: relative; }
+.portfolio-content .hworks-curtain { position: relative; padding: 24px var(--gutter); background: var(--ink); }
+.portfolio-content .hworks-meta { display: flex; justify-content: space-between; gap: 16px; }
+.portfolio-content .hworks-heading { position: relative; margin-top: 24px; }
+.portfolio-content .hworks-heading h3 { font-size: clamp(56px, 10vw, 160px); line-height: .95; letter-spacing: -.075em; text-transform: uppercase; }
+.portfolio-content .hworks-heading p { margin-top: 12px; font-size: 12px; }
+.portfolio-content .hworks-domains { position: relative; margin-top: 40px; }
+.portfolio-content .hworks-domain { padding-block: 12px; border-top: 1px solid currentColor; }
+.portfolio-content .hworks-domain > span { display: block; font-size: clamp(30px, 7vw, 100px); font-weight: 800; line-height: 1; letter-spacing: -.065em; }
+.portfolio-content .hworks-domain--1 > span { font-family: Georgia, serif; font-style: italic; font-weight: 400; }
+.portfolio-content .hworks-domain small { display: block; margin-top: 8px; font-size: 12px; }
+.portfolio-content .hworks-domains figcaption { font-size: 10px; margin-top: 20px; }
+.portfolio-content .hworks-reading { position: relative; padding: 28px var(--gutter) 36px; max-width: 900px; }
+.portfolio-content .hworks-copy h4 { font-size: clamp(28px, 3vw, 42px); line-height: 1.2; letter-spacing: -.045em; margin-block: 12px; }
+.portfolio-content .hworks-role { font-size: 14px; font-weight: 700; }
+.portfolio-content .hworks-summary { font-size: 14px; margin-top: 10px; }
+.portfolio-content .hworks-copy ul { list-style: none; margin-top: 16px; }
+.portfolio-content .hworks-copy li { border-top: 1px solid #ffffff40; padding-block: 7px; font-size: 13px; line-height: 1.6; word-break: keep-all; overflow-wrap: anywhere; }
+.portfolio-content .hworks-note { font-size: 11px; margin-top: 12px; }
+.portfolio-content .hworks-links .case-read-link { min-height: 48px; margin-top: 18px; border-color: currentColor; }
+.portfolio-content .hworks-giant, .portfolio-content .hworks-red, .portfolio-content .hworks-handoff, .portfolio-content .hworks-read-gate { display: none; }
+
+@media (prefers-reduced-motion: no-preference) and (min-height: 600px) {
+  .portfolio-content .hworks-scene[data-enhanced="true"] { height: calc(390svh - 72px); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-track { height: 100%; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-pin { position: sticky; top: 72px; height: calc(100svh - 72px); overflow: clip; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-visual { position: absolute; inset: 0; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-curtain { height: 100%; clip-path: inset(0 calc(var(--hw-exit, 0) * 50%) 0); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-red { display: block; position: absolute; inset: 0; background: var(--hw-red); transform: scaleX(var(--hw-slit, 0)); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-meta { position: relative; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-heading { margin-top: 24px; opacity: calc(var(--hw-dock, 0) * var(--hw-ink, 1)); transform: translateY(calc((1 - var(--hw-dock, 0)) * -24px)); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-heading h3 { font-size: clamp(40px, 5.8vw, 88px); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-heading p { margin-top: 8px; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-giant { display: grid; place-items: center; position: absolute; inset: 0; font-size: 21.4vw; font-weight: 900; line-height: 1; letter-spacing: -.085em; white-space: nowrap; opacity: var(--hw-title-opacity, 1); transform: translateY(var(--hw-enter-y, 24vh)) scale(var(--hw-title-scale, .64)); pointer-events: none; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-giant > span { grid-area: 1 / 1; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-giant > span:first-child { clip-path: inset(0 50% 0 0); transform: translateX(calc(var(--hw-title-x, 0vw) * -1)); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-giant > span:last-child { clip-path: inset(0 0 0 50%); transform: translateX(var(--hw-title-x, 0vw)); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-domains { position: absolute; left: var(--gutter); right: var(--gutter); top: 22%; margin: 0; opacity: var(--hw-ink, 1); transform-origin: left center; transform: translateY(calc(var(--hw-dock, 0) * 30px)) scale(calc(1 - var(--hw-dock, 0) * .53)); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-domain { padding-block: 6px; --arrival: var(--hw-domain-0, 0); opacity: var(--arrival); transform: translate(calc((1 - var(--arrival)) * -65vw), calc((1 - var(--arrival)) * 70px)) rotate(calc((1 - var(--arrival)) * -12deg)); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-domain--1 { --arrival: var(--hw-domain-1, 0); transform: translateX(calc((1 - var(--arrival)) * 85vw)); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-domain--2 { --arrival: var(--hw-domain-2, 0); transform: translateY(calc((1 - var(--arrival)) * 40vh)) rotate(calc((1 - var(--arrival)) * 8deg)); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-domain > span { font-size: clamp(64px, 8vw, 136px); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-domain small { font-size: 24px; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-domains figcaption { font-size: 20px; opacity: var(--hw-domain-2, 0); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-reading { position: absolute; top: 100px; right: var(--gutter); width: 44%; padding: 0 0 24px; opacity: var(--hw-copy, 0); transform: translateY(calc((1 - var(--hw-copy, 0)) * 44px)); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-links { visibility: hidden; }
+  .portfolio-content .hworks-scene[data-enhanced="true"][data-readable="true"] .hworks-links { visibility: visible; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-read-gate { display: flex; gap: 28px; align-items: center; position: absolute; bottom: 24px; right: var(--gutter); min-height: 44px; background: var(--ink); color: var(--paper); border: 1px solid currentColor; padding: 8px 16px; font: inherit; font-size: 12px; cursor: pointer; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-read-gate:focus-visible { outline: 3px solid var(--paper); outline-offset: 4px; }
+  .portfolio-content .hworks-scene[data-enhanced="true"][data-readable="true"] .hworks-read-gate { visibility: hidden; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-handoff { display: flex; flex-direction: column; justify-content: center; position: absolute; inset: 0; padding: 24px var(--gutter); background: #7a0c07; gap: 24px; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-handoff strong { font: italic 400 clamp(60px, 13vw, 200px)/1 Georgia, serif; letter-spacing: -.065em; transform: translateY(calc((1 - var(--hw-exit, 0)) * 100px)); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-handoff > span:last-child { font-size: 13px; }
+}
+
+@media (min-width: 900px) {
+  /* Identical reading width in both modes makes the fit measurement stable. */
+  .portfolio-content .hworks-reading { width: 44%; max-width: none; margin: 28px var(--gutter) 0 auto; padding: 0 0 24px; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-reading { margin: 0; }
+}
+
+/* Three mobile visual phases, followed by unrestricted reading in document flow. */
+@media (max-width: 899px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
+  .portfolio-content .hworks-scene[data-enhanced="true"] { height: auto; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-track { height: auto; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-pin { position: relative; top: auto; height: auto; overflow: visible; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-visual { position: sticky; top: 72px; height: calc(100svh - 72px); overflow: clip; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-curtain { padding-block: 20px; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-meta { font-size: 9px; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-heading { margin-top: 18px; opacity: var(--hw-dock, 0); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-heading h3 { font-size: 12vw; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-domains { top: 30%; opacity: 1; transform: translateY(calc(var(--hw-dock, 0) * 35px)) scale(calc(1 - var(--hw-dock, 0) * .18)); }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-domain { padding-block: 8px; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-domain > span { font-size: 10vw; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-domain small { font-size: 11px; margin-top: 4px; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-domains figcaption { margin-top: 10px; font-size: 10px; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-reading { position: relative; top: auto; right: auto; width: auto; max-width: none; margin-top: 160svh; padding: 28px var(--gutter) 36px; background: var(--hw-red); opacity: 1; transform: none; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-links { visibility: visible; }
+  .portfolio-content .hworks-scene[data-enhanced="true"] .hworks-read-gate { display: none; }
+}
+@media (min-width: 900px) and (max-height: 760px) {
+  .portfolio-content .hworks-copy h4 { font-size: 30px; }
+  .portfolio-content .hworks-role, .portfolio-content .hworks-summary { font-size: 13px; }
+  .portfolio-content .hworks-copy li { font-size: 12px; padding-block: 5px; }
+  .portfolio-content .hworks-copy ul { margin-top: 12px; }
+}

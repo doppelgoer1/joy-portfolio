@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { verifyHWorks } from "./verify-hworks.mjs";
 import { createRequire } from "node:module";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -112,11 +113,14 @@ try {
     { name: "desktop", viewport: { width: 1440, height: 1100 }, reducedMotion: "no-preference" },
     { name: "laptop", viewport: { width: 1366, height: 768 }, reducedMotion: "no-preference" },
     { name: "short-laptop", viewport: { width: 1366, height: 700 }, reducedMotion: "no-preference" },
+    { name: "desktop-1280", viewport: { width: 1280, height: 720 }, reducedMotion: "no-preference" },
+    { name: "desktop-1024", viewport: { width: 1024, height: 700 }, reducedMotion: "no-preference" },
+    { name: "short-fallback", viewport: { width: 1280, height: 580 }, reducedMotion: "no-preference" },
     { name: "tablet", viewport: { width: 820, height: 1180 }, reducedMotion: "no-preference" },
     { name: "mobile", viewport: { width: 390, height: 844 }, reducedMotion: "no-preference", isMobile: true, hasTouch: true },
     { name: "small-mobile", viewport: { width: 320, height: 740 }, reducedMotion: "no-preference", isMobile: true, hasTouch: true },
     { name: "reduced-motion", viewport: { width: 1440, height: 1100 }, reducedMotion: "reduce" },
-  ]) {
+  ].filter(config => !process.env.PORTFOLIO_VIEWPORTS || process.env.PORTFOLIO_VIEWPORTS.split(',').includes(config.name))) {
     const { name, ...options } = config;
     const page = await browser.newPage(options);
     const errors = [];
@@ -129,48 +133,31 @@ try {
 
     await checkHero(page, name);
     await page.evaluate(() => scrollTo(0, 0));
-    const positions = await page.locator('.showcase-panel').evaluateAll(els => els.map(el => el.getBoundingClientRect().top + scrollY));
     const compact = await page.evaluate(() => document.querySelector('#h-works').getBoundingClientRect().top - document.querySelector('#work').getBoundingClientRect().top);
     assert.ok(compact < 110, `${name}: compact intro ${compact}`);
+    await verifyHWorks(page, options.viewport, options.reducedMotion === 'reduce', capture);
     const animated = options.viewport.width >= 1000 && options.viewport.height >= 700 && options.reducedMotion !== 'reduce';
-    const samples = [];
-    for (const [index, y] of [positions[0] - 80, positions[0] - 80 + 300, positions[0] - 80 + 500, positions[0] - 80 + 300, positions[0] - 80].entries()) {
-      await page.evaluate(y => scrollTo(0, y), y);
-      await page.waitForTimeout(120);
-      const sample = await page.locator('#h-works .showcase-surface').evaluate(el => ({ transform: getComputedStyle(el).transform, scale: new DOMMatrixReadOnly(getComputedStyle(el).transform).a }));
-      samples.push(sample);
-      await capture(page, `${name}-scroll-${index}`);
-    }
-    if (animated) {
-      assert.ok(samples[1].scale < samples[0].scale, `${name}: forward recedes`);
-      assert.ok(samples[2].scale < samples[1].scale);
-      assert.ok(Math.abs(samples[3].scale - samples[1].scale) < .0001, `${name}: reversible`);
-      assert.ok(Math.abs(samples[4].scale - samples[0].scale) < .0001);
-    } else assert.ok(samples.every(s => s.transform === 'none'));
-    results.push({ name: `${name}-reversible`, animated, samples });
-    for (const [index, id] of ['h-works', 'fatespoiler', 'moduerp'].entries()) {
-      await page.evaluate(y => scrollTo(0, y - 80), positions[index]);
+    for (const id of ['fatespoiler', 'moduerp']) {
+      await page.locator(`#${id}`).evaluate(el => { const root = el.parentElement; const siblings = [...root.children]; const before = siblings.slice(0, siblings.indexOf(el)).reduce((sum, item) => sum + item.offsetHeight, 0); scrollTo({ top: root.getBoundingClientRect().top + scrollY + before - 80, behavior: 'instant' }); });
       await page.waitForTimeout(120);
       assert.equal(await page.locator(`#${id}`).isVisible(), true);
-      if (animated) {
-        const bottom = await page.locator(`#${id} .showcase-foot`).evaluate(el => el.getBoundingClientRect().bottom);
-        assert.ok(bottom <= options.viewport.height + 1, `${name}: ${id} must fit, bottom=${bottom}`);
-      }
       await checkPage(page, `${name}-${id}`);
       await capture(page, `${name}-${id}`);
       for (const selector of ['.case-read-link', '.showcase-service']) {
         const link = page.locator(`#${id} ${selector}`);
         await link.focus();
         assert.equal(await link.evaluate(el => { const r=el.getBoundingClientRect(); return el.contains(document.elementFromPoint(r.x+r.width/2, r.y+r.height/2)); }), true, `${name}: ${id} ${selector} unobscured`);
-        await link.evaluate(el => el.blur());
       }
     }
     if (animated) {
-      await page.locator('#h-works .showcase-service').focus();
-      await page.evaluate(y => scrollTo(0, y - 80), positions[1]);
-      await page.mouse.wheel(0, 40);
-      await page.waitForTimeout(200);
-      assert.equal(await page.evaluate(() => document.elementFromPoint(innerWidth / 2, 300)?.closest('article')?.id), 'fatespoiler', `${name}: manual scroll releases old panel focus elevation`);
+      await page.locator('#fatespoiler .showcase-service').focus();
+      // Scrollbar/programmatic scroll and PageDown must work without wheel/blur.
+      await page.locator('#moduerp').evaluate(el => { const root = el.parentElement; const siblings = [...root.children]; const before = siblings.slice(0, siblings.indexOf(el)).reduce((sum, item) => sum + item.offsetHeight, 0); scrollTo({ top: root.getBoundingClientRect().top + scrollY + before - 80, behavior: 'instant' }); });
+      await page.waitForTimeout(100);
+      assert.equal(await page.evaluate(() => document.elementFromPoint(innerWidth / 2, 300)?.closest('article')?.id), 'moduerp', `${name}: no stale focus elevation`);
+      await page.keyboard.press('PageDown');
+      await page.waitForTimeout(150);
+      assert.notEqual(await page.evaluate(() => document.elementFromPoint(innerWidth / 2, 300)?.closest('article')?.id), 'fatespoiler');
     }
     for (const id of ['career', 'archive', 'contact']) {
       await page.locator(`#${id}`).evaluate(el => el.scrollIntoView());
@@ -201,7 +188,10 @@ try {
   for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1100 }]) {
     const page = await browser.newPage({ javaScriptEnabled: false, viewport });
     await page.goto(url);
-    assert.equal(await page.locator('.showcase-panel').count(), 3);
+    assert.equal(await page.locator('.scroll-showcase > article').count(), 3);
+    assert.equal(await page.locator('.hworks-pin').evaluate(el => getComputedStyle(el).position), 'static');
+    assert.equal(await page.locator('.hworks-links').evaluate(el => el.inert), false);
+    assert.equal(await page.locator('.hworks-copy li').count(), 4);
     for (const id of ['h-works', 'fatespoiler', 'moduerp']) {
       await page.locator(`#${id}`).evaluate(el => el.scrollIntoView());
       assert.equal(await page.locator(`#${id}`).isVisible(), true);

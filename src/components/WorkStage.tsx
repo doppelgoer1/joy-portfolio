@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { HWorksScene } from "./HWorksScene";
 import type { Project } from "../data/portfolio";
 
 // All projects are ordinary document content. Sticky/RAF are progressive decoration only.
@@ -14,31 +15,37 @@ export function WorkStage({ projects }: { projects: Project[] }) {
     let frame = 0;
     const update = () => {
       frame = 0;
-      // Read every position before writing styles. No permanent animation loop.
-      const tops = panels.map((panel) => panel.getBoundingClientRect().top);
+      const heights = panels.map((panel) => panel.offsetHeight);
       panels.forEach((panel, index) => {
-        const progress = media.matches && index < panels.length - 1
-          ? Math.max(0, Math.min(1, (innerHeight - tops[index + 1]) / (innerHeight - 80))) : 0;
-        panel.style.setProperty("--recede", progress.toFixed(4));
+        panel.dataset.sticky = String(media.matches && heights[index] <= innerHeight - 80 + 1);
       });
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
-    // Manual pointer scrolling ends focus elevation; keyboard focus still stays visible.
-    const releasePointerFocus = () => {
-      const active = document.activeElement;
-      if (media.matches && active instanceof HTMLElement && element.contains(active)) active.blur();
+    const revealFocus = (event: FocusEvent) => {
+      if (!(event.target instanceof HTMLElement)) return;
+      const panel = event.target.closest<HTMLElement>(".showcase-panel");
+      if (!panel) return;
+      const bounds = event.target.getBoundingClientRect();
+      const visible = document.elementFromPoint(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
+      if (bounds.top < 80 || bounds.bottom > innerHeight || !visible || !panel.contains(visible)) {
+        // Sum the preceding flow boxes; sticky offsets can already be displaced.
+        const siblings = Array.from(element.children) as HTMLElement[];
+        const before = siblings.slice(0, siblings.indexOf(panel)).reduce((sum, sibling) => sum + sibling.offsetHeight, 0);
+        const top = element.getBoundingClientRect().top + scrollY + before - 80;
+        window.scrollTo({ top, behavior: "instant" });
+        if (panel.dataset.sticky !== "true") event.target.scrollIntoView({ block: "center", behavior: "instant" });
+      }
     };
-    window.addEventListener("wheel", releasePointerFocus, { passive: true });
-    window.addEventListener("touchmove", releasePointerFocus, { passive: true });
-    window.addEventListener("scroll", schedule, { passive: true });
+    element.addEventListener("focusin", revealFocus);
     window.addEventListener("resize", schedule);
     media.addEventListener("change", schedule);
+    const observer = new ResizeObserver(schedule);
+    panels.forEach((panel) => observer.observe(panel));
     schedule();
     return () => {
       cancelAnimationFrame(frame);
-      window.removeEventListener("wheel", releasePointerFocus);
-      window.removeEventListener("touchmove", releasePointerFocus);
-      window.removeEventListener("scroll", schedule);
+      observer.disconnect();
+      element.removeEventListener("focusin", revealFocus);
       window.removeEventListener("resize", schedule);
       media.removeEventListener("change", schedule);
     };
@@ -46,7 +53,9 @@ export function WorkStage({ projects }: { projects: Project[] }) {
 
   return (
     <div className="scroll-showcase" ref={root}>
-      {projects.map((project, index) => (
+      {projects.map((project, index) => project.id === "h-works" ? (
+        <HWorksScene key={project.id} project={project} next={projects[index + 1]} />
+      ) : (
         <article key={project.id} id={project.id} aria-labelledby={`${project.id}-title`} className={`showcase-panel showcase-panel--${project.id}`}>
           <div className="showcase-surface">
             <div className="showcase-meta eyebrow"><span>0{index + 1} / Selected work</span><span>{project.company} · {project.period}</span></div>

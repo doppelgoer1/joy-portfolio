@@ -30,13 +30,10 @@
 .portfolio-content .showcase-service:hover { text-decoration: underline; }
 .portfolio-content .showcase-foot { display: flex; justify-content: space-between; gap: 24px; margin-top: 28px; font-size: 11px; }
 @media (min-width: 1000px) and (min-height: 700px) and (prefers-reduced-motion: no-preference) {
-  .portfolio-content .showcase-panel { position: sticky; top: 80px; }
-  .portfolio-content .showcase-surface { min-height: calc(100svh - 80px); display: flex; flex-direction: column; transform: translateY(calc(var(--recede, 0) * -12px)) scale(calc(1 - var(--recede, 0) * .035)); }
+  .portfolio-content .showcase-panel[data-sticky="true"] { position: sticky; top: 80px; }
+  .portfolio-content .showcase-surface { min-height: calc(100svh - 80px); display: flex; flex-direction: column; }
   .portfolio-content .showcase-body { flex: 1; align-items: center; }
   .portfolio-content .showcase-visual { align-self: stretch; }
-  /* A focused older panel must never remain underneath its successor. */
-  .portfolio-content .showcase-panel:focus-within { z-index: 5; }
-  .portfolio-content .showcase-panel:focus-within .showcase-surface { transform: none; }
 }
 @media (min-width: 1000px) and (max-height: 850px) {
   .portfolio-content .showcase-surface { padding-block: 18px; }

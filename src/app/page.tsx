@@ -5,6 +5,7 @@ import { archive, career, githubUrl, previousPortfolio, projects } from "../data
 import "./portfolio-editorial.css";
 import "./preview-transitions.css";
 import "./scroll-showcase.css";
+import "./hworks-scene.css";
 
 export default function Home() {
   return (
