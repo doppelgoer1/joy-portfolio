@@ -54,7 +54,7 @@ export function WorkStage({ projects }: { projects: Project[] }) {
   return (
     <div className="scroll-showcase" ref={root}>
       {projects.map((project, index) => project.id === "h-works" ? (
-        <HWorksScene key={project.id} project={project} next={projects[index + 1]} />
+        <HWorksScene key={project.id} project={project} />
       ) : (
         <article key={project.id} id={project.id} aria-labelledby={`${project.id}-title`} className={`showcase-panel showcase-panel--${project.id}`}>
           <div className="showcase-surface">

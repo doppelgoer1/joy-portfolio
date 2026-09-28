@@ -117,8 +117,11 @@ try {
     { name: "desktop-1024", viewport: { width: 1024, height: 700 }, reducedMotion: "no-preference" },
     { name: "short-fallback", viewport: { width: 1280, height: 580 }, reducedMotion: "no-preference" },
     { name: "tablet", viewport: { width: 820, height: 1180 }, reducedMotion: "no-preference" },
+    { name: "short-tablet", viewport: { width: 800, height: 600 }, reducedMotion: "no-preference" },
+    { name: "wide-tablet", viewport: { width: 899, height: 700 }, reducedMotion: "no-preference" },
     { name: "mobile", viewport: { width: 390, height: 844 }, reducedMotion: "no-preference", isMobile: true, hasTouch: true },
     { name: "small-mobile", viewport: { width: 320, height: 740 }, reducedMotion: "no-preference", isMobile: true, hasTouch: true },
+    { name: "mobile-reduced-motion", viewport: { width: 390, height: 844 }, reducedMotion: "reduce", isMobile: true, hasTouch: true },
     { name: "reduced-motion", viewport: { width: 1440, height: 1100 }, reducedMotion: "reduce" },
   ].filter(config => !process.env.PORTFOLIO_VIEWPORTS || process.env.PORTFOLIO_VIEWPORTS.split(',').includes(config.name))) {
     const { name, ...options } = config;
@@ -192,6 +195,12 @@ try {
     assert.equal(await page.locator('.hworks-pin').evaluate(el => getComputedStyle(el).position), 'static');
     assert.equal(await page.locator('.hworks-links').evaluate(el => el.inert), false);
     assert.equal(await page.locator('.hworks-copy li').count(), 4);
+    assert.equal(await page.locator('#h-works h3').count(), 1);
+    assert.equal(await page.locator('#h-works-title').evaluate(el => getComputedStyle(el).transform), 'none');
+    for (const link of await page.locator('.hworks-links a').all()) {
+      await link.scrollIntoViewIfNeeded();
+      assert.equal(await link.isVisible(), true, 'no-JS H-Works links remain readable');
+    }
     for (const id of ['h-works', 'fatespoiler', 'moduerp']) {
       await page.locator(`#${id}`).evaluate(el => el.scrollIntoView());
       assert.equal(await page.locator(`#${id}`).isVisible(), true);

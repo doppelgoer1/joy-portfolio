@@ -12,25 +12,19 @@ const phase = (p: number, start: number, end: number) => {
 // Pure, reversible keyframes. Exported so tests exercise the actual scene math.
 export function hworksFrame(progress: number, mobile = false) {
   const p = clamp(progress);
-  const enter = phase(p, 0, mobile ? .2 : .15);
-  const split = phase(p, mobile ? .2 : .15, mobile ? .42 : .32);
-  const flood = phase(p, mobile ? .32 : .32, mobile ? .58 : .52);
+  const titleDock = phase(p, mobile ? .12 : .1, mobile ? .4 : .33);
+  const color = phase(p, .2, mobile ? .58 : .52);
   const dock = phase(p, mobile ? .64 : .52, mobile ? .9 : .72);
-  const exit = mobile ? 0 : phase(p, .85, 1);
   return {
-    p, enter, split, flood, dock, exit,
-    titleScale: .64 + .36 * enter,
-    titleY: 24 * (1 - enter),
-    titleX: 62 * split,
-    slit: .012 * split + .988 * flood,
-    titleOpacity: 1 - phase(p, mobile ? .42 : .32, mobile ? .55 : .43),
+    p, titleDock, color, dock,
+    titleScale: 1 - (mobile ? .44 : .72) * titleDock,
     domains: [0, 1, 2].map((i) => phase(p, (mobile ? .4 : .33) + i * .045, (mobile ? .62 : .46) + i * .03)),
-    copy: mobile ? 1 : phase(p, .6, .72) * (1 - phase(p, .85, .91)),
-    readable: mobile || (p >= .72 && p <= .85),
+    copy: mobile ? 1 : phase(p, .6, .72),
+    readable: mobile || p >= .72,
   };
 }
 
-export function HWorksScene({ project, next }: { project: Project; next: Project }) {
+export function HWorksScene({ project }: { project: Project }) {
   const root = useRef<HTMLElement>(null);
   useEffect(() => {
     const element = root.current;
@@ -51,10 +45,8 @@ export function HWorksScene({ project, next }: { project: Project; next: Project
     const paint = (progress: number) => {
       const state = hworksFrame(progress, mobile);
       const values = {
-        "--hw-enter-y": `${state.titleY}vh`, "--hw-title-scale": state.titleScale,
-        "--hw-title-x": `${state.titleX}vw`, "--hw-title-opacity": state.titleOpacity,
-        "--hw-slit": state.slit, "--hw-dock": state.dock, "--hw-exit": state.exit,
-        "--hw-copy": state.copy, "--hw-ink": 1 - phase(state.p, .85, .91),
+        "--hw-title-dock": state.titleDock, "--hw-title-scale": state.titleScale,
+        "--hw-color": state.color, "--hw-dock": state.dock, "--hw-copy": state.copy,
       };
       Object.entries(values).forEach(([key, value]) => element.style.setProperty(key, String(value)));
       state.domains.forEach((value, i) => element.style.setProperty(`--hw-domain-${i}`, String(value)));
@@ -151,12 +143,10 @@ export function HWorksScene({ project, next }: { project: Project; next: Project
       <div className="hworks-track">
         <div className="hworks-pin">
           <div className="hworks-visual">
-            <div className="hworks-handoff" aria-hidden="true"><span className="eyebrow">02 / Selected work</span><strong>{next.name}</strong><span>{next.category}</span></div>
-            <div className="hworks-curtain">
+            <div className="hworks-surface">
               <div className="hworks-red" aria-hidden="true" />
               <div className="hworks-meta eyebrow"><span>01 / Selected work</span><span>{project.company} · {project.period}</span></div>
               <div className="hworks-heading"><h3 id="h-works-title">{project.name}</h3><p>{project.category}</p></div>
-              <div className="hworks-giant" aria-hidden="true"><span>H-WORKS</span><span>H-WORKS</span></div>
               <figure className="hworks-domains">
                 <div>{project.focus.map((item, i) => <div className={`hworks-domain hworks-domain--${i}`} key={item.label}><span>{item.label}</span><small>{item.value}</small></div>)}</div>
                 <figcaption>프로젝트 타이포그래피 · 서비스 화면 아님</figcaption>

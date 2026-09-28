@@ -16,37 +16,49 @@ runInNewContext(ts.transpileModule(source.slice(0, source.indexOf('export functi
 const frame = exports.hworksFrame;
 const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} ≠ ${b}`);
 
-test('actual desktop keyframes: enormous growth, horizontal split, full flood, staged domains, dock and curtain', () => {
-  near(frame(0).titleScale, .64);
-  near(frame(.075).titleScale, .82);
-  near(frame(.15).titleScale, 1);
-  near(frame(.235).titleX, 31);
-  near(frame(.32).titleX, 62);
-  near(frame(.32).slit, .012);
-  near(frame(.42).slit, .506);
-  near(frame(.52).slit, 1);
+test('desktop keeps one oversized title, shrinks to its left dock, stages domains and holds readable copy', () => {
+  near(frame(0).titleScale, 1);
+  near(frame(.1).titleScale, 1);
+  near(frame(.215).titleScale, .64);
+  near(frame(.33).titleScale, .28);
+  near(frame(.33).titleDock, 1);
+  near(frame(.52).color, 1);
   assert.ok(frame(.42).domains[0] > frame(.42).domains[1]);
   assert.ok(frame(.42).domains[1] > frame(.42).domains[2]);
   assert.ok(frame(.52).domains.every(v => v > .9));
   near(frame(.62).dock, .5);
   near(frame(.72).dock, 1);
-  for (const p of [.72, .76, .8, .85]) {
+  for (const p of [.72, .76, .8, .85, .925, 1]) {
     assert.equal(frame(p).readable, true);
     near(frame(p).copy, 1);
+    near(frame(p).titleScale, .28);
   }
-  near(frame(.925).exit, .5);
-  near(frame(1).exit, 1);
-  near(frame(1).copy, 0);
 });
-test('actual mobile keyframes animate three phases, then let the full copy scroll normally', () => {
-  assert.ok(frame(.1, true).titleScale > frame(0, true).titleScale);
-  assert.ok(frame(.31, true).titleX > 20);
-  assert.ok(frame(.5, true).slit > .5);
-  near(frame(.58, true).slit, 1);
+test('mobile title docks intact before staged roles, then the full copy scrolls normally', () => {
+  near(frame(0, true).titleScale, 1);
+  near(frame(.26, true).titleScale, .78);
+  near(frame(.4, true).titleScale, .56);
+  near(frame(.4, true).titleDock, 1);
+  near(frame(.58, true).color, 1);
   near(frame(.9, true).dock, 1);
-  near(frame(1, true).exit, 0);
+  assert.ok(frame(.5, true).domains[0] > frame(.5, true).domains[1]);
+  assert.ok(frame(.5, true).domains[1] > frame(.5, true).domains[2]);
+  assert.equal(frame(1, true).readable, true);
   assert.match(css, /margin-top: 160svh/);
   assert.match(css, /height: calc\(390svh - 72px\)/);
+});
+test('title shrinks monotonically without vanishing; no split, slit, curtain or duplicate next-project layer', () => {
+  for (const mobile of [false, true]) {
+    let previous = 1;
+    for (let i = 0; i <= 100; i++) {
+      const current = frame(i / 100, mobile).titleScale;
+      assert.ok(current <= previous && current >= (mobile ? .56 : .28));
+      previous = current;
+    }
+  }
+  assert.doesNotMatch(source + css, /hworks-giant|hworks-curtain|hworks-handoff|clip-path|scaleX|--hw-exit|--hw-slit|titleOpacity/);
+  assert.doesNotMatch(source, /preventDefault|setInterval|setTimeout|addEventListener\("(?:wheel|touchmove)"/);
+  assert.match(css, /opacity: var\(--hw-color, 0\)/);
 });
 test('keyframes are bounded, deterministic and exactly reversible at arbitrary progress', () => {
   for (const mobile of [false, true]) {
@@ -54,7 +66,7 @@ test('keyframes are bounded, deterministic and exactly reversible at arbitrary p
     for (let i = 100; i >= 0; i--) {
       const actual = frame(i / 100, mobile);
       assert.equal(JSON.stringify(actual), samples[i]);
-      for (const key of ['enter', 'split', 'flood', 'dock', 'exit', 'copy', 'slit']) assert.ok(actual[key] >= 0 && actual[key] <= 1);
+      for (const key of ['titleDock', 'titleScale', 'color', 'dock', 'copy']) assert.ok(actual[key] >= 0 && actual[key] <= 1);
     }
     assert.equal(JSON.stringify(frame(-1, mobile)), samples[0]);
     assert.equal(JSON.stringify(frame(2, mobile)), samples[100]);
@@ -65,7 +77,8 @@ test('SSR is one semantic article with real contributions and links; no enhancem
   const scene = html.slice(html.indexOf('<article id="h-works"'), html.indexOf('</article>', html.indexOf('<article id="h-works"')));
   assert.equal((html.match(/id="h-works"/g) || []).length, 1);
   assert.match(scene, /<h3 id="h-works-title">H-Works<\/h3>/);
-  assert.match(scene, /class="hworks-giant" aria-hidden="true"/);
+  assert.equal((scene.match(/<h3\b/g) || []).length, 1);
+  assert.doesNotMatch(scene, /H-WORKS|FateSpoiler|hworks-handoff|hworks-giant/);
   for (const contribution of projects[0].contributions) assert.ok(scene.includes(contribution));
   for (const item of projects[0].focus) assert.ok(scene.includes(item.label) && scene.includes(item.value));
   for (const href of ['/projects/h-works', projects[0].url]) assert.ok(scene.includes(`href="${href}"`));
@@ -149,7 +162,7 @@ function mountScene({ width = 1280, height = 720, contentHeight = 450, motion = 
   };
   Object.defineProperty(reading, 'offsetHeight', { get() { operations.push('read'); return contentHeight; } });
   Object.defineProperty(pin, 'offsetHeight', { get() { operations.push('read'); return root.dataset.enhanced === 'true' ? height - 72 : 1200; } });
-  const beforeJsx = source.slice(0, source.indexOf('  return (\n    <article')) + '\n}\nHWorksScene({project: {}, next: {}});';
+  const beforeJsx = source.slice(0, source.indexOf('  return (\n    <article')) + '\n}\nHWorksScene({project: {}});';
   runInNewContext(ts.transpileModule(beforeJsx, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, context);
   const cleanup = effect();
   const settle = () => {
@@ -185,6 +198,25 @@ test('actual effect: coalesces scroll reads/writes, settles, reveals keyboard li
   assert.equal(scene.root.dataset.readable, 'true');
   assert.equal(scene.links.inert, false);
   assert.equal(scene.focused(), true);
+  scene.cleanup();
+});
+test('actual effect paints and reverses the intact title, then keeps copy accessible through release', () => {
+  const scene = mountScene();
+  const scroll = p => {
+    scene.context.scrollY = 1000 - 72 + 720 * 2.9 * p;
+    scene.listeners.get('scroll')(); scene.settle();
+    return { ...scene.root.style };
+  };
+  const shrinking = scroll(.215);
+  near(Number(shrinking['--hw-title-scale']), .64);
+  near(Number(shrinking['--hw-title-dock']), .5);
+  const released = scroll(1.1);
+  near(Number(released['--hw-title-scale']), .28);
+  near(Number(released['--hw-copy']), 1);
+  assert.equal(scene.links.inert, false);
+  assert.equal(scene.gate.tabIndex, -1);
+  assert.deepEqual(scroll(.215), shrinking);
+  assert.equal(scene.links.inert, true);
   scene.cleanup();
 });
 test('actual effect: reduced, short and overheight desktop content stay static; tall mobile stays animated', () => {
