@@ -4,11 +4,23 @@
 .portfolio-content { --serif: Georgia, "Times New Roman", serif; --ease-out: cubic-bezier(.16, 1, .3, 1); --num: var(--accent); }
 
 /* ---------- Work intro ---------- */
-.portfolio-content .intro-heading h2 { max-width: 12ch; }
-.portfolio-content .intro-heading > p { max-width: 34ch; }
-.portfolio-content .section-intro { padding-bottom: clamp(40px, 5vw, 72px); }
+.portfolio-content .intro-heading h2 { max-width: 12ch; font-size: clamp(40px, 5.4vw, 84px); letter-spacing: -.055em; line-height: 1.2; word-break: keep-all; }
+.portfolio-content .intro-heading > p { max-width: 40ch; font-size: 16px; line-height: 1.9; }
+.portfolio-content .section-intro { padding-block: clamp(56px, 6vw, 88px) 36px; }
+.portfolio-content .project-anchor { display: block; height: 0; }
 
-/* ---------- Work stage: three cards on one perspective floor, the selected one faces the reader ---------- */
+/* The complete index keeps every project one selection away, including without JavaScript. */
+.portfolio-content .stage-index { padding: 0 var(--gutter) clamp(32px, 4vw, 56px); }
+.portfolio-content .stage-index > p { display: flex; justify-content: space-between; padding-bottom: 12px; color: var(--red); }
+.portfolio-content .stage-index nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid oklch(0.7 0.01 65); }
+.portfolio-content .stage-index a { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 12px 16px; border-bottom: 1px solid oklch(0.7 0.01 65); font-size: 15px; font-weight: 600; line-height: 1.5; transition: background 200ms ease-out, color 200ms ease-out; }
+.portfolio-content .stage-index a[aria-current="true"] { background: var(--red); color: var(--paper); }
+.portfolio-content .stage-index a:hover { background: var(--ink); color: var(--paper); }
+.portfolio-content .stage-index a:focus-visible { position: relative; z-index: 1; outline: 3px solid var(--red); outline-offset: 3px; }
+.portfolio-content .stage-index-number { font-family: var(--serif); font-size: 14px; font-weight: 400; }
+.portfolio-content .stage-index-mark { margin-left: auto; font-size: 11px; }
+
+/* ---------- Work stage: one selection and two neighbours on the original perspective floor ---------- */
 .portfolio-content .work-stage { --card-w: min(clamp(240px, 34vw, 500px), 46vh); --card-h: calc(var(--card-w) * 1.18); }
 .portfolio-content .stage-deck { padding: 0 var(--gutter); overflow-x: clip; }
 .portfolio-content .stage { position: relative; height: calc(var(--card-h) + 64px); perspective: 1500px; perspective-origin: 50% 38%; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
@@ -17,17 +29,14 @@
 .portfolio-content .stage-card[data-position="0"] { z-index: 3; box-shadow: 0 56px 80px -34px oklch(0 0 0 / .6); }
 .portfolio-content .stage-card[data-position="-1"] { --x: -80; --z: -240; --ry: 36; --s: .9; --o: .94; --b: .82; z-index: 2; }
 .portfolio-content .stage-card[data-position="1"] { --x: 80; --z: -240; --ry: -36; --s: .9; --o: .94; --b: .82; z-index: 2; }
+.portfolio-content .stage-card[data-distant="true"] { --z: -480; --s: .75; --o: 0; visibility: hidden; pointer-events: none; }
 .portfolio-content .stage-card:focus-visible { outline: 3px solid var(--ink); outline-offset: 6px; }
-.portfolio-content .stage-card--fatespoiler { background: var(--paper); color: var(--red); border-color: var(--red); }
-.portfolio-content .stage-card--moduerp { background: var(--ink); color: var(--paper); }
+.portfolio-content .stage-card:nth-child(3n + 2) { background: var(--paper); color: var(--red); border-color: var(--red); }
+.portfolio-content .stage-card:nth-child(3n) { background: var(--ink); color: var(--paper); }
 .portfolio-content .stage-card-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .portfolio-content .stage-card-meta span:first-child { font-family: var(--serif); font-size: 22px; letter-spacing: -.04em; text-transform: none; }
-.portfolio-content .stage-card-name { display: block; margin-top: auto; font-size: clamp(30px, 3.4vw, 54px); font-weight: 800; letter-spacing: -.06em; line-height: 1; word-break: keep-all; }
-.portfolio-content .stage-card--fatespoiler .stage-card-name { font-family: var(--serif); font-weight: 400; font-style: italic; letter-spacing: -.03em; }
-.portfolio-content .stage-card--moduerp .stage-card-name { color: var(--accent); }
-.portfolio-content .stage-card-category { display: block; font-size: 13px; line-height: 1.6; opacity: .88; word-break: keep-all; }
-.portfolio-content .stage-card-scope { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-.portfolio-content .stage-card-scope span { border: 1px solid color-mix(in oklch, currentColor 55%, transparent); padding: 6px 9px; font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+.portfolio-content .stage-card-name { display: block; margin-top: auto; font-size: clamp(28px, 3.1vw, 48px); font-weight: 800; letter-spacing: -.045em; line-height: 1.12; overflow-wrap: anywhere; word-break: keep-all; }
+.portfolio-content .stage-card-category { display: block; min-height: 3.4em; font-size: 14px; line-height: 1.7; word-break: keep-all; }
 .portfolio-content .stage-card-foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px solid color-mix(in oklch, currentColor 35%, transparent); font-size: 10px; opacity: .8; }
 .portfolio-content .stage-card[aria-selected="true"] .stage-card-foot { opacity: 1; }
 .portfolio-content .stage-card[aria-selected="true"] .stage-card-foot span:first-child::before { content: "● "; }
@@ -48,7 +57,7 @@
 }
 
 /* ---------- Stage panels: the selected project's role, stack and unfolding work cards ---------- */
-.portfolio-content .project-case { position: relative; top: auto; padding-block: 40px clamp(64px, 7vw, 104px); --num: var(--accent); }
+.portfolio-content .project-case { position: relative; top: auto; padding-block: 40px clamp(64px, 7vw, 104px); scroll-margin-top: calc(var(--header-height) + 20px); --num: var(--accent); }
 .portfolio-content .project-case--fatespoiler { --num: var(--paper); }
 .portfolio-content .project-case--moduerp { --num: var(--red); }
 .portfolio-content .stage-panel.is-active { animation: stage-panel-in 560ms var(--ease-out) both; }
@@ -64,13 +73,16 @@
 @keyframes chapter-unfold { from { opacity: 0; transform: rotateY(-26deg) translateX(-32px); } to { opacity: 1; transform: none; } }
 .portfolio-content .case-meta { padding-bottom: 24px; border-bottom: 1px solid var(--line); }
 .portfolio-content .case-heading { margin-block: 36px 44px; align-items: end; }
-.portfolio-content .case-heading h3 { font-size: clamp(36px, 4.6vw, 76px); line-height: .98; letter-spacing: -.06em; }
+.portfolio-content .case-heading h3 { font-size: clamp(36px, 4.6vw, 76px); line-height: 1.12; letter-spacing: -.045em; overflow-wrap: anywhere; }
 .portfolio-content .case-heading h3 a { text-underline-offset: .1em; text-decoration-thickness: 2px; }
 .portfolio-content .case-heading h3 a:hover { text-decoration-line: underline; }
 .portfolio-content .case-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(40px, 7vw, 112px); align-items: start; }
 .portfolio-content .case-content { padding-top: 8px; }
 .portfolio-content .case-content h4 { font-size: clamp(30px, 2.8vw, 44px); }
-.portfolio-content .case-summary { font-size: 16px; margin-top: 24px; }
+.portfolio-content .case-summary { font-size: 17px; line-height: 1.9; margin-top: 24px; }
+.portfolio-content .case-shot { display: grid; gap: 12px; align-content: start; }
+.portfolio-content .case-shot figcaption { color: var(--muted); font-size: 12px; line-height: 1.7; }
+.portfolio-content .case-shot .archive-shot:focus-visible { outline-color: var(--paper); }
 .portfolio-content .contribution { margin-top: 32px; padding-top: 24px; }
 .portfolio-content .contribution h5 { font-size: 12px; }
 .portfolio-content .case-role { font-size: 17px; letter-spacing: -.02em; }
@@ -120,6 +132,11 @@
 .portfolio-content .career-work-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 24px; }
 .portfolio-content .career-work-links a { display: inline-flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; border-bottom: 1px solid var(--line); font-size: 14px; }
 .portfolio-content .career-work-links a:hover { color: var(--accent); }
+.portfolio-content .education-section { background: var(--paper); color: var(--ink); padding-block: clamp(40px, 5vw, 72px); }
+.portfolio-content .education { margin-top: 0; }
+.portfolio-content .education h2 { margin-top: 12px; font-size: clamp(28px, 3vw, 42px); letter-spacing: -.04em; }
+.portfolio-content .contact-section h2 { font-size: clamp(40px, 7.5vw, 108px); line-height: 1.2; letter-spacing: -.055em; word-break: keep-all; }
+.portfolio-content .contact-section h2 span { font-family: inherit; font-weight: 600; }
 
 /* ---------- Archive: screenshot cards in two columns, serif index, one link per card ---------- */
 .portfolio-content .archive-number { font-family: var(--serif); font-size: 24px; letter-spacing: -.04em; color: var(--red); text-transform: none; }
@@ -272,6 +289,11 @@
 }
 
 @media (max-width: 600px) {
+  .portfolio-content .intro-heading h2 { font-size: clamp(36px, 9.5vw, 54px); }
+  .portfolio-content .intro-heading > p { font-size: 15px; }
+  .portfolio-content .stage-index nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .portfolio-content .stage-index a { font-size: 13px; gap: 8px; padding: 10px 8px; }
+  .portfolio-content .stage-index-mark { display: none; }
   .portfolio-content .work-stage { --card-w: min(72vw, 300px); --card-h: calc(var(--card-w) * 1.22); }
   .portfolio-content .stage { height: calc(var(--card-h) + 40px); perspective: 1100px; }
   .portfolio-content .stage-card { gap: 10px; }
@@ -285,9 +307,9 @@
   .portfolio-content .case-heading { margin-block: 28px; gap: 16px; }
   .portfolio-content .case-heading h3 { font-size: clamp(34px, 10vw, 52px); }
   .portfolio-content .case-content h4 { font-size: 30px; }
-  .portfolio-content .case-summary { font-size: 15px; }
+  .portfolio-content .case-summary { font-size: 16px; }
   .portfolio-content .case-role { font-size: 15px; }
-  .portfolio-content .contribution-list li { grid-template-columns: 32px minmax(0, 1fr); font-size: 13px; }
+  .portfolio-content .contribution-list li { grid-template-columns: 32px minmax(0, 1fr); font-size: 14px; }
   .portfolio-content .contribution-list li span { font-size: 16px; }
   .portfolio-content .work-plate { display: grid; grid-template-columns: 1fr; min-height: 0; gap: 28px; align-items: stretch; }
   .portfolio-content .plate-heading { position: relative; }
@@ -349,11 +371,12 @@
   .portfolio-content .detail-footer { font-size: 9px; gap: 16px; }
 }
 
-/* Reduced motion: the stage becomes a flat row of cards; selection is a static inset frame. */
+/* Reduced motion: show one static card; the complete index retains all nine choices. */
 @media (prefers-reduced-motion: reduce) {
-  .portfolio-content .stage { height: auto; perspective: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .portfolio-content .stage { height: auto; perspective: none; display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; }
   .portfolio-content .stage::before { display: none; }
-  .portfolio-content .stage-card { position: static; width: auto; height: auto; min-height: 300px; margin: 0; transform: none; opacity: 1; filter: none; box-shadow: none; }
+  .portfolio-content .stage-card { position: static; width: var(--card-w); height: var(--card-h); min-height: 300px; margin: 0; transform: none; opacity: 1; filter: none; box-shadow: none; }
+  .portfolio-content .stage-card:not([data-position="0"]) { display: none; }
   .portfolio-content .stage-card[aria-selected="true"] { box-shadow: inset 0 0 0 3px currentColor; }
   .portfolio-content .stage-panel.is-active { animation: none; opacity: 1; transform: none; }
   .portfolio-content .chapter-card { animation: none; opacity: 1; transform: none; }

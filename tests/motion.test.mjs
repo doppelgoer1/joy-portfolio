@@ -14,12 +14,24 @@ const css = read("src/app/globals.css");
 const originalCss = original("src/app/globals.css");
 const motionCode = (source) => source.slice(source.indexOf("const clamp"), source.indexOf("  return (\n    <section"));
 
-test("최신 prod 히어로 전체는 승인된 풀스택 사실 문구 외에 원문과 동일", () => {
+test("히어로는 확인된 한국어 문구·제목 활자 속성 외에 원문과 동일", () => {
   const expected = originalHero
-    .replace("            Frontend\n", "            Fullstack\n")
+    .replace('const STACKS = ["React", "Next.js", "TypeScript", "NestJS", "MariaDB", "CSS"];\n', "")
+    .replace('aria-label="Portfolio navigation"', 'aria-label="포트폴리오 소개"')
+    .replace("Fullscreen stack reveal", "장준영 · 풀스택 개발자")
+    .replace("Scroll scrub", "개발 기록")
+    .replace("<span>Next</span>", "<span>프로젝트 / 09</span>")
+    .replace("                  <h2>", '                  <h2 style={{ fontSize: "clamp(42px, 8vw, 120px)", lineHeight: 1.15, letterSpacing: "-.05em" }}>')
+    .replace("Selected", "설계부터")
+    .replace("Product Work", "개발까지")
+    .replace("Case studies, shipped interfaces, and product systems continue here.", "각 프로젝트에서 맡은 업무와 개발 기록을 소개합니다.")
+    .replace("          <h2>", '          <h2 style={{ fontSize: "clamp(34px, 7.5vw, 72px)", lineHeight: 1.15, letterSpacing: "-.04em" }}>')
+    .replace("            Frontend", "            풀스택")
+    .replace("<span>Product</span>", "<span>개발자</span>")
+    .replace("            Builder", "            장준영")
     .replace(
       "            Six years building React and Next.js products with TypeScript,\n            backend fluency, and motion-focused interface craft.",
-      "            서비스와 데이터베이스 설계부터 프론트엔드·백엔드 개발,\n            업무 자동화, 배포와 운영까지.",
+      "            프론트엔드·백엔드·DB 설계, 업무 자동화와 앱 개발,\n            AWS 인프라와 CI/CD 배포 자동화까지 맡았습니다.",
     );
   assert.equal(hero, expected);
 });

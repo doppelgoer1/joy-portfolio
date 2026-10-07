@@ -319,13 +319,13 @@ export const archive: ArchiveProject[] = [
   },
 ];
 
-// 상세 페이지 순서: 주요 프로젝트 3건 다음에 이전 프로젝트 6건. 다음 프로젝트 이동은 이 아홉을 순환한다.
+// 데이터 형식만 구분한다. 홈 무대와 상세 페이지에서 아홉 프로젝트를 같은 순서로 탐색한다.
 export type ProjectEntry = { kind: "featured"; project: Project } | { kind: "archive"; project: ArchiveProject };
 export const projectEntries: ProjectEntry[] = [
   ...projects.map((project) => ({ kind: "featured" as const, project })),
   ...archive.map((project) => ({ kind: "archive" as const, project })),
 ];
-export const returnAnchor = (entry: ProjectEntry) => (entry.kind === "featured" ? `/#${entry.project.id}` : `/#archive-${entry.project.id}`);
+export const returnAnchor = (entry: ProjectEntry) => `/#${entry.project.id}`;
 
 export const previousPortfolio = "https://portfolio-joy.vercel.app";
 export const githubUrl = "https://github.com/doppelgoer1";

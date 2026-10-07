@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-const STACKS = ["React", "Next.js", "TypeScript", "NestJS", "MariaDB", "CSS"];
 const STACKS2 = ["React", "Next.js", "TypeScript", "NestJS", "MariaDB", "CSS", "CSS1"];
 
 const clamp = (value: number, min = 0, max = 1) =>
@@ -145,10 +144,10 @@ export function JoyHero() {
   return (
     <section ref={stageRef} className="joy-stage">
       <div className="joy-pin">
-        <nav className="joy-nav" aria-label="Portfolio navigation">
+        <nav className="joy-nav" aria-label="포트폴리오 소개">
           <span>[ + ] Joy</span>
-          <span>Fullscreen stack reveal</span>
-          <span>Scroll scrub</span>
+          <span>장준영 · 풀스택 개발자</span>
+          <span>개발 기록</span>
         </nav>
         <div className="scroll-progress" aria-hidden="true">
           <div className="scroll-progress__bar" />
@@ -180,14 +179,14 @@ export function JoyHero() {
             >
               {index === 6 ? (
                 <div className="door-reveal-layer" aria-hidden="true">
-                  <span>Next</span>
-                  <h2>
-                    Selected
+                  <span>프로젝트 / 09</span>
+                  <h2 style={{ fontSize: "clamp(42px, 8vw, 120px)", lineHeight: 1.15, letterSpacing: "-.05em" }}>
+                    설계부터
                     <br />
-                    Product Work
+                    개발까지
                   </h2>
                   <p>
-                    Case studies, shipped interfaces, and product systems continue here.
+                    각 프로젝트에서 맡은 업무와 개발 기록을 소개합니다.
                   </p>
                 </div>
               ) : null}
@@ -217,16 +216,16 @@ export function JoyHero() {
         </div>
 
         <div className="dock-copy">
-          <h2>
-            Fullstack
+          <h2 style={{ fontSize: "clamp(34px, 7.5vw, 72px)", lineHeight: 1.15, letterSpacing: "-.04em" }}>
+            풀스택
             <br />
-            <span>Product</span>
+            <span>개발자</span>
             <br />
-            Builder
+            장준영
           </h2>
           <p>
-            서비스와 데이터베이스 설계부터 프론트엔드·백엔드 개발,
-            업무 자동화, 배포와 운영까지.
+            프론트엔드·백엔드·DB 설계, 업무 자동화와 앱 개발,
+            AWS 인프라와 CI/CD 배포 자동화까지 맡았습니다.
           </p>
         </div>
       </div>

@@ -1,54 +1,68 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
-import type { Project } from "../data/portfolio";
+import type { ProjectEntry } from "../data/portfolio";
 import { PhaseStrip } from "./PhaseStrip";
-import { cardPosition, keyTarget, swipeTarget, wrapIndex } from "./stage-selection";
+import { cardPosition, keyTarget, projectIndexForHash, swipeTarget, wrapIndex } from "./stage-selection";
 
-// Three typographic cards on one perspective floor. The selected card faces the reader and the
-// other two keep their circular order at the sides. Cards are tabs; the reading area is the panel.
+// All projects share one perspective floor. Only the selection and its neighbours are visible.
+// Cards are tabs; the complete index also offers native anchor links without JavaScript.
 // Before hydration every panel is visible, so the page reads fully without JavaScript.
-export function WorkStage({ projects }: { projects: Project[] }) {
-  const count = projects.length;
+export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
+  const count = entries.length;
   const [selected, setSelected] = useState(0);
   const [enhanced, setEnhanced] = useState(false);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+  const indexLinks = useRef<(HTMLAnchorElement | null)[]>([]);
+  const pendingFocus = useRef<"card" | "index" | null>(null);
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const swallowClick = useRef(false);
-  const scrollTarget = useRef<string | null>(null);
+  const [scrollTarget, setScrollTarget] = useState<string | null>(null);
 
   useEffect(() => {
     const fromHash = () => {
-      const id = window.location.hash.slice(1);
-      const index = projects.findIndex((project) => project.id === id);
+      const index = projectIndexForHash(window.location.hash, entries.map(({ project }) => project.id));
       if (index < 0) return;
-      scrollTarget.current = id;
+      setScrollTarget(entries[index].project.id);
       setSelected(index);
     };
     setEnhanced(true);
     fromHash();
     window.addEventListener("hashchange", fromHash);
     return () => window.removeEventListener("hashchange", fromHash);
-  }, [projects]);
+  }, [entries]);
 
   // A deep link such as /#fatespoiler selects that project, then realigns after the other panels hide.
   useEffect(() => {
-    if (!enhanced || !scrollTarget.current) return;
-    document.getElementById(scrollTarget.current)?.scrollIntoView();
-    scrollTarget.current = null;
-  }, [selected, enhanced]);
+    if (!enhanced || !scrollTarget) return;
+    document.getElementById(scrollTarget)?.scrollIntoView();
+    setScrollTarget(null);
+  }, [selected, enhanced, scrollTarget]);
 
-  const select = (index: number, focus = false) => {
+  useEffect(() => {
+    if (!pendingFocus.current) return;
+    const targets = pendingFocus.current === "card" ? tabs : indexLinks;
+    targets.current[selected]?.focus({ preventScroll: true });
+    pendingFocus.current = null;
+  }, [selected]);
+
+  const select = (index: number, focus: "card" | "index" | null = null) => {
     const next = wrapIndex(index, count);
+    if (next === selected) {
+      const targets = focus === "card" ? tabs : indexLinks;
+      if (focus) targets.current[next]?.focus({ preventScroll: true });
+      return;
+    }
+    pendingFocus.current = focus;
     setSelected(next);
-    if (focus) tabs.current[next]?.focus();
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.currentTarget.classList.contains("stage-index") && !["ArrowLeft", "ArrowRight"].includes(event.key)) return;
     const target = keyTarget(event.key, selected, count);
     if (target === null) return;
     event.preventDefault();
-    select(target, true);
+    select(target, event.currentTarget.classList.contains("stage-index") ? "index" : "card");
   };
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -73,6 +87,29 @@ export function WorkStage({ projects }: { projects: Project[] }) {
 
   return (
     <div className="work-stage">
+      <div className="stage-index" onKeyDown={onKeyDown}>
+        <p className="eyebrow" id="project-index-title">전체 프로젝트 <span>{String(count).padStart(2, "0")}</span></p>
+        <nav aria-labelledby="project-index-title">
+          {entries.map(({ project }, index) => (
+            <a
+              key={project.id}
+              href={`#${project.id}`}
+              aria-current={selected === index ? "true" : undefined}
+              aria-controls={project.id}
+              ref={(element) => { indexLinks.current[index] = element; }}
+              onClick={(event) => {
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+                select(index);
+              }}
+            >
+              <span className="stage-index-number" aria-hidden="true">0{index + 1}</span>
+              <span>{project.name}</span>
+              <span className="stage-index-mark" aria-hidden="true">{selected === index ? "●" : "↗"}</span>
+            </a>
+          ))}
+        </nav>
+      </div>
       <div className="stage-deck">
         <div
           className="stage"
@@ -83,8 +120,11 @@ export function WorkStage({ projects }: { projects: Project[] }) {
           onPointerUp={onPointerUp}
           onPointerCancel={() => { pointerStart.current = null; }}
         >
-          {projects.map((project, index) => {
+          {entries.map((entry, index) => {
+            const { project } = entry;
             const active = index === selected;
+            const position = cardPosition(index, selected, count);
+            const distant = Math.abs(position) > 1;
             return (
               <button
                 key={project.id}
@@ -93,23 +133,24 @@ export function WorkStage({ projects }: { projects: Project[] }) {
                 id={`${project.id}-tab`}
                 aria-selected={active}
                 aria-controls={project.id}
+                aria-hidden={distant || undefined}
                 tabIndex={active ? 0 : -1}
-                data-position={cardPosition(index, selected, count)}
+                data-position={position}
+                data-distant={distant}
                 className={`stage-card stage-card--${project.id}`}
                 ref={(element) => { tabs.current[index] = element; }}
                 onClick={() => onCardClick(index)}
               >
-                <span className="stage-card-meta eyebrow"><span>0{index + 1}</span><span>{project.period}</span></span>
+                <span className="stage-card-meta eyebrow"><span>0{index + 1}</span>{project.period && <span>{project.period}</span>}</span>
                 <span className="stage-card-name">{project.name}</span>
-                <span className="stage-card-category">{project.category}</span>
-                <span className="stage-card-scope">{project.focus.map((item) => <span key={item.label}>{item.label}</span>)}</span>
+                <span className="stage-card-category">{entry.kind === "featured" ? entry.project.category : project.role || entry.project.detail}</span>
                 <span className="stage-card-foot eyebrow"><span>{active ? "선택됨" : "선택"}</span><span>프로젝트 타이포그래피 · 서비스 화면 아님</span></span>
               </button>
             );
           })}
         </div>
         <div className="stage-controls">
-          <p className="stage-counter eyebrow" aria-live="polite">0{selected + 1} / 0{count} · {projects[selected].name}</p>
+          <p className="stage-counter eyebrow" aria-live="polite">0{selected + 1} / 0{count} · {entries[selected].project.name}</p>
           <div className="stage-arrows">
             <button type="button" className="stage-arrow" onClick={() => select(selected - 1)} aria-label="이전 프로젝트 선택"><span aria-hidden="true">←</span></button>
             <button type="button" className="stage-arrow" onClick={() => select(selected + 1)} aria-label="다음 프로젝트 선택"><span aria-hidden="true">→</span></button>
@@ -118,8 +159,10 @@ export function WorkStage({ projects }: { projects: Project[] }) {
         </div>
       </div>
       <div className="stage-panels">
-        {projects.map((project, index) => {
+        {entries.map((entry, index) => {
+          const { project } = entry;
           const active = index === selected;
+          const affiliation = [project.company, project.period].filter(Boolean).join(" · ");
           return (
             <article
               key={project.id}
@@ -129,40 +172,42 @@ export function WorkStage({ projects }: { projects: Project[] }) {
               hidden={enhanced && !active}
               className={`project-case stage-panel project-case--${project.id}${active ? " is-active" : ""}`}
             >
+              {entry.kind === "archive" && <span id={`archive-${project.id}`} className="project-anchor" aria-hidden="true" />}
               <div className="case-meta eyebrow">
-                <span>0{index + 1} / {project.category}</span>
-                <span>H-Solution · {project.period}</span>
+                <span>프로젝트 / 0{index + 1}</span>
+                {affiliation && <span>{affiliation}</span>}
               </div>
               <div className="case-heading">
                 <h3 id={`${project.id}-title`}><a href={`/projects/${project.id}`}>{project.name}</a></h3>
-                <a className="text-link" href={project.url} target="_blank" rel="noreferrer">
+                {project.url && <a className="text-link" href={project.url} target="_blank" rel="noreferrer">
                   서비스 방문 <span aria-hidden="true">↗</span><span className="sr-only">: {project.name} (새 창)</span>
-                </a>
+                </a>}
               </div>
               <div className="case-body">
                 <div className="case-content">
-                  <h4>{project.headline}</h4>
-                  <p className="case-summary">{project.summary}</p>
-                  <div className="contribution">
+                  <h4>{entry.kind === "featured" ? entry.project.headline : "서비스 소개"}</h4>
+                  <p className="case-summary">{entry.kind === "featured" ? entry.project.summary : entry.project.description}</p>
+                  {(project.role || project.contributions?.length) && <div className="contribution">
                     <h5>담당 범위</h5>
-                    <p className="case-role">{project.role}</p>
-                    <ol className="contribution-list">
+                    {project.role && <p className="case-role">{project.role}</p>}
+                    {project.contributions && <ol className="contribution-list">
                       {project.contributions.map((item, itemIndex) => (
                         <li key={item}><span aria-hidden="true">0{itemIndex + 1}</span>{item}</li>
                       ))}
-                    </ol>
-                  </div>
-                  <ul className="tech-list" aria-label={`${project.name} 사용 기술`}>
+                    </ol>}
+                  </div>}
+                  {project.stack && <ul className="tech-list" aria-label={`${project.name} 사용 기술`}>
                     {project.stack.map((tech) => <li key={tech}>{tech}</li>)}
-                  </ul>
-                  <p className="case-note">{project.note}</p>
+                  </ul>}
+                  {entry.kind === "featured" && <p className="case-note">{entry.project.note}</p>}
+                  {entry.kind === "archive" && entry.project.offline && <p className="case-note">현재 사이트 접속 불가</p>}
                   <a className="case-read-link" href={`/projects/${project.id}`}>
                     <span>프로젝트 자세히 보기<span className="sr-only">: {project.name}</span></span>
                     <span aria-hidden="true">↗</span>
                   </a>
                 </div>
-                <ol className="chapter-deck" aria-label={`${project.name} 담당 영역`}>
-                  {project.caseStudy.chapters.map((chapter, chapterIndex) => (
+                {entry.kind === "featured" ? <ol className="chapter-deck" aria-label={`${project.name} 담당 영역`}>
+                  {entry.project.caseStudy.chapters.map((chapter, chapterIndex) => (
                     <li key={chapter.id} className="chapter-card" style={{ "--i": chapterIndex } as CSSProperties}>
                       <span className="eyebrow">0{chapterIndex + 1} / {chapter.label}</span>
                       <h5>{chapter.title}</h5>
@@ -172,12 +217,19 @@ export function WorkStage({ projects }: { projects: Project[] }) {
                       </ul>
                     </li>
                   ))}
-                </ol>
+                </ol> : <figure className="case-shot">
+                  <a className="archive-shot" href={`/projects/${project.id}`}>
+                    <img src={entry.project.image.src} alt={entry.project.image.alt} width={entry.project.image.width} height={entry.project.image.height} loading="lazy" decoding="async" />
+                    <span className="archive-shot-bar eyebrow"><span>실제 서비스 화면</span><span>프로젝트 자세히 보기 ↗</span></span>
+                    <span className="sr-only">: {project.name}</span>
+                  </a>
+                  <figcaption>기존 포트폴리오의 실제 서비스 스크린샷</figcaption>
+                </figure>}
               </div>
-              <div className="case-phases">
+              {entry.kind === "featured" && <div className="case-phases">
                 <p className="eyebrow">참여 흐름</p>
-                <PhaseStrip project={project} compact />
-              </div>
+                <PhaseStrip project={entry.project} compact />
+              </div>}
             </article>
           );
         })}

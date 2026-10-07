@@ -48,14 +48,14 @@ export default async function ProjectPage({ params }: Props) {
         {entry.kind === "featured" ? <FeaturedBody project={entry.project} index={index} /> : <ArchiveBody project={entry.project} index={index} />}
         <nav className="detail-next" aria-label="다른 프로젝트">
           <a className="detail-next-project" href={`/projects/${next.project.id}`}>
-            <span className="eyebrow">Next project / 0{projectEntries.indexOf(next) + 1}</span>
+            <span className="eyebrow">다음 프로젝트 / 0{projectEntries.indexOf(next) + 1}</span>
             <span className="next-project-name">{next.project.name}<span aria-hidden="true">↗</span></span>
             <span className="next-project-category">{categoryOf(next)}</span>
           </a>
           <div className="detail-return"><a className="text-link" href={returnAnchor(entry)}>← 작업 목록으로 돌아가기</a><a className="text-link" href="#case-top">위로 ↑</a></div>
         </nav>
       </main>
-      <footer className="detail-footer eyebrow"><span>장준영 · Fullstack developer</span><a href="/#contact">함께 일하기 ↗</a></footer>
+      <footer className="detail-footer eyebrow"><span>장준영 · 풀스택 개발자</span><a href="/#contact">함께 일하기 ↗</a></footer>
     </div>
   );
 }
@@ -65,7 +65,7 @@ function FeaturedBody({ project, index }: { project: Project; index: number }) {
   return (
     <>
       <header className="detail-cover">
-        <div className="detail-kicker eyebrow"><span>Project notes / 0{index + 1}</span><span>{project.company} · {project.period}</span></div>
+        <div className="detail-kicker eyebrow"><span>프로젝트 / 0{index + 1}</span><span>{project.company} · {project.period}</span></div>
         <div className="detail-cover-title">
           <span className="detail-cover-index" aria-hidden="true">0{index + 1}</span>
           <h1>{project.name}</h1>
@@ -80,7 +80,7 @@ function FeaturedBody({ project, index }: { project: Project; index: number }) {
       </header>
       <section id="case-overview" className="detail-overview" aria-labelledby="overview-title">
         <div className="detail-overview-copy">
-          <p className="eyebrow">Overview</p>
+          <p className="eyebrow">프로젝트 소개</p>
           <h2 id="overview-title">{project.category}</h2>
           <p className="detail-lead">{project.caseStudy.introduction}</p>
           <dl className="detail-facts">
@@ -93,12 +93,12 @@ function FeaturedBody({ project, index }: { project: Project; index: number }) {
       </section>
       <div className="detail-reading">
         <aside className="detail-contents">
-          <p className="eyebrow">In this project</p>
+          <p className="eyebrow">담당 업무</p>
           <nav aria-label="프로젝트 목차">
             {project.caseStudy.chapters.map((chapter, chapterIndex) => (
               <a href={`#${chapter.id}`} key={chapter.id}><span>0{chapterIndex + 1}</span>{chapter.label}</a>
             ))}
-            <a href="#timeline"><span>↘</span>Project timeline</a>
+            <a href="#timeline"><span>↘</span>참여 흐름</a>
           </nav>
         </aside>
         <div className="detail-chapters">
@@ -117,7 +117,7 @@ function FeaturedBody({ project, index }: { project: Project; index: number }) {
           ))}
           <section className="detail-chapter detail-timeline" id="timeline" aria-labelledby="timeline-title">
             <span className="detail-chapter-index" aria-hidden="true">↘</span>
-            <p className="eyebrow">Project timeline</p>
+            <p className="eyebrow">참여 흐름</p>
             <h2 id="timeline-title">참여의 흐름.</h2>
             <PhaseStrip project={project} titleTag="h3" />
           </section>
@@ -139,7 +139,7 @@ function ArchiveBody({ project, index }: { project: ArchiveProject; index: numbe
   return (
     <>
       <header className="detail-cover">
-        <div className="detail-kicker eyebrow"><span>Project notes / 0{index + 1}</span><span>{affiliation || "Previous project"}</span></div>
+        <div className="detail-kicker eyebrow"><span>프로젝트 / 0{index + 1}</span><span>{affiliation || "프로젝트 기록"}</span></div>
         <div className="detail-cover-title">
           <span className="detail-cover-index" aria-hidden="true">0{index + 1}</span>
           <h1>{project.name}</h1>
@@ -165,7 +165,7 @@ function ArchiveBody({ project, index }: { project: ArchiveProject; index: numbe
       </section>
       <section id="case-overview" className="detail-overview detail-overview--archive" aria-labelledby="overview-title">
         <div className="detail-overview-copy">
-          <p className="eyebrow">Overview</p>
+          <p className="eyebrow">프로젝트 소개</p>
           <h2 id="overview-title">서비스 소개.</h2>
           <p className="detail-lead">{project.description}</p>
         </div>
@@ -179,7 +179,7 @@ function ArchiveBody({ project, index }: { project: ArchiveProject; index: numbe
         <div className="detail-reading detail-reading--archive">
           <section className="detail-chapter" id="contributions" aria-labelledby="contributions-title">
             <span className="detail-chapter-index" aria-hidden="true">01</span>
-            <p className="eyebrow">01 / Contributions</p>
+            <p className="eyebrow">01 / 담당 업무</p>
             <h2 id="contributions-title">담당한 일.</h2>
             <ol className="contribution-list" aria-label={`${project.name} 담당 내역`}>
               {project.contributions.map((item, itemIndex) => <li key={item}><span aria-hidden="true">0{itemIndex + 1}</span>{item}</li>)}

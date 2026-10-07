@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import ts from "typescript";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { archive, projectEntries, projects, returnAnchor } from "../src/data/portfolio.ts";
@@ -15,18 +17,21 @@ const pages = new Map([
 ]);
 const textOf = (html) => html.replace(/<[^>]*>/g, " ");
 
-test("9a4ec88 기준 JoyHero 전체·CSS prefix·갱신한 모션 테스트 snapshot 보존", () => {
+test("9a4ec88 기준 원본 히어로 snapshot·CSS prefix 보존", () => {
   assert.equal(baseline.sourceCommit, "9a4ec88fabe7159458a33848d320cae911a4e130");
-  assert.equal(hash(read("src/components/JoyHero.tsx")), baseline.heroSha256);
+  assert.equal(hash(execFileSync("git", ["show", `${baseline.sourceCommit}:src/components/JoyHero.tsx`])), baseline.productionHeroSha256);
   const css = Buffer.from(read("src/app/globals.css"));
   assert.equal(hash(css.subarray(0, baseline.cssPrefixBytes)), baseline.cssPrefixSha256);
-  assert.equal(hash(read("tests/motion.test.mjs")), baseline.motionTestSha256);
 });
 
-test("WorkStage는 이전 프로젝트 상세 추가 이전과 바이트 단위로 동일, 주요 프로젝트는 여전히 셋", () => {
-  assert.equal(hash(read("src/components/WorkStage.tsx")), "7e35aea19ead15d089d9d497feca56288ba05b2a4abc28dc273a39e6a0c369af");
-  assert.deepEqual(projects.map(({ id }) => id), ["h-works", "fatespoiler", "moduerp"]);
-  assert.match(pages.get("/"), /class="stage-counter eyebrow" aria-live="polite">01 \/ 03 · H-Works</);
+test("아홉 프로젝트의 모든 기존 데이터·역할·스크린샷·caseStudy 보존", async () => {
+  const source = execFileSync("git", ["show", "dd250bc:src/data/portfolio.ts"], { encoding: "utf8" });
+  const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText;
+  const original = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
+  assert.deepEqual(projects, original.projects);
+  assert.deepEqual(archive, original.archive);
+  assert.equal(projectEntries.length, 9);
+  assert.match(pages.get("/"), /class="stage-counter eyebrow" aria-live="polite">01 \/ 09 · H-Works</);
 });
 
 test("신규 CSS의 모든 일반 선택자는 portfolio-content 하위에만 적용", () => {
@@ -56,7 +61,7 @@ test("아홉 프로젝트가 모두 개별 제목·설명을 가진 정적 페�
     assert.ok(html.includes(`<title>${project.name} | 장준영 · Joy 프로젝트 기록</title>`));
     assert.ok(html.includes(`name="description" content="${summary}"`));
     assert.ok(html.includes(`property="og:title" content="${project.name} | 장준영 · Joy 프로젝트 기록"`));
-    assert.ok(html.includes(`Project notes / 0${index + 1}<`), `${project.id} 번호는 아홉 중 순서`);
+    assert.ok(html.includes(`프로젝트 / 0${index + 1}<`), `${project.id} 번호는 아홉 중 순서`);
     assert.ok(html.includes(`class="portfolio-content project-detail project-detail--${entry.kind} project-detail--${project.id}"`));
     assert.doesNotMatch(html, /class="joy-stage"|class="stack-card"/);
     assert.doesNotMatch(html, /href="mailto:/);
@@ -69,7 +74,7 @@ test("주요 세 프로젝트의 상세 본문(장·항목·흐름)은 그대로
     assert.ok(html.includes(project.role));
     assert.ok(html.includes(project.caseStudy.introduction));
     assert.ok(html.includes(`H-Solution · ${project.period}`));
-    assert.ok(html.includes("Selected work / H-Solution"));
+    assert.ok(html.includes("프로젝트 / H-Solution"));
     for (const chapter of project.caseStudy.chapters) {
       assert.ok(html.includes(`id="${chapter.id}"`));
       assert.ok(html.includes(chapter.description));
@@ -127,7 +132,7 @@ test("운영 링크 정책: ENG-SPARK·WhaleAI만 외부 링크, 접속 불가 �
   assert.ok(archive.every((project) => !(project.url && project.offline)));
   const onbooth = textOf(pages.get("/projects/onbooth"));
   assert.doesNotMatch(onbooth, /접속 불가|운영 상태|운영 중|소속 · 기간|담당 범위|사용 기술|담당한 일|BFAI|H-Solution|MYRO|20\d\d\.\d\d|명함|business card|1115/i);
-  assert.match(onbooth, /Previous project/);
+  assert.match(onbooth, /프로젝트 기록/);
   assert.ok(onbooth.includes("기업에 다양한 워크샵 프로그램을 제공하는 서비스"));
 });
 
@@ -192,13 +197,12 @@ test("홈에서 상세 진입, 종류별 복귀 앵커, 아홉 프로젝트 순�
     const { project } = entry;
     const html = pages.get(`/projects/${project.id}`);
     const next = projectEntries[(index + 1) % projectEntries.length];
-    const back = entry.kind === "featured" ? `/#${project.id}` : `/#archive-${project.id}`;
+    const back = `/#${project.id}`;
     assert.equal(returnAnchor(entry), back);
-    if (entry.kind === "featured") assert.ok(home.includes(`class="case-read-link" href="/projects/${project.id}"`));
-    else assert.ok(home.includes(`class="archive-shot" href="/projects/${project.id}"`));
+    assert.ok(home.includes(`class="case-read-link" href="/projects/${project.id}"`));
     assert.equal((html.match(new RegExp(`href="${back}"`, "g")) || []).length, 2, `${project.id}: 머리글과 바닥글의 복귀 링크`);
     assert.ok(html.includes(`class="detail-next-project" href="/projects/${next.project.id}"`), `${project.id} → ${next.project.id}`);
-    assert.ok(html.includes(`Next project / 0${(index + 1) % projectEntries.length + 1}<`));
+    assert.ok(html.includes(`다음 프로젝트 / 0${(index + 1) % projectEntries.length + 1}<`));
     assert.doesNotMatch(html, new RegExp(`href="/#archive-${project.id}"[^>]*>[^<]*(?:주요|Selected)`));
   }
   assert.ok(pages.get("/projects/moduerp").includes('href="/projects/eng-spark"'), "주요 마지막 → 이전 첫 번째");

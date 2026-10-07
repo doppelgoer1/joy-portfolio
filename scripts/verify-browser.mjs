@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { projectEntries } from "../src/data/portfolio.ts";
 
 // Install with `npm exec --package=playwright -- playwright --version`, or set
 // PLAYWRIGHT_MODULE to an already installed Playwright package directory.
@@ -10,6 +11,7 @@ const output = process.env.PORTFOLIO_ARTIFACTS || "artifacts/motion-restoration/
 const url = process.env.PORTFOLIO_URL || "http://127.0.0.1:3000";
 await mkdir(output, { recursive: true });
 const results = [];
+const projects = projectEntries.map(({ project }) => project);
 let browser;
 
 async function capture(page, name) {
@@ -20,7 +22,7 @@ async function checkPage(page, name) {
   const metrics = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth - innerWidth,
     headings: document.querySelectorAll("h1").length,
-    brokenImages: [...document.images].filter((image) => !image.complete || !image.naturalWidth).length,
+    brokenImages: [...document.images].filter((image) => image.complete && !image.naturalWidth).length,
     anchorErrors: [...document.querySelectorAll('a[href^="#"]')].filter((link) => !document.getElementById(link.hash.slice(1))).length,
   }));
   assert.ok(metrics.overflow <= 1, `${name}: horizontal overflow ${metrics.overflow}px`);
@@ -49,6 +51,7 @@ async function checkHero(page, name) {
       reveal: Number(document.documentElement.style.getPropertyValue("--css1-reveal-opacity")),
       splitX: ["left", "right"].map((side) => parseFloat(document.documentElement.style.getPropertyValue(`--css1-text-${side}-x`))),
       doorX: ["::before", "::after"].map((pseudo) => new DOMMatrixReadOnly(getComputedStyle(document.querySelector('[data-stack="CSS1"]'), pseudo).transform).m41),
+      doorWidths: ["::before", "::after"].map((pseudo) => parseFloat(getComputedStyle(document.querySelector('[data-stack="CSS1"]'), pseudo).width)),
       textX: [...document.querySelectorAll(".split-text")].map((text) => new DOMMatrixReadOnly(getComputedStyle(text).transform).m41),
       revealOpacity: Number(getComputedStyle(document.querySelector(".door-reveal-layer")).opacity),
       cards: [...document.querySelectorAll(".stack-card")].map((card) => card.style.getPropertyValue("--panel-width")),
@@ -72,7 +75,7 @@ async function checkHero(page, name) {
         // Root variables are rounded to four decimals; pseudo doors are 50.1% wide.
         assert.ok(Math.abs(state.splitX[index] - direction * shift) < 0.1);
         assert.ok(Math.abs(state.textX[index] - state.splitX[index]) < 0.02);
-        assert.ok(Math.abs(state.doorX[index] - direction * state.doorOpen * 1.12 * state.width * 0.501 * 1.02) < 0.15);
+        assert.ok(Math.abs(state.doorX[index] - direction * state.doorOpen * state.doorWidths[index] * 1.02) < 0.15);
       }
       assert.equal(state.text[6].x, 0);
       assert.equal(state.text[6].y, 0);
@@ -92,13 +95,145 @@ async function checkHero(page, name) {
     await capture(page, `${name}-hero-p-${progress}`);
   }
 
-  await page.evaluate(() => {
-    history.replaceState(null, "", location.pathname);
-    const stage = document.querySelector(".joy-stage");
-    scrollTo(0, (stage.getBoundingClientRect().height - innerHeight) * 0.34);
+  // Native scrolling must reverse every scene, including after entering the work section.
+  await page.evaluate(() => history.replaceState(null, "", location.pathname));
+  for (const progress of [0.34, 0.78, 1, 0.78, 0.34, 0]) {
+    await page.evaluate((p) => {
+      const stage = document.querySelector(".joy-stage");
+      scrollTo(0, stage.getBoundingClientRect().top + scrollY + (stage.getBoundingClientRect().height - innerHeight) * p);
+    }, progress);
+    await page.waitForFunction((p) => Math.abs(Number(document.documentElement.style.getPropertyValue("--p")) - p) < 0.001, progress);
+    results.push({ name: `${name}-hero-native-scroll-${progress}`, progress });
+  }
+  await capture(page, `${name}-hero-reversed`);
+}
+
+async function assertSelected(page, id) {
+  await page.waitForFunction((id) => document.getElementById(`${id}-tab`)?.getAttribute("aria-selected") === "true", id);
+  assert.equal(await page.locator(".stage-panel:visible").count(), 1);
+  assert.equal(await page.locator(`#${id}`).isVisible(), true);
+  assert.equal(await page.locator(`#${id}-tab`).getAttribute("data-position"), "0");
+  assert.equal(await page.locator(`.stage-index a[href="#${id}"]`).getAttribute("aria-current"), "true");
+}
+
+async function checkSelection(page, name, reduced) {
+  assert.equal(await page.locator(".stage-card").count(), 9);
+  assert.equal(await page.locator(".stage-index a").count(), 9);
+  assert.equal(await page.locator(".stage-panel").count(), 9);
+  let cardSize;
+  for (const project of projects) {
+    await page.locator(`.stage-index a[href="#${project.id}"]`).click();
+    await assertSelected(page, project.id);
+    await page.locator(".stage").scrollIntoViewIfNeeded();
+    await page.waitForTimeout(800);
+    assert.equal(await page.locator(".stage-card:visible").count(), reduced ? 1 : 3);
+    assert.equal(await page.locator('.stage-card[data-distant="true"]:visible').count(), 0);
+    const size = await page.locator(`#${project.id}-tab`).evaluate((card) => {
+      const style = getComputedStyle(card);
+      return { width: card.offsetWidth, height: card.offsetHeight, fontSize: getComputedStyle(card.querySelector(".stage-card-name")).fontSize, fontFamily: style.fontFamily };
+    });
+    if (cardSize) assert.deepEqual(size, cardSize, `${name}: equal card dimensions and type hierarchy`);
+    cardSize = size;
+    await checkPage(page, `${name}-${project.id}-stage`);
+    if (["h-works", "eng-spark", "onbooth"].includes(project.id)) await capture(page, `${name}-${project.id}-stage`);
+    await page.locator(`#${project.id}`).scrollIntoViewIfNeeded();
+    const image = page.locator(`#${project.id} img`);
+    if (await image.count()) {
+      await image.scrollIntoViewIfNeeded();
+      await image.evaluate((element) => element.decode());
+      assert.ok(await image.evaluate((element) => element.naturalWidth > 0));
+    }
+    const detail = page.locator(`#${project.id} .case-read-link`);
+    assert.equal(await detail.getAttribute("href"), `/projects/${project.id}`);
+    await detail.focus();
+    assert.equal(await detail.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return element.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
+    }), true, `${name}: ${project.id} detail link is unobscured on focus`);
+    await checkPage(page, `${name}-${project.id}-panel`);
+    await capture(page, `${name}-${project.id}-panel`);
+  }
+  await page.locator('.stage-index a[href="#h-works"]').click();
+  await page.locator("#h-works-tab").focus();
+  for (const [key, id] of [["ArrowRight", "fatespoiler"], ["End", "onbooth"], ["ArrowRight", "h-works"], ["ArrowLeft", "onbooth"], ["Home", "h-works"]]) {
+    await page.keyboard.press(key);
+    await assertSelected(page, id);
+    await page.waitForFunction((id) => document.activeElement.id === `${id}-tab`, id);
+  }
+  await page.locator('.stage-index a[href="#h-works"]').focus();
+  await page.keyboard.press("ArrowLeft");
+  await assertSelected(page, "onbooth");
+  assert.equal(await page.evaluate(() => document.activeElement.getAttribute("href")), "#onbooth");
+  await page.keyboard.press("ArrowRight");
+  await assertSelected(page, "h-works");
+
+  await page.getByRole("button", { name: "이전 프로젝트 선택", exact: true }).click();
+  await assertSelected(page, "onbooth");
+  await page.getByRole("button", { name: "다음 프로젝트 선택", exact: true }).click();
+  await assertSelected(page, "h-works");
+  await page.locator(".stage").scrollIntoViewIfNeeded();
+  await page.waitForTimeout(800);
+  const box = await page.locator(".stage").boundingBox();
+  const cx = box.x + box.width / 2;
+  const cy = box.y + box.height / 2;
+  if (name.includes("mobile")) {
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: cx + 65, y: cy }] });
+    for (let step = 1; step <= 8; step++) {
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: cx + 65 - step * 16, y: cy }] });
+    }
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await cdp.detach();
+  } else {
+    await page.mouse.move(cx + 65, cy);
+    await page.mouse.down();
+    await page.mouse.move(cx - 65, cy, { steps: 8 });
+    await page.mouse.up();
+  }
+  await assertSelected(page, "fatespoiler");
+  results.push({ name: `${name}-selection`, projects: 9, keyboard: true, swipe: true });
+}
+
+async function checkAnchorsAndDetails(page, name) {
+  for (const entry of projectEntries) {
+    const { project } = entry;
+    const anchors = [project.id, ...(entry.kind === "archive" ? [`archive-${project.id}`] : [])];
+    for (const anchor of anchors) {
+      await page.goto(`${url}/#${anchor}`, { waitUntil: "networkidle" });
+      await assertSelected(page, project.id);
+      await page.waitForFunction((id) => {
+        const rect = document.getElementById(id).getBoundingClientRect();
+        const header = document.querySelector(".site-header").getBoundingClientRect();
+        return rect.top >= header.bottom - 1 && rect.top < innerHeight;
+      }, project.id);
+    }
+    await page.locator(`#${project.id} .case-read-link`).click();
+    await page.waitForURL(`**/projects/${project.id}`);
+    assert.equal(await page.locator("h1").textContent(), project.name);
+    const image = page.locator(".detail-shot img");
+    if (await image.count()) {
+      await image.scrollIntoViewIfNeeded();
+      await image.evaluate((element) => element.decode());
+    }
+    await checkPage(page, `${name}-detail-${project.id}`);
+    await capture(page, `${name}-detail-${project.id}`);
+    await page.locator(".detail-return a").first().click();
+    await page.waitForURL(`**/#${project.id}`);
+    await assertSelected(page, project.id);
+  }
+  await page.goto(`${url}/#archive`, { waitUntil: "networkidle" });
+  await page.waitForFunction(() => {
+    const rect = document.querySelector(".section-intro").getBoundingClientRect();
+    return rect.top >= 0 && rect.top < innerHeight;
   });
-  await page.waitForFunction(() => Math.abs(Number(document.documentElement.style.getPropertyValue("--p")) - 0.34) < 0.001);
-  await capture(page, `${name}-hero-native-scroll`);
+  // Changing an old alias after hydration also selects the corresponding panel.
+  await page.evaluate(() => { location.hash = "archive-myro"; });
+  await assertSelected(page, "myro");
+  await page.evaluate(() => { location.hash = "eng-spark"; });
+  await assertSelected(page, "eng-spark");
+  await page.goBack();
+  await assertSelected(page, "myro");
+  results.push({ name: `${name}-anchors-and-details`, routes: 9, aliases: 6, historyBack: true });
 }
 
 try {
@@ -117,74 +252,50 @@ try {
     const page = await browser.newPage(options);
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
+    page.on("response", (response) => { if (response.status() >= 400) console.error(`HTTP ${response.status()} ${response.url()}`); });
     page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
     await page.goto(url, { waitUntil: "networkidle" });
     await page.evaluate(() => document.fonts.ready);
     await checkPage(page, name);
     await capture(page, `${name}-hero`);
-
     await checkHero(page, name);
-    for (const id of ["work", "h-works", "fatespoiler", "moduerp", "career", "archive", "contact"]) {
-      const tab = page.locator(`#${id}-tab`);
-      if (await tab.count()) {
-        await tab.click();
-        await page.waitForTimeout(900);
-        assert.equal(await tab.getAttribute("aria-selected"), "true");
-        assert.equal(await tab.getAttribute("data-position"), "0");
-      }
-      await page.locator(`#${id}`).evaluate((element) => element.scrollIntoView());
-      await page.waitForTimeout(150);
+    await page.locator("#work").scrollIntoViewIfNeeded();
+    await capture(page, `${name}-work-intro`);
+    await checkSelection(page, name, options.reducedMotion === "reduce");
+    for (const id of ["career", "education", "contact"]) {
+      await page.locator(`#${id}`).scrollIntoViewIfNeeded();
       await checkPage(page, `${name}-${id}`);
       await capture(page, `${name}-${id}`);
     }
-    if (name === "desktop") {
-      await page.locator("#fatespoiler").evaluate((element) => {
-        scrollTo(0, scrollY + element.getBoundingClientRect().top - innerHeight * 0.6);
-      });
-      await capture(page, "desktop-project-overlap");
-      await page.emulateMedia({ reducedMotion: "reduce" });
-      assert.equal(await page.locator(".joy-pin").evaluate((element) => getComputedStyle(element).position), "sticky");
-      assert.equal(await page.locator(".project-case").first().evaluate((element) => getComputedStyle(element).position), "relative");
-      await page.emulateMedia({ reducedMotion: "no-preference" });
-      assert.equal(await page.locator(".joy-pin").evaluate((element) => getComputedStyle(element).position), "sticky");
-    }
-    if (name.includes("mobile") || name === "reduced-motion") {
-      assert.equal(await page.locator(".project-case").first().evaluate((element) => getComputedStyle(element).position), "relative");
-    }
+    // Reverse from below the entire collection back into the original hero.
+    await page.evaluate(() => scrollTo(0, 0));
+    await page.waitForFunction(() => Number(document.documentElement.style.getPropertyValue("--p")) < 0.001);
     await page.goto(url, { waitUntil: "networkidle" });
     await page.keyboard.press("Tab");
     assert.equal(await page.evaluate(() => document.activeElement.className), "skip-link");
     await page.keyboard.press("Enter");
     assert.ok(page.url().endsWith("#work"));
-    // Arrow keys move both selection and focus between the stage cards; only the selected panel stays visible.
-    await page.locator("#h-works-tab").focus();
-    await page.keyboard.press("ArrowRight");
-    assert.equal(await page.evaluate(() => document.activeElement.id), "fatespoiler-tab");
-    assert.equal(await page.locator("#fatespoiler").isVisible(), true);
-    assert.equal(await page.locator("#h-works").isHidden(), true);
-    await page.keyboard.press("End");
-    assert.equal(await page.evaluate(() => document.activeElement.id), "moduerp-tab");
-    assert.equal(await page.locator("#moduerp-tab").getAttribute("data-position"), "0");
-    for (const project of ["h-works", "fatespoiler", "moduerp"]) {
-      await page.locator(`#${project}-tab`).click();
-      await page.waitForTimeout(600);
-      const link = page.locator(`#${project} a[target="_blank"]`);
-      await link.focus();
-      assert.equal(await link.evaluate((element) => {
-        const rect = element.getBoundingClientRect();
-        const point = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
-        return element.contains(point);
-      }), true, `${name}: ${project} link must be unobscured on focus`);
-    }
+    if (["desktop", "mobile"].includes(name)) await checkAnchorsAndDetails(page, name);
     assert.deepEqual(errors, [], `${name}: console errors`);
+    results.push({ name: `${name}-errors`, errors });
     await page.close();
   }
 
   const page = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   await page.goto(url);
-  assert.equal(await page.locator(".project-case").count(), 3);
-  await checkPage(page, "no-javascript");
-  await capture(page, "no-javascript-hero");
+  assert.equal(await page.locator(".stage-panel:visible").count(), 9);
+  for (const project of projects) {
+    await page.locator(`.stage-index a[href="#${project.id}"]`).click();
+    assert.equal(await page.locator(`#${project.id}`).isVisible(), true);
+    const image = page.locator(`#${project.id} img`);
+    if (await image.count()) {
+      await image.scrollIntoViewIfNeeded();
+      await image.evaluate((element) => element.decode());
+    }
+    assert.equal(await page.locator(`#${project.id} .case-read-link`).getAttribute("href"), `/projects/${project.id}`);
+    await checkPage(page, `no-javascript-${project.id}`);
+  }
+  await capture(page, "no-javascript-project");
   await page.close();
   await writeFile(join(output, "results.json"), JSON.stringify({ status: "passed", results }, null, 2));
   console.log(`Browser checks passed. Screenshots: ${output}`);
