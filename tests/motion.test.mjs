@@ -50,7 +50,7 @@ test("최신 prod CSS 전체와 CSS1·780px·1023px 반응형 규칙 보존", ()
 
 test("최신 prod의 프로토타입 index.html 삭제 및 App Router 진입점 유지", () => {
   assert.equal(existsSync(new URL("../index.html", import.meta.url)), false);
-  assert.match(read("src/app/page.tsx"), /<JoyHero\s*\/>\s*<div className="portfolio-content">\s*<header className="site-header">/);
+  assert.match(read("src/app/page.tsx"), /<JoyHero\s*\/>\s*<div className="portfolio-content">\s*<SmoothHeader>/);
 });
 
 // Execute the actual component with controlled DOM refs and animation frames.

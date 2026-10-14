@@ -1,4 +1,5 @@
 import { JoyHero } from "../components/JoyHero";
+import { SmoothHeader } from "../components/SmoothHeader";
 import { WorkStage } from "../components/WorkStage";
 import { career, githubUrl, previousPortfolio, projectEntries } from "../data/portfolio";
 import "./portfolio-editorial.css";
@@ -10,12 +11,12 @@ export default function Home() {
       <main id="top">
         <JoyHero />
         <div className="portfolio-content">
-          <header className="site-header">
+          <SmoothHeader>
             <a className="wordmark" href="#top" aria-label="Joy 포트폴리오 처음으로"><span aria-hidden="true">[ + ]</span> Joy</a>
             <nav aria-label="주요 메뉴">
               <a href="#work">프로젝트</a><a href="#career">경력</a><a href="#education">교육</a><a href="#contact">연락</a>
             </nav>
-          </header>
+          </SmoothHeader>
           <section id="work" className="work-section" aria-labelledby="work-title">
             <span id="archive" className="project-anchor" aria-hidden="true" />
             <div className="section-intro">
