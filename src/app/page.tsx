@@ -1,7 +1,11 @@
+import { GlassNav } from "../components/GlassNav";
 import { JoyHero } from "../components/JoyHero";
 import { WorkStage } from "../components/WorkStage";
 import { archive, career, githubUrl, previousPortfolio, projects } from "../data/portfolio";
 import "./portfolio-editorial.css";
+import "./preview-transitions.css";
+import "./scroll-showcase.css";
+import "./hworks-scene.css";
 
 export default function Home() {
   return (
@@ -12,14 +16,12 @@ export default function Home() {
         <div className="portfolio-content">
           <header className="site-header">
             <a className="wordmark" href="#top" aria-label="Joy 포트폴리오 처음으로"><span aria-hidden="true">[ + ]</span> Joy</a>
-            <nav aria-label="주요 메뉴">
-              <a href="#work">작업</a><a href="#career">경력</a><a href="#archive">이전 프로젝트</a><a href="#contact">연락</a>
-            </nav>
+            <GlassNav />
           </header>
           <section id="work" className="work-section" aria-labelledby="work-title">
-            <div className="section-intro">
-              <p className="eyebrow">01 / Selected work</p>
-              <div className="intro-heading"><h2 id="work-title">주요<br /><span>프로젝트</span></h2><p>H-Solution에서 맡은<br />세 가지 프로젝트입니다.<br />카드를 골라 담당 업무를 확인하세요.</p></div>
+            <div className="showcase-intro">
+              <h2 id="work-title">주요 프로젝트 / Selected work</h2>
+              <p className="eyebrow">Scroll to explore ↓</p>
             </div>
             <WorkStage projects={projects} />
           </section>

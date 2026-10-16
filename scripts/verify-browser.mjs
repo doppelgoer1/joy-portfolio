@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { verifyHWorks } from "./verify-hworks.mjs";
 import { createRequire } from "node:module";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -17,6 +18,9 @@ async function capture(page, name) {
 }
 
 async function checkPage(page, name) {
+  await page.evaluate(async () => {
+    await Promise.all([...document.images].map(image => { image.loading = 'eager'; return image.decode().catch(() => {}); }));
+  });
   const metrics = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth - innerWidth,
     headings: document.querySelectorAll("h1").length,
@@ -48,6 +52,7 @@ async function checkHero(page, name) {
       doorOpen: Number(document.documentElement.style.getPropertyValue("--css1-door-open")),
       reveal: Number(document.documentElement.style.getPropertyValue("--css1-reveal-opacity")),
       splitX: ["left", "right"].map((side) => parseFloat(document.documentElement.style.getPropertyValue(`--css1-text-${side}-x`))),
+      doorWidth: ["::before", "::after"].map((pseudo) => parseFloat(getComputedStyle(document.querySelector('[data-stack="CSS1"]'), pseudo).width)),
       doorX: ["::before", "::after"].map((pseudo) => new DOMMatrixReadOnly(getComputedStyle(document.querySelector('[data-stack="CSS1"]'), pseudo).transform).m41),
       textX: [...document.querySelectorAll(".split-text")].map((text) => new DOMMatrixReadOnly(getComputedStyle(text).transform).m41),
       revealOpacity: Number(getComputedStyle(document.querySelector(".door-reveal-layer")).opacity),
@@ -72,7 +77,7 @@ async function checkHero(page, name) {
         // Root variables are rounded to four decimals; pseudo doors are 50.1% wide.
         assert.ok(Math.abs(state.splitX[index] - direction * shift) < 0.1);
         assert.ok(Math.abs(state.textX[index] - state.splitX[index]) < 0.02);
-        assert.ok(Math.abs(state.doorX[index] - direction * state.doorOpen * 1.12 * state.width * 0.501 * 1.02) < 0.15);
+        assert.ok(Math.abs(state.doorX[index] - direction * state.doorOpen * state.doorWidth[index] * 1.02) < 0.15);
       }
       assert.equal(state.text[6].x, 0);
       assert.equal(state.text[6].y, 0);
@@ -108,11 +113,17 @@ try {
     { name: "desktop", viewport: { width: 1440, height: 1100 }, reducedMotion: "no-preference" },
     { name: "laptop", viewport: { width: 1366, height: 768 }, reducedMotion: "no-preference" },
     { name: "short-laptop", viewport: { width: 1366, height: 700 }, reducedMotion: "no-preference" },
+    { name: "desktop-1280", viewport: { width: 1280, height: 720 }, reducedMotion: "no-preference" },
+    { name: "desktop-1024", viewport: { width: 1024, height: 700 }, reducedMotion: "no-preference" },
+    { name: "short-fallback", viewport: { width: 1280, height: 580 }, reducedMotion: "no-preference" },
     { name: "tablet", viewport: { width: 820, height: 1180 }, reducedMotion: "no-preference" },
+    { name: "short-tablet", viewport: { width: 800, height: 600 }, reducedMotion: "no-preference" },
+    { name: "wide-tablet", viewport: { width: 899, height: 700 }, reducedMotion: "no-preference" },
     { name: "mobile", viewport: { width: 390, height: 844 }, reducedMotion: "no-preference", isMobile: true, hasTouch: true },
     { name: "small-mobile", viewport: { width: 320, height: 740 }, reducedMotion: "no-preference", isMobile: true, hasTouch: true },
+    { name: "mobile-reduced-motion", viewport: { width: 390, height: 844 }, reducedMotion: "reduce", isMobile: true, hasTouch: true },
     { name: "reduced-motion", viewport: { width: 1440, height: 1100 }, reducedMotion: "reduce" },
-  ]) {
+  ].filter(config => !process.env.PORTFOLIO_VIEWPORTS || process.env.PORTFOLIO_VIEWPORTS.split(',').includes(config.name))) {
     const { name, ...options } = config;
     const page = await browser.newPage(options);
     const errors = [];
@@ -124,68 +135,80 @@ try {
     await capture(page, `${name}-hero`);
 
     await checkHero(page, name);
-    for (const id of ["work", "h-works", "fatespoiler", "moduerp", "career", "archive", "contact"]) {
-      const tab = page.locator(`#${id}-tab`);
-      if (await tab.count()) {
-        await tab.click();
-        await page.waitForTimeout(900);
-        assert.equal(await tab.getAttribute("aria-selected"), "true");
-        assert.equal(await tab.getAttribute("data-position"), "0");
-      }
-      await page.locator(`#${id}`).evaluate((element) => element.scrollIntoView());
-      await page.waitForTimeout(150);
+    await page.evaluate(() => scrollTo(0, 0));
+    const compact = await page.evaluate(() => document.querySelector('#h-works').getBoundingClientRect().top - document.querySelector('#work').getBoundingClientRect().top);
+    assert.ok(compact < 110, `${name}: compact intro ${compact}`);
+    await verifyHWorks(page, options.viewport, options.reducedMotion === 'reduce', capture);
+    const animated = options.viewport.width >= 1000 && options.viewport.height >= 700 && options.reducedMotion !== 'reduce';
+    for (const id of ['fatespoiler', 'moduerp']) {
+      await page.locator(`#${id}`).evaluate(el => { const root = el.parentElement; const siblings = [...root.children]; const before = siblings.slice(0, siblings.indexOf(el)).reduce((sum, item) => sum + item.offsetHeight, 0); scrollTo({ top: root.getBoundingClientRect().top + scrollY + before - 80, behavior: 'instant' }); });
+      await page.waitForTimeout(120);
+      assert.equal(await page.locator(`#${id}`).isVisible(), true);
       await checkPage(page, `${name}-${id}`);
       await capture(page, `${name}-${id}`);
+      for (const selector of ['.case-read-link', '.showcase-service']) {
+        const link = page.locator(`#${id} ${selector}`);
+        await link.focus();
+        assert.equal(await link.evaluate(el => { const r=el.getBoundingClientRect(); return el.contains(document.elementFromPoint(r.x+r.width/2, r.y+r.height/2)); }), true, `${name}: ${id} ${selector} unobscured`);
+      }
     }
-    if (name === "desktop") {
-      await page.locator("#fatespoiler").evaluate((element) => {
-        scrollTo(0, scrollY + element.getBoundingClientRect().top - innerHeight * 0.6);
-      });
-      await capture(page, "desktop-project-overlap");
-      await page.emulateMedia({ reducedMotion: "reduce" });
-      assert.equal(await page.locator(".joy-pin").evaluate((element) => getComputedStyle(element).position), "sticky");
-      assert.equal(await page.locator(".project-case").first().evaluate((element) => getComputedStyle(element).position), "relative");
-      await page.emulateMedia({ reducedMotion: "no-preference" });
-      assert.equal(await page.locator(".joy-pin").evaluate((element) => getComputedStyle(element).position), "sticky");
+    if (animated) {
+      await page.locator('#fatespoiler .showcase-service').focus();
+      // Scrollbar/programmatic scroll and PageDown must work without wheel/blur.
+      await page.locator('#moduerp').evaluate(el => { const root = el.parentElement; const siblings = [...root.children]; const before = siblings.slice(0, siblings.indexOf(el)).reduce((sum, item) => sum + item.offsetHeight, 0); scrollTo({ top: root.getBoundingClientRect().top + scrollY + before - 80, behavior: 'instant' }); });
+      await page.waitForTimeout(100);
+      assert.equal(await page.evaluate(() => document.elementFromPoint(innerWidth / 2, 300)?.closest('article')?.id), 'moduerp', `${name}: no stale focus elevation`);
+      await page.keyboard.press('PageDown');
+      await page.waitForTimeout(150);
+      assert.notEqual(await page.evaluate(() => document.elementFromPoint(innerWidth / 2, 300)?.closest('article')?.id), 'fatespoiler');
     }
-    if (name.includes("mobile") || name === "reduced-motion") {
-      assert.equal(await page.locator(".project-case").first().evaluate((element) => getComputedStyle(element).position), "relative");
+    for (const id of ['career', 'archive', 'contact']) {
+      await page.locator(`#${id}`).evaluate(el => el.scrollIntoView());
+      await page.waitForTimeout(120);
+      await checkPage(page, `${name}-${id}`);
     }
-    await page.goto(url, { waitUntil: "networkidle" });
-    await page.keyboard.press("Tab");
-    assert.equal(await page.evaluate(() => document.activeElement.className), "skip-link");
-    await page.keyboard.press("Enter");
-    assert.ok(page.url().endsWith("#work"));
-    // Arrow keys move both selection and focus between the stage cards; only the selected panel stays visible.
-    await page.locator("#h-works-tab").focus();
-    await page.keyboard.press("ArrowRight");
-    assert.equal(await page.evaluate(() => document.activeElement.id), "fatespoiler-tab");
-    assert.equal(await page.locator("#fatespoiler").isVisible(), true);
-    assert.equal(await page.locator("#h-works").isHidden(), true);
-    await page.keyboard.press("End");
-    assert.equal(await page.evaluate(() => document.activeElement.id), "moduerp-tab");
-    assert.equal(await page.locator("#moduerp-tab").getAttribute("data-position"), "0");
-    for (const project of ["h-works", "fatespoiler", "moduerp"]) {
-      await page.locator(`#${project}-tab`).click();
-      await page.waitForTimeout(600);
-      const link = page.locator(`#${project} a[target="_blank"]`);
-      await link.focus();
-      assert.equal(await link.evaluate((element) => {
-        const rect = element.getBoundingClientRect();
-        const point = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
-        return element.contains(point);
-      }), true, `${name}: ${project} link must be unobscured on focus`);
+    if (animated) {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      assert.equal(await page.locator('.showcase-panel').first().evaluate(el => getComputedStyle(el).position), 'relative');
+      assert.equal(await page.locator('.showcase-surface').first().evaluate(el => getComputedStyle(el).transform), 'none');
     }
+    await page.goto(url, { waitUntil: 'networkidle' });
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => document.activeElement.className), 'skip-link');
+    await page.keyboard.press('Enter');
+    assert.ok(page.url().endsWith('#work'));
+    await page.goto(`${url}/#fatespoiler`, { waitUntil: 'networkidle' });
+    assert.equal(await page.locator('#fatespoiler').isVisible(), true);
+    await page.locator('#fatespoiler .case-read-link').click();
+    await page.waitForURL('**/projects/fatespoiler');
+    assert.equal(await page.locator('h1').textContent(), 'FateSpoiler');
+    await page.goBack({ waitUntil: 'networkidle' });
+    assert.ok(page.url().endsWith('#fatespoiler'));
     assert.deepEqual(errors, [], `${name}: console errors`);
     await page.close();
   }
 
-  const page = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
-  await page.goto(url);
-  assert.equal(await page.locator(".project-case").count(), 3);
-  await checkPage(page, "no-javascript");
-  await capture(page, "no-javascript-hero");
-  await page.close();
+  for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1100 }]) {
+    const page = await browser.newPage({ javaScriptEnabled: false, viewport });
+    await page.goto(url);
+    assert.equal(await page.locator('.scroll-showcase > article').count(), 3);
+    assert.equal(await page.locator('.hworks-pin').evaluate(el => getComputedStyle(el).position), 'static');
+    assert.equal(await page.locator('.hworks-links').evaluate(el => el.inert), false);
+    assert.equal(await page.locator('.hworks-copy li').count(), 4);
+    assert.equal(await page.locator('#h-works h3').count(), 1);
+    assert.equal(await page.locator('#h-works-title').evaluate(el => getComputedStyle(el).transform), 'none');
+    for (const link of await page.locator('.hworks-links a').all()) {
+      await link.scrollIntoViewIfNeeded();
+      assert.equal(await link.isVisible(), true, 'no-JS H-Works links remain readable');
+    }
+    for (const id of ['h-works', 'fatespoiler', 'moduerp']) {
+      await page.locator(`#${id}`).evaluate(el => el.scrollIntoView());
+      assert.equal(await page.locator(`#${id}`).isVisible(), true);
+      await capture(page, `no-javascript-${viewport.width}-${id}`);
+    }
+    await checkPage(page, `no-javascript-${viewport.width}`);
+    await page.close();
+  }
   await writeFile(join(output, "results.json"), JSON.stringify({ status: "passed", results }, null, 2));
   console.log(`Browser checks passed. Screenshots: ${output}`);
 } catch (error) {

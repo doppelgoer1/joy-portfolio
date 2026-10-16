@@ -27,7 +27,8 @@ test("H-Works의 확정 담당 범위·기술·초기 기간", () => {
   const content = JSON.stringify(project);
   for (const fact of ["2025.12 ~ 2026.02", "프론트엔드·백엔드·DB", "네이버 블로그", "당근 비즈니스", "카페 댓글 관련", "이미지 크롤링", "EC2", "Amplify", "S3", "Systems Manager", "Docker", "GitHub Actions", "CI/CD"]) {
     assert.ok(content.includes(fact), fact);
-    assert.ok(text.includes(fact), `정적 HTML에서 누락: ${fact}`);
+    const detail = readFileSync(new URL("../out/projects/h-works.html", import.meta.url), "utf8").replace(/<!--[\s\S]*?-->/g, "");
+    assert.ok(detail.includes(fact), `상세 정적 HTML에서 누락: ${fact}`);
   }
   assert.deepEqual(project.stack.slice(0, 3), ["Next.js", "NestJS", "MariaDB"]);
   assert.equal(project.period, "2025.12 ~ 현재");

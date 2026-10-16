@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+import ts from 'typescript';
+const source=readFileSync(new URL('../src/components/menu-scroll.ts',import.meta.url),'utf8');
+const ctx={exports:{}};
+vm.runInNewContext(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,ctx);
+const {scrollSegments}=ctx.exports;
+test('hero travel has its own 3.6s budget before faster content travel',()=>{const s=scrollSegments(0,12000,7000);assert.equal(s.length,2);assert.equal(s[0].to,7000);assert.equal(s[0].duration,3600);assert.equal(s[1].duration,800);});
+test('nearby content is short, reverse hero and zero movement supported',()=>{assert.equal(scrollSegments(9000,9300,7000)[0].duration,550);const s=scrollSegments(12000,0,7000);assert.equal(s[1].duration,3600);assert.equal(scrollSegments(20,20,7000)[0].duration,0);});
+test('motion reduction and user-input cancellation are explicit',()=>{for(const name of ['wheel','touchstart','pointerdown','resize','popstate','keydown']){assert.ok(source.includes(`addEventListener("${name}"`));assert.ok(source.includes(`removeEventListener("${name}"`));}assert.match(source,/prefers-reduced-motion/);assert.match(source,/cancelAnimationFrame/);});
