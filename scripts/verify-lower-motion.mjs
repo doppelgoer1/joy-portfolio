@@ -85,9 +85,95 @@ async function newPage(viewport, extra = {}) {
   await page.waitForTimeout(1100); // Let the existing selection entrance finish.
   return { context, page, errors };
 }
+
+async function verifyTimelineSources(page, name, id) {
+  await check(`${name} R-2 ${id} document scrollers`, async () => {
+    const animations = await page.evaluate(() => document.getAnimations()
+      .filter(a => a.timeline instanceof ScrollTimeline)
+      .map(a => ({
+        animation: a.animationName,
+        target: `${a.effect.target.tagName}.${a.effect.target.className}${a.effect.pseudoElement || ''}`,
+        source: a.timeline.source === document.documentElement ? 'document' : a.timeline.source?.className,
+      })));
+    assert.ok(animations.length > 0, 'No scroll-driven animations inspected');
+    assert.deepEqual(animations.filter(a => a.source !== 'document'), [], JSON.stringify(animations));
+    return animations;
+  });
+}
+
+async function verifyArchiveMotion(page, viewport, errors) {
+  const name = `${viewport.width}x${viewport.height}`;
+  const ids = await page.locator('.stage-panel:has(.archive-shot img)').evaluateAll(es => es.map(e => e.id));
+  await check(`${name} A-5 six archive panels`, async () => { assert.equal(ids.length, 6); return ids; });
+  for (const id of ids) {
+    await page.locator(`.stage-index a[href="#${id}"]`).click();
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(1100);
+    const shot = page.locator(`#${id} .archive-shot`);
+    await shot.locator('img').scrollIntoViewIfNeeded();
+    await shot.locator('img').evaluate(e => e.decode());
+    await verifyTimelineSources(page, name, id);
+    await check(`${name} A-5 ${id} parallax progress and coverage`, async () => {
+      const { top, height, viewport: h } = await layout(page, `#${id} .archive-shot`);
+      const records = [];
+      const forwardStates = new Map();
+      for (const direction of ['forward', 'reverse']) {
+        await settle(page, direction === 'forward' ? top - h - 100 : 1e9);
+        for (const cover of direction === 'forward' ? [0, 25, 50, 75, 100] : [100, 75, 50, 25, 0]) {
+          await settle(page, top - h + (h + height) * cover / 100);
+          const value = await shot.evaluate(e => {
+            const img = e.querySelector('img'), animation = img.getAnimations()[0];
+            const style = getComputedStyle(img), matrix = new DOMMatrixReadOnly(style.transform);
+            const rect = e.getBoundingClientRect(), imageRect = img.getBoundingClientRect();
+            return {
+              scrollY, progress: animation?.currentTime?.value,
+              source: animation?.timeline?.source === document.documentElement ? 'document' : animation?.timeline?.source?.className,
+              imageHeight: parseFloat(style.height), translateY: matrix.m42,
+              translatePercent: matrix.m42 / parseFloat(style.height) * 100,
+              scale: matrix.m22,
+              topGap: imageRect.top - (rect.top + e.clientTop),
+              bottomGap: e.querySelector('.archive-shot-bar').getBoundingClientRect().top - imageRect.bottom,
+              overflow: document.documentElement.scrollWidth - innerWidth,
+            };
+          });
+          records.push({ direction, cover, ...value });
+          const state = await sample(page);
+          if (direction === 'forward') forwardStates.set(cover, state);
+          else sameState(forwardStates.get(cover), state, `${id} cover ${cover} reverse`);
+          if (direction === 'forward' && cover === 50) {
+            await page.waitForTimeout(350);
+            sameState(state, await sample(page), `${id} stopped scrub`);
+          }
+        }
+      }
+      // Persist measurements even when an assertion below catches a regression.
+      await writeFile(join(output, `${name}-${id}-parallax.json`), JSON.stringify(records, null, 2));
+      const shift = viewport.width <= 999 ? 2 : 3;
+      for (const record of records) {
+        const detail = JSON.stringify(record);
+        assert.equal(record.source, 'document', detail);
+        assert.ok(Math.abs(record.progress - record.cover) <= 3, detail);
+        assert.ok(Math.abs(record.translatePercent - shift * (record.cover / 50 - 1)) <= .1, detail);
+        if (record.cover === 0 || record.cover === 100) {
+          assert.ok(record.topGap <= 0, detail);
+          assert.ok(record.bottomGap <= 0, detail);
+        }
+        assert.equal(record.overflow, 0, detail);
+      }
+      assert.deepEqual(errors, []);
+      return records;
+    });
+  }
+}
 try {
   for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
     const name = `${viewport.width}x${viewport.height}`;
+    if (process.env.MOTION_ONLY_ARCHIVE === '1') {
+      const { context, page, errors } = await newPage(viewport);
+      await verifyArchiveMotion(page, viewport, errors);
+      await context.close();
+      continue;
+    }
     if (process.env.MOTION_ONLY_PERF !== '1') {
     if (process.env.MOTION_ONLY_STATIC !== '1') {
     const states = new Map();
@@ -230,10 +316,12 @@ try {
         if(record.image)assert.equal(record.image,'scene-shot');
         const img=page.locator(`#${id} img`);
         if(await img.count()) {await img.scrollIntoViewIfNeeded();await img.evaluate(e=>e.decode());assert.ok(await img.evaluate(e=>e.naturalWidth>0));}
+        await verifyTimelineSources(page, name, id);
         records.push(record);
       }
       return records;
     });
+    await verifyArchiveMotion(page, viewport, errors);
     await check(`${name} A-6 selection transforms`, async () => {
       await page.mouse.move(0,0);
       const values=await page.locator('.stage-card').evaluateAll(es=>es.filter(e=>e.dataset.position==='-1'||e.dataset.position==='1').map(e=>({position:e.dataset.position,ry:getComputedStyle(e).getPropertyValue('--ry').trim(),duration:getComputedStyle(e).transitionDuration})));

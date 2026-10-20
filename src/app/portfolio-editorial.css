@@ -312,7 +312,8 @@
     .portfolio-content .stage-panel .case-content h4,
     .portfolio-content .stage-panel .case-summary { --rise: 18px; animation-range: entry 5% entry 65%; }
     .portfolio-content .stage-panel .case-body > :last-child { animation: scene-drift linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
-    .portfolio-content .stage-panel .archive-shot img { --shot-shift: 3%; animation: scene-shot linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; transition: none; }
+    .portfolio-content .stage-panel .archive-shot { view-timeline-name: --shot; view-timeline-axis: block; }
+    .portfolio-content .stage-panel .archive-shot img { --shot-shift: 3%; animation: scene-shot linear both; animation-timeline: --shot; animation-range: cover 0% cover 100%; transition: none; }
     .portfolio-content .stage-panel .archive-shot:hover { transform: translateY(-4px) scale(1.02); }
     .portfolio-content .stage-panel .archive-shot-bar { position: relative; }
     .portfolio-content .stage-panel .case-read-link { --rise: 12px; animation-range: entry 0% entry 60%; }
