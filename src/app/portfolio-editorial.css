@@ -319,9 +319,9 @@
 
     /* S4: one timeline per row synchronizes its line, number and company name. */
     .portfolio-content .career-list li { view-timeline-name: --career-row; }
-    .portfolio-content .career-list li::after { animation: career-fill linear both; animation-timeline: --career-row; animation-range: cover 12% cover 46%; }
-    .portfolio-content .career-index { animation: editorial-count linear both, career-focus linear both; animation-timeline: view(), --career-row; animation-range: entry 0% entry 70%, cover 12% cover 46%; }
-    .portfolio-content .career-company h3 { animation: career-name linear both; animation-timeline: --career-row; animation-range: cover 12% cover 46%; }
+    .portfolio-content .career-list li::after { animation: career-fill linear both; animation-timeline: --career-row; animation-range: cover 15dvh cover 60dvh; }
+    .portfolio-content .career-index { animation: editorial-count linear both, career-focus linear both; animation-timeline: view(), --career-row; animation-range: entry 0% entry 70%, cover 15dvh cover 60dvh; }
+    .portfolio-content .career-company h3 { animation: career-name linear both; animation-timeline: --career-row; animation-range: cover 15dvh cover 60dvh; }
 
     /* S5: use the section timeline so the footer completes before the scroll limit. */
     .portfolio-content .education { --rise: 16px; animation-range: entry 0% entry 90%; }

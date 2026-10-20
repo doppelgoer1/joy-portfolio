@@ -72,6 +72,12 @@ function sameState(a, b, name) {
 async function newPage(viewport, extra = {}) {
   const context = await browser.newContext({ viewport, ...(viewport.width <= 600 ? {isMobile: true, hasTouch: true} : {}), ...extra });
   const page = await context.newPage();
+  if (extra.recordVideo) {
+    // Match Chrome's capture surface to the emulated viewport; window limits can pad recordings.
+    const capture = await context.newCDPSession(page);
+    await capture.send('Emulation.setVisibleSize', viewport);
+    await capture.detach();
+  }
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
@@ -128,6 +134,8 @@ try {
       await video.saveAs(join(output, `${name}-${direction}.webm`));
     }
 
+    if (process.env.MOTION_ONLY_VIDEO === '1') continue;
+
     const { context, page, errors } = await newPage(viewport);
     await check(`${name} A-3 finale complete`, async () => {
       await settle(page, 1e9);
@@ -135,20 +143,79 @@ try {
       for (const v of values) { assert.equal(v.opacity, 1); assert.deepEqual(v.matrix, [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]); }
       return values;
     });
-    await check(`${name} A-4 row progress`, async () => {
+    for (const rowNumber of [1, 2, 3]) {
+      await check(`${name} A-4 row ${rowNumber} progress`, async () => {
+        const row = `.career-list li:nth-child(${rowNumber})`;
+        const { top } = await layout(page, row);
+        const values = [];
+        // Approach both endpoints from each direction in the approved reading band.
+        await settle(page, top - viewport.height);
+        for (const direction of ['forward', 'reverse']) {
+          if (direction === 'reverse') await settle(page, top - viewport.height * .3);
+          for (const fraction of direction === 'forward' ? [.85, .4] : [.4, .85]) {
+            await settle(page, top - viewport.height * fraction);
+            const value = await page.locator(row).evaluate(e => {
+              const style = getComputedStyle(e);
+              const color = getComputedStyle(e.querySelector('.career-index')).color;
+              const canvas = document.createElement('canvas').getContext('2d');
+              function rgb(color) {
+                canvas.clearRect(0, 0, 1, 1);
+                canvas.fillStyle = color;
+                canvas.fillRect(0, 0, 1, 1);
+                return [...canvas.getImageData(0, 0, 1, 1).data].slice(0, 3);
+              }
+              return {
+                fill: new DOMMatrixReadOnly(getComputedStyle(e, '::after').transform).m22,
+                opacity: Number(getComputedStyle(e.querySelector('.career-company h3')).opacity),
+                color, rgb: rgb(color),
+                muted: rgb(style.getPropertyValue('--muted')),
+                accent: rgb(style.getPropertyValue('--accent')),
+              };
+            });
+            const end = fraction === .4;
+            assert.ok(Math.abs(value.fill - (end ? 1 : 0)) <= .05, JSON.stringify(value));
+            assert.ok(Math.abs(value.opacity - (end ? 1 : .45)) <= .03, JSON.stringify(value));
+            const expectedColor = end ? value.accent : value.muted;
+            value.rgb.forEach((channel, i) => assert.ok(Math.abs(channel - expectedColor[i]) <= 5, JSON.stringify(value)));
+            if (direction === 'reverse') {
+              const forward = values.find(v => v.fraction === fraction);
+              assert.ok(Math.abs(forward.fill - value.fill) <= .05);
+              assert.ok(Math.abs(forward.opacity - value.opacity) <= .01);
+              assert.equal(forward.color, value.color);
+            }
+            values.push({ direction, fraction, ...value });
+          }
+        }
+        return values;
+      });
+    }
+    await check(`${name} A-9 career track unclipped`, async () => {
       const row = '.career-list li:nth-child(2)';
-      const {top} = await layout(page, row); const values = [];
-      for (const fraction of [.85, .4, .85]) {
-        await settle(page, top - viewport.height*fraction);
-        const value = await page.locator(row).evaluate(e => ({ fill: new DOMMatrixReadOnly(getComputedStyle(e,'::after').transform).m22, color: getComputedStyle(e.querySelector('.career-index')).color }));
-        values.push({fraction,...value});
-        assert.ok(Math.abs(value.fill - (fraction === .85 ? 0 : 1)) <= .05, JSON.stringify(values));
+      const { top } = await layout(page, row);
+      await settle(page, top - viewport.height * .5);
+      const line = await page.locator(row).evaluate(e => {
+        const r = e.getBoundingClientRect(), s = getComputedStyle(e, '::after');
+        const x = parseFloat(s.left), width = parseFloat(s.width);
+        const left = r.left + x, right = left + width;
+        const top = r.top + parseFloat(s.top), bottom = top + parseFloat(s.height);
+        const ancestors = [];
+        for (let n = e; n; n = n.parentElement) {
+          const cs = getComputedStyle(n), rect = n.getBoundingClientRect();
+          ancestors.push({ tag: n.tagName, className: n.className,
+            clipX: ['hidden', 'clip', 'auto', 'scroll'].includes(cs.overflowX),
+            clipY: ['hidden', 'clip', 'auto', 'scroll'].includes(cs.overflowY),
+            left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom });
+        }
+        return { x, width, left, right, top, bottom, bodyX: e.querySelector(':scope > div').getBoundingClientRect().left, ancestors };
+      });
+      assert.ok(line.right < line.bodyX);
+      assert.ok(line.left >= 0 && line.right <= viewport.width);
+      for (const ancestor of line.ancestors) {
+        if (ancestor.clipX) assert.ok(line.left >= ancestor.left && line.right <= ancestor.right, JSON.stringify(ancestor));
+        if (ancestor.clipY) assert.ok(line.top >= ancestor.top && line.bottom <= ancestor.bottom, JSON.stringify(ancestor));
       }
-      assert.equal(values[0].color, values[2].color); assert.notEqual(values[0].color, values[1].color);
-      await settle(page, top - viewport.height*.62);
-      await page.screenshot({path:join(output,`${name}-career-track.png`)});
-      const line = await page.locator(row).evaluate(e => ({x:parseFloat(getComputedStyle(e,'::after').left), bodyX:e.querySelector(':scope > div').offsetLeft}));
-      assert.ok(line.x + 2 < line.bodyX); return {values,line};
+      await page.screenshot({ path: join(output, `${name}-career-track.png`) });
+      return line;
     });
     await check(`${name} A-5 all nine equal`, async () => {
       const ids = await page.locator('.stage-index nav a').evaluateAll(es=>es.map(e=>e.hash.slice(1)));
@@ -181,7 +248,19 @@ try {
       for(const id of ['work','career','education','contact']) {
         await page.locator(`.site-header a[href="#${id}"]`).click();
         await page.waitForFunction(id=>{const e=document.getElementById(id),target=e.getBoundingClientRect().top+scrollY-parseFloat(getComputedStyle(e).scrollMarginTop);return Math.abs(scrollY-Math.min(target,document.documentElement.scrollHeight-innerHeight))<1;},id);
-        records.push(await page.locator(`#${id}`).evaluate(e=>({id:e.id,top:e.getBoundingClientRect().top,margin:getComputedStyle(e).scrollMarginTop,scrollY,maxScroll:document.documentElement.scrollHeight-innerHeight})));
+        const record = await page.locator(`#${id}`).evaluate(e => {
+          const r = e.getBoundingClientRect(), margin = parseFloat(getComputedStyle(e).scrollMarginTop);
+          const maxScroll = document.documentElement.scrollHeight - innerHeight;
+          return { id: e.id, top: r.top, bottom: r.bottom, margin, scrollY, maxScroll,
+            expected: Math.min(r.top + scrollY - margin, maxScroll),
+            headerBottom: document.querySelector('.site-header').getBoundingClientRect().bottom, viewport: innerHeight };
+        });
+        assert.ok(Math.abs(record.scrollY - record.expected) <= 1, JSON.stringify(record));
+        if (id === 'contact') {
+          assert.ok(record.top >= record.headerBottom, JSON.stringify(record));
+          assert.ok(record.bottom <= record.viewport + 1, JSON.stringify(record));
+        } else assert.ok(Math.abs(record.top - (viewport.width <= 600 ? 84 : 92)) <= 1, JSON.stringify(record));
+        records.push(record);
       }
       return records;
     });
@@ -232,7 +311,7 @@ try {
         }
         if(mode==='reduce'){
           assert.equal(await p.locator('.site-header').evaluate(e=>getComputedStyle(e,'::after').display),'none');
-          assert.equal(await p.locator('.career-list li').first().evaluate(e=>new DOMMatrixReadOnly(getComputedStyle(e,'::after').transform).m22),1);
+          assert.deepEqual(await p.locator('.career-list li').evaluateAll(es => es.map(e => new DOMMatrixReadOnly(getComputedStyle(e, '::after').transform).m22)), [1, 1, 1]);
         }
         await p.screenshot({path:join(output,`${name}-${mode}.png`)});return {readable:true};
       });
