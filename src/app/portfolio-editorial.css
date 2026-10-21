@@ -12,7 +12,7 @@
 /* The complete index keeps every project one selection away, including without JavaScript. */
 .portfolio-content .stage-index { padding: 0 var(--gutter) clamp(32px, 4vw, 56px); }
 .portfolio-content .stage-index > p { display: flex; justify-content: space-between; padding-bottom: 12px; color: var(--red); }
-.portfolio-content .stage-index nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid oklch(0.7 0.01 65); }
+.portfolio-content .stage-index nav { display: flex; flex-direction: column; border-top: 1px solid oklch(0.7 0.01 65); }
 .portfolio-content .stage-index a { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 12px 16px; border-bottom: 1px solid oklch(0.7 0.01 65); font-size: 15px; font-weight: 600; line-height: 1.5; transition: background 200ms ease-out, color 200ms ease-out; }
 .portfolio-content .stage-index a[aria-current="true"] { background: var(--red); color: var(--paper); }
 .portfolio-content .stage-index a:hover { background: var(--ink); color: var(--paper); }
@@ -60,8 +60,6 @@
 .portfolio-content .project-case { position: relative; top: auto; padding-block: 40px clamp(64px, 7vw, 104px); scroll-margin-top: calc(var(--header-height) + 20px); --num: var(--accent); }
 .portfolio-content .project-case--fatespoiler { --num: var(--paper); }
 .portfolio-content .project-case--moduerp { --num: var(--red); }
-.portfolio-content .stage-panel.is-active { animation: stage-panel-in 560ms var(--ease-out) both; }
-@keyframes stage-panel-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 .portfolio-content .chapter-deck { list-style: none; display: grid; gap: 10px; align-content: start; perspective: 1400px; }
 .portfolio-content .chapter-card { display: grid; gap: 12px; padding: 22px clamp(18px, 2vw, 28px) 24px; border: 1px solid var(--line); background: color-mix(in oklch, currentColor 5%, transparent); transform-origin: 0% 50%; }
 .portfolio-content .chapter-card > .eyebrow { color: var(--num); }
@@ -69,8 +67,6 @@
 .portfolio-content .chapter-card p { font-size: 14px; line-height: 1.8; color: var(--muted); }
 .portfolio-content .chapter-items { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
 .portfolio-content .chapter-items li { border: 1px solid color-mix(in oklch, currentColor 40%, transparent); padding: 5px 9px; font-size: 12px; font-weight: 600; letter-spacing: -.01em; }
-.portfolio-content .stage-panel.is-active .chapter-card { animation: chapter-unfold 680ms var(--ease-out) both; animation-delay: calc(180ms + var(--i, 0) * 120ms); }
-@keyframes chapter-unfold { from { opacity: 0; transform: rotateY(-26deg) translateX(-32px); } to { opacity: 1; transform: none; } }
 .portfolio-content .case-meta { padding-bottom: 24px; border-bottom: 1px solid var(--line); }
 .portfolio-content .case-heading { margin-block: 36px 44px; align-items: end; }
 .portfolio-content .case-heading h3 { font-size: clamp(36px, 4.6vw, 76px); line-height: 1.12; letter-spacing: -.045em; overflow-wrap: anywhere; }
@@ -239,28 +235,7 @@
 .portfolio-content .detail-footer a { min-height: 44px; display: flex; align-items: center; }
 
 /* ---------- Scroll reveal for new content only. Perspective entrance stays on large screens. ---------- */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .portfolio-content .phase-strip li,
-    .portfolio-content .contribution-list li,
-    .portfolio-content .career-list li,
-    .portfolio-content .archive-list li,
-    .portfolio-content .detail-cover-scope li,
-    .portfolio-content .responsibility-list > div { animation: editorial-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 50%; }
-    .portfolio-content .phase-strip li:nth-child(2),
-    .portfolio-content .detail-cover-scope li:nth-child(2) { animation-range: entry 10% entry 65%; }
-    .portfolio-content .phase-strip li:nth-child(3),
-    .portfolio-content .detail-cover-scope li:nth-child(3) { animation-range: entry 20% entry 80%; }
-    .portfolio-content .detail-chapter-index,
-    .portfolio-content .career-index { animation: editorial-count linear both; animation-timeline: view(); animation-range: entry 0% entry 70%; }
-    @keyframes editorial-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes editorial-count { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
-  }
-  @media (min-width: 1200px) and (min-height: 900px) and (prefers-reduced-motion: no-preference) {
-    .portfolio-content .work-plate { animation: case-plate-arrive linear both; animation-timeline: view(); animation-range: entry 0% entry 100%; transform-origin: center bottom; }
-    @keyframes case-plate-arrive { from { transform: perspective(1600px) translateY(28px) rotateX(4deg) scale(.96); } to { transform: perspective(1600px) translateY(0) rotateX(0) scale(1); } }
-  }
-}
+
 
 /* ---------- Lower-half scenes: native scroll timelines, no additional JS driver ---------- */
 .portfolio-content { --career-track-x: 86px; --rise: 24px; }
@@ -277,96 +252,7 @@
   .portfolio-content { --career-track-x: -10px; }
 }
 
-@supports (animation-timeline: view()) {
-  @media screen and (prefers-reduced-motion: no-preference) {
-    .portfolio-content { view-timeline-name: --content; view-timeline-axis: block; }
-    .portfolio-content .site-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); transform-origin: 0 50%; animation: content-progress linear both; animation-timeline: --content; animation-range: contain 0% contain 100%; }
 
-    /* S1: the hero's final frame hands over to the project introduction. */
-    .portfolio-content .section-intro .eyebrow,
-    .portfolio-content .intro-heading h2,
-    .portfolio-content .intro-heading > p,
-    .portfolio-content .stage-index nav a,
-    .portfolio-content .stage,
-    .portfolio-content .stage-controls,
-    .portfolio-content .stage-panel .case-heading h3,
-    .portfolio-content .stage-panel .case-content h4,
-    .portfolio-content .stage-panel .case-summary,
-    .portfolio-content .stage-panel .case-read-link,
-    .portfolio-content .education { animation: scene-rise linear both; animation-timeline: view(); }
-    .portfolio-content .section-intro .eyebrow { --rise: 24px; animation-range: entry 0% entry 60%; }
-    .portfolio-content .intro-heading h2 { --rise: 40px; animation-range: entry 0% entry 70%; }
-    .portfolio-content .intro-heading > p { --rise: 24px; animation-range: entry 10% entry 85%; }
-
-    /* S2: wrappers own scroll motion; the cards retain their selection transitions. */
-    .portfolio-content .stage-index nav a { --rise: 14px; animation-range: entry 0% entry 45%; }
-    .portfolio-content .stage-index nav a:nth-child(n+4) { animation-range: entry 10% entry 55%; }
-    .portfolio-content .stage-index nav a:nth-child(n+7) { animation-range: entry 20% entry 65%; }
-    .portfolio-content .stage { --rise: 56px; animation-range: entry 0% entry 65%; view-timeline-name: --stage; }
-    .portfolio-content .stage::before { animation: scene-floor linear both; animation-timeline: --stage; animation-range: entry 20% entry 80%; }
-    .portfolio-content .stage-controls { --rise: 16px; animation-range: entry 0% entry 70%; }
-
-    /* S3: both kinds of project use the same column drift. Reading copy settles on entry. */
-    .portfolio-content .stage-panel .case-meta { animation: scene-fade linear both; animation-timeline: view(); animation-range: entry 0% entry 50%; }
-    .portfolio-content .stage-panel .case-heading h3 { --rise: 28px; animation-range: entry 0% entry 55%; }
-    .portfolio-content .stage-panel .case-content h4,
-    .portfolio-content .stage-panel .case-summary { --rise: 18px; animation-range: entry 5% entry 65%; }
-    .portfolio-content .stage-panel .case-body > :last-child { animation: scene-drift linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
-    .portfolio-content .stage-panel .archive-shot { view-timeline-name: --shot; view-timeline-axis: block; }
-    .portfolio-content .stage-panel .archive-shot img { --shot-shift: 3%; animation: scene-shot linear both; animation-timeline: --shot; animation-range: cover 0% cover 100%; transition: none; }
-    .portfolio-content .stage-panel .archive-shot:hover { transform: translateY(-4px) scale(1.02); }
-    .portfolio-content .stage-panel .archive-shot-bar { position: relative; }
-    .portfolio-content .stage-panel .case-read-link { --rise: 12px; animation-range: entry 0% entry 60%; }
-
-    /* S4: one timeline per row synchronizes its line, number and company name. */
-    .portfolio-content .career-list li { view-timeline-name: --career-row; }
-    .portfolio-content .career-list li::after { animation: career-fill linear both; animation-timeline: --career-row; animation-range: cover 15dvh cover 60dvh; }
-    .portfolio-content .career-index { animation: editorial-count linear both, career-focus linear both; animation-timeline: view(), --career-row; animation-range: entry 0% entry 70%, cover 15dvh cover 60dvh; }
-    .portfolio-content .career-company h3 { animation: career-name linear both; animation-timeline: --career-row; animation-range: cover 15dvh cover 60dvh; }
-
-    /* S5: use the section timeline so the footer completes before the scroll limit. */
-    .portfolio-content .education { --rise: 16px; animation-range: entry 0% entry 90%; }
-    .portfolio-content .contact-section { view-timeline-name: --contact; }
-    .portfolio-content .contact-section > p.eyebrow { animation: scene-fade linear both; animation-timeline: --contact; animation-range: cover 0% cover 20%; }
-    .portfolio-content .contact-section h2 { --rise: 48px; animation: finale-rise linear both; animation-timeline: --contact; animation-range: cover 0% cover 30%; }
-    .portfolio-content .contact-bottom { --rise: 24px; animation: scene-rise linear both; animation-timeline: --contact; animation-range: cover 6% cover 33%; }
-    .portfolio-content .footer-line { animation: scene-fade linear both; animation-timeline: --contact; animation-range: cover 12% cover 36%; }
-
-    @keyframes content-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-    @keyframes scene-rise { from { opacity: 0; transform: translateY(var(--rise)); } to { opacity: 1; transform: none; } }
-    @keyframes scene-fade { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes scene-floor { from { opacity: 0; transform: scaleX(.6); } to { opacity: 1; transform: scaleX(1); } }
-    @keyframes scene-drift { from { transform: translateY(32px); } to { transform: translateY(-32px); } }
-    @keyframes scene-shot { from { transform: translateY(calc(-1 * var(--shot-shift))) scale(1.06); } to { transform: translateY(var(--shot-shift)) scale(1.06); } }
-    @keyframes career-fill { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-    @keyframes career-focus { from { color: var(--muted); } to { color: var(--accent); } }
-    @keyframes career-name { from { opacity: .45; } to { opacity: 1; } }
-    @keyframes finale-rise { from { opacity: .15; transform: translateY(var(--rise)); } to { opacity: 1; transform: none; } }
-
-    @media (max-width: 999px) {
-      .portfolio-content .stage-panel .case-heading h3 { --rise: 20px; }
-      .portfolio-content .stage-panel .case-content h4,
-      .portfolio-content .stage-panel .case-summary { --rise: 12px; }
-      .portfolio-content .stage-panel .case-body > :last-child { animation: none; transform: none; }
-      .portfolio-content .stage-panel .archive-shot img { --shot-shift: 2%; }
-      .portfolio-content .stage-panel .case-read-link { --rise: 8px; }
-    }
-    @media (max-width: 600px) {
-      .portfolio-content .section-intro .eyebrow,
-      .portfolio-content .intro-heading > p { --rise: 12px; }
-      .portfolio-content .intro-heading h2 { --rise: 20px; }
-      .portfolio-content .stage-index nav a { --rise: 7px; }
-      .portfolio-content .stage { --rise: 28px; }
-      .portfolio-content .stage-controls,
-      .portfolio-content .education { --rise: 8px; }
-      .portfolio-content .stage-panel .case-heading h3 { --rise: 14px; }
-      .portfolio-content .stage-panel .case-content h4,
-      .portfolio-content .stage-panel .case-summary { --rise: 8px; }
-      .portfolio-content .contact-section h2 { --rise: 24px; }
-      .portfolio-content .contact-bottom { --rise: 12px; }
-    }
-  }
-}
 
 /* Static fallback is visible by default, including reduced motion and print. */
 @media (prefers-reduced-motion: reduce) {
@@ -404,7 +290,6 @@
 @media (max-width: 600px) {
   .portfolio-content .intro-heading h2 { font-size: clamp(36px, 9.5vw, 54px); }
   .portfolio-content .intro-heading > p { font-size: 15px; }
-  .portfolio-content .stage-index nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .portfolio-content .stage-index a { font-size: 13px; gap: 8px; padding: 10px 8px; }
   .portfolio-content .stage-index-mark { display: none; }
   .portfolio-content .work-stage { --card-w: min(72vw, 300px); --card-h: calc(var(--card-w) * 1.22); }

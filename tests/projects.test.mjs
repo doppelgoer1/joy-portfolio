@@ -46,7 +46,7 @@ test("신규 CSS의 모든 일반 선택자는 portfolio-content 하위에만 �
   }
   assert.match(css, /prefers-reduced-motion: no-preference/);
   assert.match(css, /prefers-reduced-motion: reduce/);
-  assert.match(css, /@supports \(animation-timeline: view\(\)\)/);
+  assert.doesNotMatch(css, /@supports \(animation-timeline: view\(\)\)/);
 });
 
 test("아홉 프로젝트가 모두 개별 제목·설명을 가진 정적 페이지로 생성", () => {

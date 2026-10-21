@@ -139,8 +139,7 @@ test("무대 CSS: 원근·rotateY·터치·키보드 포커스·reduced-motion �
   assert.match(css, /\.portfolio-content \.stage-card\[data-position="1"\] \{[^}]*--ry: -36;/);
   assert.match(css, /\.portfolio-content \.stage-card \{[^}]*rotateY\(calc\(var\(--ry\) \* 1deg\)\)/);
   assert.match(css, /\.portfolio-content \.stage-card:focus-visible \{ outline: 3px solid/);
-  assert.match(css, /@keyframes chapter-unfold \{ from \{ opacity: 0; transform: rotateY\(-26deg\)/);
-  assert.match(css, /\.portfolio-content \.stage-panel\.is-active \.chapter-card \{[^}]*animation-delay: calc\(180ms \+ var\(--i, 0\) \* 120ms\)/);
+  assert.doesNotMatch(css, /chapter-unfold|stage-panel-in|animation-timeline: view/);
   const reduced = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce) {"));
   assert.match(reduced, /\.portfolio-content \.stage \{[^}]*perspective: none;[^}]*grid-template-columns: minmax\(0, 1fr\)/);
   assert.match(reduced, /\.portfolio-content \.stage-card \{[^}]*position: static;[^}]*transform: none;/);
@@ -183,6 +182,7 @@ function mountStage(hash = "") {
     document: { getElementById: (id) => ({ scrollIntoView: () => scrolls.push({ id, hidden: nodes.find((node) => node.props.id === id)?.props.hidden }) }) },
     require: (name) => {
       if (name === "./stage-selection") return selection;
+      if (name === "./WorkTransition") return { WorkTransition: () => null };
       if (name === "./PhaseStrip") return { PhaseStrip: () => null };
       if (name === "react/jsx-runtime") return { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) };
       if (name === "react") return {

@@ -3,6 +3,7 @@ import { SmoothHeader } from "../components/SmoothHeader";
 import { WorkStage } from "../components/WorkStage";
 import { career, githubUrl, previousPortfolio, projectEntries } from "../data/portfolio";
 import "./portfolio-editorial.css";
+import "./work-transition.css";
 
 export default function Home() {
   return (
@@ -17,12 +18,7 @@ export default function Home() {
               <a href="#work">프로젝트</a><a href="#career">경력</a><a href="#education">교육</a><a href="#contact">연락</a>
             </nav>
           </SmoothHeader>
-          <section id="work" className="work-section" aria-labelledby="work-title">
-            <span id="archive" className="project-anchor" aria-hidden="true" />
-            <div className="section-intro">
-              <p className="eyebrow">01 / 프로젝트</p>
-              <div className="intro-heading"><h2 id="work-title">직접 참여한<br /><span>아홉 프로젝트</span></h2><p>풀스택 개발자 장준영입니다.<br />프론트엔드·백엔드·DB 설계부터 업무 자동화, 앱 개발, AWS 인프라와 CI/CD 배포 자동화까지 맡았습니다.</p></div>
-            </div>
+          <section className="work-section" aria-labelledby="work-title">
             <WorkStage entries={projectEntries} />
           </section>
           <section className="career-section section-pad" id="career" aria-labelledby="career-title">

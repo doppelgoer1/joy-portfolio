@@ -43,6 +43,7 @@ async function checkHero(page, name) {
   assert.ok(await page.locator(".joy-stage").evaluate((element) => Math.abs(element.getBoundingClientRect().height - innerHeight * 8.2) < 1));
   assert.ok(await page.locator(".site-header").evaluate((element) => element.getBoundingClientRect().top >= innerHeight), `${name}: navigation remains below the original hero`);
   for (const progress of [0.11, 0.23, 0.34, 0.44, 0.68, 0.78, 0.88, 1]) {
+    console.log(`${name}: hero debug ${progress}`);
     await page.evaluate((p) => history.replaceState(null, "", `?p=${p}`), progress);
     await page.waitForFunction((p) => Math.abs(Number(document.documentElement.style.getPropertyValue("--p")) - p) < 0.00005, progress);
     const state = await page.evaluate(() => ({
@@ -98,6 +99,7 @@ async function checkHero(page, name) {
   // Native scrolling must reverse every scene, including after entering the work section.
   await page.evaluate(() => history.replaceState(null, "", location.pathname));
   for (const progress of [0.34, 0.78, 1, 0.78, 0.34, 0]) {
+    console.log(`${name}: hero native ${progress}`);
     await page.evaluate((p) => {
       const stage = document.querySelector(".joy-stage");
       scrollTo(0, stage.getBoundingClientRect().top + scrollY + (stage.getBoundingClientRect().height - innerHeight) * p);
@@ -223,7 +225,7 @@ async function checkAnchorsAndDetails(page, name) {
   }
   await page.goto(`${url}/#archive`, { waitUntil: "networkidle" });
   await page.waitForFunction(() => {
-    const rect = document.querySelector(".section-intro").getBoundingClientRect();
+    const rect = document.querySelector("#archive").getBoundingClientRect();
     return rect.top >= 0 && rect.top < innerHeight;
   });
   // Changing an old alias after hydration also selects the corresponding panel.
@@ -238,7 +240,7 @@ async function checkAnchorsAndDetails(page, name) {
 
 try {
   const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
-  browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || "chrome", headless: true });
+  browser = await chromium.launch({ ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : { channel: process.env.BROWSER_CHANNEL || "chrome" }), headless: true });
   for (const config of [
     { name: "desktop", viewport: { width: 1440, height: 1100 }, reducedMotion: "no-preference" },
     { name: "laptop", viewport: { width: 1366, height: 768 }, reducedMotion: "no-preference" },
@@ -249,7 +251,9 @@ try {
     { name: "reduced-motion", viewport: { width: 1440, height: 1100 }, reducedMotion: "reduce" },
   ]) {
     const { name, ...options } = config;
+    console.log(`Checking ${name}`);
     const page = await browser.newPage(options);
+    page.setDefaultTimeout(20000);
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("response", (response) => { if (response.status() >= 400) console.error(`HTTP ${response.status()} ${response.url()}`); });
@@ -259,7 +263,8 @@ try {
     await checkPage(page, name);
     await capture(page, `${name}-hero`);
     await checkHero(page, name);
-    await page.locator("#work").scrollIntoViewIfNeeded();
+    await page.evaluate(() => { location.hash = "work"; });
+    await page.waitForTimeout(700);
     await capture(page, `${name}-work-intro`);
     await checkSelection(page, name, options.reducedMotion === "reduce");
     for (const id of ["career", "education", "contact"]) {
@@ -301,7 +306,7 @@ try {
   console.log(`Browser checks passed. Screenshots: ${output}`);
 } catch (error) {
   await writeFile(join(output, "results.json"), JSON.stringify({ status: "failed", error: error.message, results }, null, 2));
-  console.error(error.message);
+  console.error(error.stack);
   process.exitCode = 1;
 } finally {
   await browser?.close();

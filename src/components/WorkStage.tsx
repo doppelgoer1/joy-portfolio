@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import type { ProjectEntry } from "../data/portfolio";
+import { WorkTransition } from "./WorkTransition";
 import { PhaseStrip } from "./PhaseStrip";
 import { cardPosition, keyTarget, projectIndexForHash, swipeTarget, wrapIndex } from "./stage-selection";
 
@@ -87,6 +88,7 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
 
   return (
     <div className="work-stage">
+      <WorkTransition entries={entries} selected={selected}>
       <div className="stage-index" onKeyDown={onKeyDown}>
         <p className="eyebrow" id="project-index-title">전체 프로젝트 <span>{String(count).padStart(2, "0")}</span></p>
         <nav aria-labelledby="project-index-title">
@@ -158,6 +160,7 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
           <p className="stage-hint eyebrow">카드 선택 · ← → 키 · 좌우 스와이프</p>
         </div>
       </div>
+      </WorkTransition>
       <div className="stage-panels">
         {entries.map((entry, index) => {
           const { project } = entry;

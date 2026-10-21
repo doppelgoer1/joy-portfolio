@@ -1,0 +1,100 @@
+/* T1 owns its scene, variables, and pin. No hero selector or ancestor is transformed. */
+.portfolio-content:has(.t1) > .site-header { margin-bottom: calc(-1 * var(--header-height)); }
+.portfolio-content:has(.t1[data-motion="full"]) { margin-top: -100dvh; background: transparent; }
+.portfolio-content:has(.t1[data-motion="full"]) .work-section { background: transparent; }
+.portfolio-content:has(.t1[data-motion="full"]) > .site-header { visibility: hidden; pointer-events: none; }
+.portfolio-content:has(.t1[data-ready="true"]) > .site-header { visibility: visible; pointer-events: auto; }
+.t1 { position: relative; --t1-distance: 0px; --t1-paper: #f2f2f2; --t1-ink: #050505; --t1-red: #7a0c07; }
+.t1-work-anchor { position: absolute; top: var(--t1-distance); left: 0; width: 1px; height: 1px; scroll-margin-top: 0; }
+.t1-viewport { position: relative; overflow: clip; background: var(--t1-paper); color: var(--t1-ink); }
+.t1-intro, .t1-ceremony { display: none; }
+.t1[data-motion="full"] .t1-viewport { height: 100dvh; overflow: clip; visibility: hidden; }
+.t1[data-motion="full"][data-entered="true"] .t1-viewport { visibility: visible; }
+.t1[data-motion="full"] .t1-intro, .t1[data-motion="full"] .t1-ceremony { display: block; position: absolute; inset: 0; pointer-events: none; }
+.t1-intro { z-index: 1; background: var(--t1-paper); font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: auto; }
+.t1 .t1-intro-left { position: absolute; left: -6vw; top: -6dvh; width: 112vw; height: 112dvh; display: grid; align-content: center; gap: 18px; padding: 8vw; }
+.t1 .t1-intro-left > span { width: fit-content; font-size: 13px; font-weight: 900; text-transform: uppercase; }
+.t1 .t1-intro-left h2 { max-width: 10ch; margin: 0; font-size: clamp(42px, 8vw, 120px); line-height: 1.15; letter-spacing: -.05em; font-weight: 950; }
+.t1 .t1-intro-left p { max-width: 42ch; margin: 0; font-size: 13px; line-height: 1.42; font-weight: 800; word-break: normal; overflow-wrap: normal; }
+.t1 .t1-intro-right { position: absolute; right: 7vw; bottom: 12dvh; width: min(38vw, 520px); mix-blend-mode: difference; color: #f2f2f2; }
+.t1 .t1-intro-right h2 { font-size: clamp(34px, 7.5vw, 72px); line-height: 1.15; letter-spacing: -.04em; font-weight: 900; }
+.t1 .t1-intro-right h2 span { font-family: Georgia, "Times New Roman", serif; font-weight: 400; color: var(--t1-red); }
+.t1 .t1-intro-right p { margin: 18px 0 0; max-width: 420px; color: #d8d8d8; font-size: 13px; line-height: 1.45; word-break: normal; overflow-wrap: normal; }
+.t1-intro-nav { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; padding: 14px 18px; font-size: 11px; font-weight: 800; color: #f2f2f2; mix-blend-mode: difference; text-transform: uppercase; }
+.t1-intro-progress { position: absolute; right: 18px; bottom: 18px; width: 180px; height: 2px; background: #fff; mix-blend-mode: difference; }
+.t1-ceremony { z-index: 3; }
+.t1-poster { position: absolute; left: 0; top: 0; width: 112vw; height: 112dvh; background: var(--t1-red); }
+.t1-number { position: absolute; left: 0; top: 0; font: 400 50dvh/.85 Georgia, "Times New Roman", serif; letter-spacing: -.06em; color: var(--t1-paper); }
+.t1-poster-caption { position: absolute; color: var(--t1-paper); font-size: 12px; font-weight: 700; }
+.t1-chapter { top: 8dvh; left: 5vw; }
+.t1-subtitle { bottom: 9dvh; left: 0; right: 0; text-align: center; }
+.t1-plate-name { position: absolute; left: 31vw; bottom: 19dvh; color: var(--t1-paper); font-size: clamp(24px, 3vw, 48px); font-weight: 800; letter-spacing: -.045em; }
+.t1-label { position: absolute; left: 0; top: 0; font-size: calc(18px / .34); font-weight: 800; line-height: 1; letter-spacing: -.04em; white-space: nowrap; color: var(--t1-ink); }
+.t1-label[data-current="true"] { color: var(--t1-red); }
+.t1-reading { position: relative; min-height: 100dvh; display: grid; grid-template-columns: 24vw minmax(0, 1fr); align-items: center; padding: calc(var(--header-height) + 32px) 3vw 48px 2vw; gap: 2vw; }
+.t1[data-motion="full"] .t1-reading { height: 100dvh; min-height: 0; }
+.portfolio-content .t1 .stage-index { padding: 0; align-self: center; }
+.portfolio-content .t1 .stage-index > p { font-size: 11px; padding: 0 12px 18px; }
+.portfolio-content .t1 .stage-index nav { display: flex; flex-direction: column; border: 0; }
+.portfolio-content .t1 .stage-index a { min-height: 48px; padding: 8px 12px; border: 0; font-size: 18px; line-height: 1; letter-spacing: -.04em; font-weight: 800; }
+.portfolio-content .t1 .stage-index a[aria-current="true"] { color: var(--t1-red); background: transparent; }
+.portfolio-content .t1 .stage-index a:hover { color: var(--t1-paper); background: var(--t1-ink); }
+.portfolio-content .t1 .stage-index a > span:nth-child(2) { white-space: nowrap; }
+.portfolio-content .t1 .stage-index-number { width: 20px; font-size: 12px; letter-spacing: 0; color: var(--t1-red); }
+.portfolio-content .t1 .stage-index-mark { margin-left: 6px; }
+.portfolio-content .t1 .stage-deck { min-width: 0; padding: 0; overflow: visible; }
+.portfolio-content .t1 .stage-controls { grid-template-columns: 1fr auto; margin-top: 18px; padding-top: 18px; }
+.portfolio-content .t1 .stage-hint { grid-column: 1 / -1; justify-self: start; text-align: left; }
+.portfolio-content .t1 .stage-card { background: var(--t1-red); color: var(--t1-paper); }
+.portfolio-content .t1 .stage-card:nth-child(3n + 2) { background: var(--t1-paper); color: var(--t1-red); border-color: var(--t1-red); }
+.portfolio-content .t1 .stage-card:nth-child(3n) { background: var(--t1-ink); color: var(--t1-paper); }
+.portfolio-content .t1 .stage::before { filter: none; }
+
+@media (max-width: 1199px) {
+  .t1-reading { grid-template-columns: minmax(0, 1fr); align-content: center; gap: 24px; padding: calc(var(--header-height) + 24px) 5vw 32px; }
+  .portfolio-content .t1 .stage-index { width: 100%; min-width: 0; }
+  .portfolio-content .t1 .stage-index > p { padding: 0 0 8px; }
+  .portfolio-content .t1 .stage-index nav { flex-direction: row; overflow-x: auto; scrollbar-width: thin; gap: 8px; }
+  .portfolio-content .t1 .stage-index a { flex: 0 0 auto; min-height: 44px; font-size: 13px; padding: 8px 12px; border: 1px solid #c7c7c7; }
+  .portfolio-content .t1 .stage-index a[aria-current="true"] { border-color: var(--t1-red); }
+  .t1-label { font-size: calc(13px / .34); }
+  .t1-labels { clip-path: inset(0); position: absolute; inset: 0; }
+}
+@media (min-width: 781px) and (max-width: 1023px) {
+  .t1 .t1-intro-right { right: 5vw; width: min(42vw, 420px); }
+}
+@media (max-width: 780px) {
+  .t1-reading { gap: 18px; padding: calc(var(--header-height) + 16px) 5vw 24px; }
+  .t1 { --header-height: 56px; }
+  .t1 .t1-intro-right { left: 18px; right: 18px; bottom: 7dvh; width: auto; }
+  .t1 .t1-intro-right p { max-width: 30ch; font-size: 11px; }
+  .t1-intro-nav { padding: 12px; font-size: 9px; }
+  .t1-intro-nav span:nth-child(2) { display: none; }
+  .t1-intro-progress { left: 18px; right: 18px; width: auto; }
+  .t1-number { font-size: 28dvh; }
+  .t1-plate-name { left: 16vw; bottom: 20dvh; font-size: 30px; }
+  .portfolio-content .t1 .stage { --card-w: 78vw; --card-h: min(42dvh, 380px); height: calc(var(--card-h) + 36px); }
+  .portfolio-content .t1 .stage-card { --card-w: 78vw; --card-h: min(42dvh, 380px); }
+  .portfolio-content .t1 .stage-controls { margin-top: 8px; padding-top: 12px; gap: 10px; }
+  .portfolio-content .t1 .stage-counter { font-size: 10px; }
+  .portfolio-content .t1 .stage-hint { font-size: 9px; }
+}
+
+/* A static handoff, full red poster, then reading stage; no pin, scrub, or snap. */
+@media (prefers-reduced-motion: reduce) {
+  .t1 { --t1-distance: 200dvh; }
+  .t1 .t1-intro, .t1 .t1-ceremony { display: block; position: relative; height: 100dvh; overflow: clip; }
+  .t1 .t1-poster { inset: 0; width: 100%; height: 100%; }
+  .t1 .t1-number { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  .t1 .t1-labels, .t1 .t1-plate-name { display: none; }
+  .t1 .t1-reading { height: auto; min-height: 100dvh; }
+  .portfolio-content .t1 .stage-card { transition: opacity 240ms linear; }
+  .portfolio-content .stage-panel.is-active { animation: t1-crossfade 240ms linear; }
+  @keyframes t1-crossfade { from { opacity: 0; } to { opacity: 1; } }
+  .portfolio-content:has(.t1[data-motion="reduced"]) > .site-header { visibility: hidden; }
+  .portfolio-content:has(.t1[data-static-ready="true"]) > .site-header { visibility: visible; }
+}
+@media print {
+  .t1-intro, .t1-ceremony { display: none !important; }
+  .t1-viewport, .t1-reading { height: auto !important; }
+}
