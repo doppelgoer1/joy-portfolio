@@ -17,7 +17,12 @@ The poster reaches 112vw × 112dvh, holds from .46 to .54, contracts to 58vw × 
 (78vw on mobile), then hands off to the existing card. Names dock at .04 intervals
 and .34 scale. Selection remains owned by WorkStage, including when reversing.
 
-Desktop pin distance: 220vh. At ≤780px: 176vh. Scrub: .6. Snap destinations: .5 and 1.
+Desktop pin distance: 220vh. At ≤780px: 176vh. Scrub: .6. Snap destinations: 0, .5, and 1. Reverse input below .5 returns to the hero;
+other stops use the nearest destination, preserving native focus/reading landings.
+At 1440px the desktop rail uses 28px/800 labels on a 64px pitch at x=100.8px,
+without an eyebrow row. Flying labels use paper while their rendered bounds overlap
+the red panel, and restore the rail color once clear in either direction.
+They appear at full opacity so the initial fade cannot lower contrast on red.
 Below 1200px the index is a single horizontally scrollable chip row, preserving all
 nine equal choices, 13px labels, and 44px targets. The mobile plate is 78vw.
 

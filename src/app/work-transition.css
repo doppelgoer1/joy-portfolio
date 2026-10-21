@@ -50,6 +50,14 @@
 .portfolio-content .t1 .stage-card:nth-child(3n) { background: var(--t1-ink); color: var(--t1-paper); }
 .portfolio-content .t1 .stage::before { filter: none; }
 
+@media (min-width: 1200px) {
+  .t1-reading { padding-left: calc(7vw - 44px); }
+  .t1-label { font-size: calc(28px / .34); }
+  .portfolio-content .t1 .stage-index > p { display: none; }
+  .portfolio-content .t1 .stage-index a { min-height: 64px; font-size: 28px; }
+  .portfolio-content .t1 .stage-index-number { flex: 0 0 20px; font-size: 11px; }
+}
+
 @media (max-width: 1199px) {
   .t1-reading { grid-template-columns: minmax(0, 1fr); align-content: center; gap: 24px; padding: calc(var(--header-height) + 24px) 5vw 32px; }
   .portfolio-content .t1 .stage-index { width: 100%; min-width: 0; }

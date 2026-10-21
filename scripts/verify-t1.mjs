@@ -29,11 +29,57 @@ try {
   assert.equal(await page.locator('.t1-reading').evaluate(e => e.inert), false);
   await page.getByRole('button', { name: '다음 프로젝트 선택', exact: true }).click();
   assert.equal(await page.locator('#fatespoiler-tab').getAttribute('aria-selected'), 'true');
-  for (const [progress, expected] of [[.32, .5], [.84, 1], [.67, .5]]) {
+  for (const [progress, expected] of [[.32, 0], [.15, 0], [.3, .5], [.84, 1], [.67, .5], [.45, 0]]) {
     await page.evaluate(y => scrollTo(0, y), start + (end - start) * progress);
     await page.waitForTimeout(1900);
     assert.ok(Math.abs(await page.evaluate(() => scrollY) - (start + (end - start) * expected)) < 2, `snap ${progress} → ${expected}`);
   }
+  await page.evaluate(() => { location.hash = 'archive'; });
+  await page.waitForTimeout(1000);
+  const rail = await page.evaluate(() => [...document.querySelectorAll('.stage-index a > span:nth-child(2)')].map(label => {
+    const box = label.getBoundingClientRect();
+    const style = getComputedStyle(label);
+    return { x: box.x, y: box.y, font: parseFloat(style.fontSize), weight: style.fontWeight };
+  }));
+  assert.equal(rail.length, 9);
+  assert.ok(rail.every(label => label.font >= 26 && label.font <= 28 && label.weight === '800' && Math.abs(label.x - 100) < 2));
+  assert.ok(rail.slice(1).every((label, i) => Math.abs(label.y - rail[i].y - 64) < .1), '64px rail pitch');
+  assert.equal(await page.locator('.stage-index > p').isVisible(), false, 'desktop eyebrow removed');
+  // Observe actual native scroll frames, including reverse docking; never seek the timeline.
+  const docking = await page.evaluate(async ({ start, end }) => {
+    const result = { frames: 0, overlaps: 0, failures: [], names: new Set() };
+    for (const destination of [start, end]) {
+      const from = scrollY;
+      await new Promise(resolve => {
+        let began;
+        const frame = now => {
+          began ??= now;
+          const progress = Math.min(1, (now - began) / 4000);
+          const panel = document.querySelector('.t1-poster');
+          const p = panel.getBoundingClientRect();
+          for (const label of document.querySelectorAll('.t1-label')) {
+            const box = label.getBoundingClientRect();
+            const style = getComputedStyle(label);
+            if (+style.opacity > .05 && +getComputedStyle(panel).opacity > .9 && box.left < p.right && box.right > p.left && box.top < p.bottom && box.bottom > p.top) {
+              result.overlaps++;
+              result.names.add(label.textContent);
+              if (style.color !== 'rgb(242, 242, 242)' || +style.opacity < .99) result.failures.push({ label: label.textContent, color: style.color, opacity: style.opacity });
+            }
+          }
+          result.frames++;
+          scrollTo(0, from + (destination - from) * progress);
+          if (progress < 1) requestAnimationFrame(frame); else resolve();
+        };
+        requestAnimationFrame(frame);
+      });
+      await new Promise(resolve => setTimeout(resolve, 1200));
+    }
+    return { ...result, names: [...result.names] };
+  }, { start, end });
+  assert.ok(docking.overlaps > 0, 'docking overlap was observed');
+  assert.equal(docking.names.length, 9, 'all nine names crossed the red panel');
+  assert.deepEqual(docking.failures, [], 'every overlapping label is paper in forward/reverse frames');
+  console.log(JSON.stringify({ rail, docking }));
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(700);
   await page.evaluate(() => { location.hash = 'archive'; });
@@ -61,7 +107,7 @@ try {
   await page.waitForTimeout(700);
   assert.equal(await page.locator('.pin-spacer').count(), 1, 'motion preference restores one T1 context');
   assert.deepEqual(errors, [], 'no browser errors throughout anchor, resize, and preference changes');
-  console.log('T1 browser contract passed: pin, full red, anchor, 50/100 snap, mobile sizes, reduced anchors, context cleanup');
+  console.log('T1 browser contract passed: pin, full red, anchor, directional 0/50/100 snap, mobile sizes, reduced anchors, context cleanup');
 } finally {
   await browser.close();
 }

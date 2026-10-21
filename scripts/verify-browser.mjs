@@ -154,6 +154,8 @@ async function checkSelection(page, name, reduced) {
     }), true, `${name}: ${project.id} detail link is unobscured on focus`);
     await checkPage(page, `${name}-${project.id}-panel`);
     await capture(page, `${name}-${project.id}-panel`);
+    // Return through visible navigation, rather than auto-scrolling a click into an inert pin.
+    await page.locator('.site-header a[href="#work"]').click();
   }
   await page.locator('.stage-index a[href="#h-works"]').click();
   await page.locator("#h-works-tab").focus();

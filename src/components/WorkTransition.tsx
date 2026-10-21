@@ -105,7 +105,7 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
           y: () => window.innerHeight * .38,
           scale: 1,
           opacity: 0,
-        }, { opacity: 1, duration: .02 }, start)
+        }, { opacity: 1, duration: 0 }, start)
           .to(label, { x: () => target().x, y: () => target().y, scale: .34, duration: .1, ease: easeInOut }, start)
           .to(label, { opacity: 0, duration: .02 }, .98);
       });
@@ -117,7 +117,11 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
         end: () => `+=${distance()}`,
         animation: timeline,
         scrub: 0.6,
-        snap: { snapTo: [0.5, 1], duration: { min: .2, max: .6 }, delay: .25, inertia: false, directional: false },
+        snap: {
+          // Let reverse input leave red, while keeping near-complete reading/focus landings at 1.
+          snapTo: (progress, self) => progress < .5 && self?.direction === -1 ? 0 : gsap.utils.snap([0, .5, 1], progress),
+          duration: { min: .2, max: .6 }, delay: .25, inertia: false,
+        },
         anticipatePin: 1,
         refreshPriority: 1,
         invalidateOnRefresh: true,
@@ -131,7 +135,21 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
           if (!refreshing) root.dataset.entered = String(window.scrollY >= self.start - 1);
         },
       });
-      timeline.eventCallback("onUpdate", () => setAvailability(timeline.progress(), trigger.start));
+      // Use rendered bounds so the same color handoff works in either scroll direction.
+      const updateLabelColors = () => {
+        const panel = poster.getBoundingClientRect();
+        const overlaps = labels.map((label) => {
+          const box = label.getBoundingClientRect();
+          return box.left < panel.right && box.right > panel.left && box.top < panel.bottom && box.bottom > panel.top;
+        });
+        labels.forEach((label, index) => {
+          label.style.color = overlaps[index] ? "var(--t1-paper)" : "";
+        });
+      };
+      timeline.eventCallback("onUpdate", () => {
+        setAvailability(timeline.progress(), trigger.start);
+        updateLabelColors();
+      });
       root.style.setProperty("--t1-distance", `${distance()}px`);
       setAvailability(trigger.progress, trigger.start);
 
@@ -199,6 +217,7 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
         reading.removeEventListener("click", keepReadingFocus);
         window.removeEventListener("hashchange", settleAnchor);
         document.removeEventListener("click", clickAnchor, true);
+        labels.forEach((label) => { label.style.removeProperty("color"); });
         reading.inert = false;
         root.style.removeProperty("--t1-distance");
         delete root.dataset.motion;
