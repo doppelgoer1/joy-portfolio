@@ -41,7 +41,8 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
       }
 
       root.dataset.motion = "full";
-      const distance = () => window.innerHeight * (mobile ? 1.76 : 2.2);
+      // Give each gesture less scene travel without intercepting native wheel/touch input.
+      const distance = () => window.innerHeight * (mobile ? 2.8 : 3.6);
       const local = (selector: string) => root.querySelector<HTMLElement>(selector)!;
       const poster = local(".t1-poster");
       const number = local(".t1-number");
@@ -152,11 +153,7 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
         end: () => `+=${distance()}`,
         animation: timeline,
         scrub: 0.6,
-        snap: {
-          // Let reverse input leave red, while keeping near-complete reading/focus landings at 1.
-          snapTo: (progress, self) => progress < .5 && self?.direction === -1 ? 0 : gsap.utils.snap([0, .5, 1], progress),
-          duration: { min: .2, max: .6 }, delay: .25, inertia: false,
-        },
+        // No snap: stopping or reversing input must never pull the page to another scene.
         anticipatePin: 1,
         refreshPriority: 1,
         invalidateOnRefresh: true,
