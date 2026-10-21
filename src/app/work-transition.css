@@ -29,12 +29,13 @@
 .t1-chapter { top: 8dvh; left: 5vw; }
 .t1-subtitle { bottom: 9dvh; left: 0; right: 0; text-align: center; }
 .t1-plate-name { position: absolute; left: 31vw; bottom: 19dvh; color: var(--t1-paper); font-size: clamp(24px, 3vw, 48px); font-weight: 800; letter-spacing: -.045em; }
-/* Blend the label group against the viewport, outside the isolated poster ceremony. */
+/* Two coincident brand-color copies share the same animated label transform. */
 .t1[data-motion="full"] .t1-labels { display: block; }
-.t1-labels { position: absolute; inset: 0; z-index: 4; pointer-events: none; mix-blend-mode: difference; }
-/* Difference with paper (#f2f2f2) preserves ink (#050505) and selected red (#7a0c07). */
-.t1-label { position: absolute; left: 0; top: 0; font-size: calc(18px / .34); font-weight: 800; line-height: 1; letter-spacing: -.04em; white-space: nowrap; color: #ededed; }
-.t1-label[data-current="true"] { color: #78e6eb; }
+.t1-labels { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.t1-label { position: absolute; left: 0; top: 0; font-size: calc(18px / .34); font-weight: 800; line-height: 1; letter-spacing: -.04em; white-space: nowrap; color: var(--t1-ink); }
+.t1-label-ink { display: block; clip-path: inset(0); }
+.t1-label-paper { position: absolute; inset: 0; color: var(--t1-paper); clip-path: inset(50%); }
+.t1-label[data-current="true"] { color: var(--t1-red); }
 .t1-reading { position: relative; min-height: 100dvh; display: grid; grid-template-columns: 24vw minmax(0, 1fr); align-items: center; padding: calc(var(--header-height) + 32px) 3vw 48px 2vw; gap: 2vw; }
 .t1[data-motion="full"] .t1-reading { height: 100dvh; min-height: 0; }
 .portfolio-content .t1 .stage-index { padding: 0; align-self: center; }

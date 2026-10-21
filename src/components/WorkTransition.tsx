@@ -49,6 +49,41 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
       const rail = local(".stage-index");
       const deck = local(".stage-deck");
       const labels = [...root.querySelectorAll<HTMLElement>(".t1-label")];
+      const labelLayers = labels.map(label => ({
+        label,
+        ink: label.querySelector<HTMLElement>(".t1-label-ink")!,
+        paper: label.querySelector<HTMLElement>(".t1-label-paper")!,
+      }));
+      const updateLabelClips = () => {
+        const panel = poster.getBoundingClientRect();
+        // Read after GSAP renders the panel and labels; batch all reads before clip writes.
+        const bounds = labelLayers.map(({ label }) => label.getBoundingClientRect());
+        labelLayers.forEach(({ label, ink, paper }, index) => {
+          const box = bounds[index];
+          const scale = Number(gsap.getProperty(label, "scaleX"));
+          const width = box.width / scale, height = box.height / scale;
+          const left = Math.max(0, Math.min(width, (panel.left - box.left) / scale));
+          const right = Math.max(0, Math.min(width, (panel.right - box.left) / scale));
+          const top = Math.max(0, Math.min(height, (panel.top - box.top) / scale));
+          const bottom = Math.max(0, Math.min(height, (panel.bottom - box.top) / scale));
+          paper.style.clipPath = `inset(${top}px ${width - right}px ${height - bottom}px ${left}px)`;
+          if (left >= right || top >= bottom) {
+            ink.style.clipPath = "inset(0)";
+          } else if (top === 0 && bottom === height && right === width) {
+            // Desktop docking crosses the panel's left edge, even within a single glyph.
+            ink.style.clipPath = `inset(0 ${width - left}px 0 0)`;
+          } else if (top === 0 && bottom === height && left === 0) {
+            ink.style.clipPath = `inset(0 0 0 ${right}px)`;
+          } else if (left === 0 && right === width && bottom === height) {
+            ink.style.clipPath = `inset(0 0 ${height - top}px 0)`;
+          } else if (left === 0 && right === width && top === 0) {
+            ink.style.clipPath = `inset(${bottom}px 0 0 0)`;
+          } else {
+            // A corner/interior intersection needs a rectangular hole, not one inset.
+            ink.style.clipPath = `polygon(evenodd, 0 0, ${width}px 0, ${width}px ${height}px, 0 ${height}px, 0 0, ${left}px ${top}px, ${right}px ${top}px, ${right}px ${bottom}px, ${left}px ${bottom}px, ${left}px ${top}px, 0 0)`;
+          }
+        });
+      };
       const destinations = [...root.querySelectorAll<HTMLElement>(".stage-index a > span:nth-child(2)")];
       const panelName = local(".t1-plate-name");
       const rect = (element: HTMLElement) => {
@@ -136,9 +171,11 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
         },
       });
       timeline.eventCallback("onUpdate", () => {
+        updateLabelClips();
         setAvailability(timeline.progress(), trigger.start);
       });
       root.style.setProperty("--t1-distance", `${distance()}px`);
+      updateLabelClips();
       setAvailability(trigger.progress, trigger.start);
 
       // Native links stay native. Resolve the pinned endpoint before focus or scrolling.
@@ -241,7 +278,7 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
           <span className="t1-poster-caption t1-subtitle">직접 참여한 아홉 프로젝트</span>
           <span className="t1-plate-name">{String(selected + 1).padStart(2, "0")}&nbsp; {entries[selected].project.name}</span>
         </div>
-        <div className="t1-labels" aria-hidden="true">{entries.map(({ project }, index) => <span className="t1-label" data-current={index === selected} key={project.id}>{project.name}</span>)}</div>
+        <div className="t1-labels" aria-hidden="true">{entries.map(({ project }, index) => <span className="t1-label" data-current={index === selected} key={project.id}><span className="t1-label-ink">{project.name}</span><span className="t1-label-paper">{project.name}</span></span>)}</div>
         <div className="t1-reading">
           <div className="section-intro sr-only">
             <p className="eyebrow">01 / 프로젝트</p>

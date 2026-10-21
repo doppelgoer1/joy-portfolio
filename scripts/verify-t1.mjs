@@ -68,16 +68,26 @@ try {
             const style = getComputedStyle(label);
             if (+style.opacity > .05 && +getComputedStyle(panel).opacity > .9 && box.left < p.right && box.right > p.left && box.top < p.bottom && box.bottom > p.top) {
               result.overlaps++;
-              result.names.add(label.textContent);
+              const name = label.querySelector('.t1-label-ink')?.textContent || label.textContent;
+              result.names.add(name);
               const split = box.left < p.left || box.right > p.right || box.top < p.top || box.bottom > p.bottom;
               if (split) result.splits++;
-              const blend = style.mixBlendMode === 'difference' || getComputedStyle(label.parentElement).mixBlendMode === 'difference';
-              const backgrounds = [rgb(getComputedStyle(panel).backgroundColor)];
-              if (split) backgrounds.push(rgb(getComputedStyle(document.querySelector('.t1-viewport')).backgroundColor));
-              const source = rgb(style.color);
-              const minimum = Math.min(...backgrounds.map(bg => contrast(blend ? source.map((c, i) => Math.abs(c - bg[i])) : source, bg)));
+              const ink = label.querySelector('.t1-label-ink');
+              const paper = label.querySelector('.t1-label-paper');
+              if (!ink || !paper) {
+                result.failures.push({ label: name, reason: 'missing separate brand-color layers' });
+                continue;
+              }
+              const inkStyle = getComputedStyle(ink), paperStyle = getComputedStyle(paper);
+              const groupStyle = getComputedStyle(label.parentElement);
+              const panelColor = rgb(getComputedStyle(panel).backgroundColor);
+              const background = rgb(getComputedStyle(document.querySelector('.t1-viewport')).backgroundColor);
+              const minimum = Math.min(contrast(rgb(paperStyle.color), panelColor), contrast(rgb(inkStyle.color), background));
               result.minContrast = Math.min(result.minContrast, minimum);
-              if (minimum < 4.5 || +style.opacity < .99) result.failures.push({ label: label.textContent, color: style.color, opacity: style.opacity, split, contrast: minimum });
+              const expectedInk = label.dataset.current === 'true' ? 'rgb(122, 12, 7)' : 'rgb(5, 5, 5)';
+              if (minimum < 4.5 || +style.opacity < .99 || inkStyle.color !== expectedInk || paperStyle.color !== 'rgb(242, 242, 242)' || groupStyle.mixBlendMode !== 'normal' || inkStyle.clipPath === 'none' || paperStyle.clipPath === 'none') {
+                result.failures.push({ label: name, ink: inkStyle.color, paper: paperStyle.color, contrast: minimum, blend: groupStyle.mixBlendMode });
+              }
             }
           }
           result.frames++;
