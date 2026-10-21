@@ -47,7 +47,13 @@ try {
   assert.equal(await page.locator('.stage-index > p').isVisible(), false, 'desktop eyebrow removed');
   // Observe actual native scroll frames, including reverse docking; never seek the timeline.
   const docking = await page.evaluate(async ({ start, end }) => {
-    const result = { frames: 0, overlaps: 0, failures: [], names: new Set() };
+    const result = { frames: 0, overlaps: 0, splits: 0, minContrast: Infinity, failures: [], names: new Set() };
+    const rgb = value => value.match(/[\d.]+/g).slice(0, 3).map(Number);
+    const luminance = color => color.map(value => {
+      const channel = value / 255;
+      return channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4;
+    }).reduce((sum, channel, i) => sum + channel * [.2126, .7152, .0722][i], 0);
+    const contrast = (a, b) => (Math.max(luminance(a), luminance(b)) + .05) / (Math.min(luminance(a), luminance(b)) + .05);
     for (const destination of [start, end]) {
       const from = scrollY;
       await new Promise(resolve => {
@@ -63,7 +69,15 @@ try {
             if (+style.opacity > .05 && +getComputedStyle(panel).opacity > .9 && box.left < p.right && box.right > p.left && box.top < p.bottom && box.bottom > p.top) {
               result.overlaps++;
               result.names.add(label.textContent);
-              if (style.color !== 'rgb(242, 242, 242)' || +style.opacity < .99) result.failures.push({ label: label.textContent, color: style.color, opacity: style.opacity });
+              const split = box.left < p.left || box.right > p.right || box.top < p.top || box.bottom > p.bottom;
+              if (split) result.splits++;
+              const blend = style.mixBlendMode === 'difference' || getComputedStyle(label.parentElement).mixBlendMode === 'difference';
+              const backgrounds = [rgb(getComputedStyle(panel).backgroundColor)];
+              if (split) backgrounds.push(rgb(getComputedStyle(document.querySelector('.t1-viewport')).backgroundColor));
+              const source = rgb(style.color);
+              const minimum = Math.min(...backgrounds.map(bg => contrast(blend ? source.map((c, i) => Math.abs(c - bg[i])) : source, bg)));
+              result.minContrast = Math.min(result.minContrast, minimum);
+              if (minimum < 4.5 || +style.opacity < .99) result.failures.push({ label: label.textContent, color: style.color, opacity: style.opacity, split, contrast: minimum });
             }
           }
           result.frames++;
@@ -78,7 +92,8 @@ try {
   }, { start, end });
   assert.ok(docking.overlaps > 0, 'docking overlap was observed');
   assert.equal(docking.names.length, 9, 'all nine names crossed the red panel');
-  assert.deepEqual(docking.failures, [], 'every overlapping label is paper in forward/reverse frames');
+  assert.ok(docking.splits > 0, 'labels straddled the panel edge');
+  assert.deepEqual(docking.failures, [], 'each visible part of a crossing label has at least 4.5:1 contrast');
   console.log(JSON.stringify({ rail, docking }));
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(700);

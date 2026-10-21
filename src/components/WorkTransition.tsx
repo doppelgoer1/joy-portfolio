@@ -95,7 +95,7 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
         .to(panelName, { opacity: 0, duration: .07 }, .87)
         .to(deck, { opacity: 1, duration: .06, ease: "none" }, .92)
         .to(rail, { opacity: 1, duration: .02 }, .98)
-        .to(".t1-ceremony", { opacity: 0, duration: .02 }, .98);
+        .to(".t1-ceremony, .t1-labels", { opacity: 0, duration: .02 }, .98);
 
       labels.forEach((label, index) => {
         const target = () => rect(destinations[index]);
@@ -135,20 +135,8 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
           if (!refreshing) root.dataset.entered = String(window.scrollY >= self.start - 1);
         },
       });
-      // Use rendered bounds so the same color handoff works in either scroll direction.
-      const updateLabelColors = () => {
-        const panel = poster.getBoundingClientRect();
-        const overlaps = labels.map((label) => {
-          const box = label.getBoundingClientRect();
-          return box.left < panel.right && box.right > panel.left && box.top < panel.bottom && box.bottom > panel.top;
-        });
-        labels.forEach((label, index) => {
-          label.style.color = overlaps[index] ? "var(--t1-paper)" : "";
-        });
-      };
       timeline.eventCallback("onUpdate", () => {
         setAvailability(timeline.progress(), trigger.start);
-        updateLabelColors();
       });
       root.style.setProperty("--t1-distance", `${distance()}px`);
       setAvailability(trigger.progress, trigger.start);
@@ -217,7 +205,6 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
         reading.removeEventListener("click", keepReadingFocus);
         window.removeEventListener("hashchange", settleAnchor);
         document.removeEventListener("click", clickAnchor, true);
-        labels.forEach((label) => { label.style.removeProperty("color"); });
         reading.inert = false;
         root.style.removeProperty("--t1-distance");
         delete root.dataset.motion;
@@ -253,8 +240,8 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
           <span className="t1-poster-caption t1-chapter">02 / 프로젝트 무대</span>
           <span className="t1-poster-caption t1-subtitle">직접 참여한 아홉 프로젝트</span>
           <span className="t1-plate-name">{String(selected + 1).padStart(2, "0")}&nbsp; {entries[selected].project.name}</span>
-          <div className="t1-labels">{entries.map(({ project }, index) => <span className="t1-label" data-current={index === selected} key={project.id}>{project.name}</span>)}</div>
         </div>
+        <div className="t1-labels" aria-hidden="true">{entries.map(({ project }, index) => <span className="t1-label" data-current={index === selected} key={project.id}>{project.name}</span>)}</div>
         <div className="t1-reading">
           <div className="section-intro sr-only">
             <p className="eyebrow">01 / 프로젝트</p>
