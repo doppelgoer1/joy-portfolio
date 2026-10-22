@@ -224,7 +224,14 @@ async function checkAnchorsAndDetails(page, name) {
         return rect.top >= header.bottom - 1 && rect.top < innerHeight;
       }, project.id);
     }
-    await page.locator(`#${project.id} .case-read-link`).click();
+    // Project anchors land at 72%; scroll through the remaining reading hold.
+    const detailLink = page.locator(`#${project.id} .case-read-link`);
+    await page.mouse.wheel(0, await detailLink.evaluate(e => {
+      const scene = document.querySelector('.t2');
+      return Math.max(0, Number(scene.dataset.end || 0) - scrollY) + Math.max(0, e.getBoundingClientRect().bottom - innerHeight) + 80;
+    }));
+    await page.waitForTimeout(800);
+    await detailLink.click();
     await page.waitForURL(`**/projects/${project.id}`);
     assert.equal(await page.locator("h1").textContent(), project.name);
     const image = page.locator(".detail-shot img");

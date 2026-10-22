@@ -15,6 +15,7 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
   const detail = useRef<SceneController | null>(null);
   const [opening, setOpening] = useState<{ index: number; next: boolean } | null>(null);
   const [selected, setSelected] = useState(0);
+  const [outgoing, setOutgoing] = useState<number | null>(null);
   const [enhanced, setEnhanced] = useState(false);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const indexLinks = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -71,6 +72,7 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
 
   const openDetail = (index: number, next = false) => {
     if (next) detail.current?.prepareNext();
+    setOutgoing(next ? selected : null);
     setSelected(index);
     setOpening({ index, next });
   };
@@ -116,6 +118,7 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
 
   return (
     <div className="work-stage">
+      <div className="work-stage-backdrop">
       <WorkTransition entries={entries} selected={selected}>
       <div className="stage-index" onKeyDown={onKeyDown}>
         <p className="eyebrow" id="project-index-title">전체 프로젝트 <span>{String(count).padStart(2, "0")}</span></p>
@@ -189,7 +192,8 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
         </div>
       </div>
       </WorkTransition>
-      <SceneTransition kind="t2" entries={entries} selected={selected} controller={detail}>
+      </div>
+      <SceneTransition controller={detail}>
       <span id="archive" className="project-anchor" aria-hidden="true" />
       <div className="stage-panels">
         {entries.map((entry, index) => {
@@ -204,18 +208,30 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
               role="tabpanel"
               aria-labelledby={`${project.id}-tab`}
               hidden={enhanced && !active}
+              data-outgoing={outgoing === index && !active}
+              aria-hidden={outgoing === index && !active || undefined}
+              inert={outgoing === index && !active}
               className={`project-case stage-panel project-case--${project.id}${active ? " is-active" : ""}`}
             >
               {entry.kind === "archive" && <span id={`archive-${project.id}`} className="project-anchor" aria-hidden="true" />}
-              <div className="case-meta eyebrow">
-                <span>프로젝트 / 0{index + 1}</span>
-                {affiliation && <span>{affiliation}</span>}
-              </div>
+              <figure className="case-band">
+                {entry.kind === "archive" ? <a href={`/projects/${project.id}`}>
+                  <img src={entry.project.image.src} alt={entry.project.image.alt} width={entry.project.image.width} height={entry.project.image.height} loading={active ? "eager" : "lazy"} decoding="async" />
+                  <span className="sr-only">실제 서비스 화면 · {project.name} 자세히 보기</span>
+                </a> : <div className="case-type-plate" aria-label={`${project.name} 프로젝트 타이포그래피`}>
+                  <span aria-hidden="true">0{index + 1}</span><strong>{project.name}</strong>
+                </div>}
+              </figure>
               <div className="case-heading">
+                <span className="case-number" aria-hidden="true">0{index + 1}</span>
                 <h3 id={`${project.id}-title`}><a href={`/projects/${project.id}`}>{project.name}</a></h3>
                 {project.url && <a className="text-link" href={project.url} target="_blank" rel="noreferrer">
                   서비스 방문 <span aria-hidden="true">↗</span><span className="sr-only">: {project.name} (새 창)</span>
                 </a>}
+              </div>
+              <div className="case-meta eyebrow">
+                <span>프로젝트 / 0{index + 1}</span>
+                {affiliation && <span>{affiliation}</span>}
               </div>
               <div className="case-body">
                 <div className="case-content">
@@ -251,14 +267,7 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
                       </ul>
                     </li>
                   ))}
-                </ol> : <figure className="case-shot">
-                  <a className="archive-shot" href={`/projects/${project.id}`}>
-                    <img src={entry.project.image.src} alt={entry.project.image.alt} width={entry.project.image.width} height={entry.project.image.height} loading="lazy" decoding="async" />
-                    <span className="archive-shot-bar eyebrow"><span>실제 서비스 화면</span><span>프로젝트 자세히 보기 ↗</span></span>
-                    <span className="sr-only">: {project.name}</span>
-                  </a>
-                  <figcaption>기존 포트폴리오의 실제 서비스 스크린샷</figcaption>
-                </figure>}
+                </ol> : null}
               </div>
               {entry.kind === "featured" && <div className="case-phases">
                 <p className="eyebrow">참여 흐름</p>

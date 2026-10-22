@@ -1,6 +1,5 @@
 import { JoyHero } from "../components/JoyHero";
 import { SmoothHeader } from "../components/SmoothHeader";
-import { SceneTransition } from "../components/SceneTransition";
 import { WorkStage } from "../components/WorkStage";
 import { career, githubUrl, previousPortfolio, projectEntries } from "../data/portfolio";
 import "./portfolio-editorial.css";
@@ -23,14 +22,12 @@ export default function Home() {
           <section className="work-section" aria-labelledby="work-title">
             <WorkStage entries={projectEntries} />
           </section>
-          <SceneTransition kind="t3">
           <section tabIndex={-1} className="career-section section-pad" id="career" aria-labelledby="career-title">
             <div className="section-heading"><p className="eyebrow">02 / 경력</p><h2 id="career-title">개발 이력</h2><p>소속과 참여 기간,<br />각 회사에서 맡은 프로젝트입니다.</p></div>
             <ol className="career-list">
-              {career.map((job, index) => (
+              {career.map((job) => (
                 <li key={job.company}>
-                  <span className="career-index" aria-hidden="true">0{index + 1}</span>
-                  <p className="career-period eyebrow">{job.period}</p>
+                  <div className="career-date"><span className="career-year" aria-hidden="true">{job.period.slice(0, 7)}</span><p className="career-period eyebrow">{job.period}</p></div>
                   <div>
                     <div className="career-company"><h3>{job.company}</h3><span>{job.title}</span></div>
                     <p>{job.description}</p>
@@ -45,15 +42,20 @@ export default function Home() {
             <div className="education"><div><p className="eyebrow">03 / 학력 · 교육</p><h2 id="education-title">학력 · 교육</h2></div><a className="text-link" href={previousPortfolio} target="_blank" rel="noreferrer">기존 이력에서 확인 <span aria-hidden="true">↗</span><span className="sr-only"> (새 창)</span></a></div>
           </div>
           </section>
-          </SceneTransition>
-          <SceneTransition kind="t4">
-          <footer tabIndex={-1} className="contact-section section-pad" id="contact" aria-labelledby="contact-title">
-            <p className="eyebrow">04 / 연락</p>
-            <h2 id="contact-title">함께할 일을<br /><span>기다립니다.</span></h2>
-            <div className="contact-bottom"><p>채용과 프로젝트 협업에 관한<br />이야기를 나누고 싶습니다.</p><div className="contact-links"><a className="text-link" href={githubUrl} target="_blank" rel="noreferrer">GitHub · doppelgoer1 <span aria-hidden="true">↗</span><span className="sr-only"> (새 창)</span></a><a className="text-link" href={previousPortfolio} target="_blank" rel="noreferrer">기존 포트폴리오 · 연락처 <span aria-hidden="true">↗</span><span className="sr-only"> (새 창)</span></a></div></div>
-            <div className="footer-line eyebrow"><span>장준영 · 풀스택 개발자</span><a href="#top">처음으로 ↑</a></div>
-          </footer>
-          </SceneTransition>
+          <section tabIndex={-1} className="contact-section section-pad" id="contact" aria-labelledby="contact-title">
+            <div className="contact-heading-space"><div className="contact-head">
+              <p className="eyebrow">04 / 연락</p>
+              <h2 id="contact-title">함께할 일을<br /><span>기다립니다.</span></h2>
+              <p>채용과 프로젝트 협업에 관한<br />이야기를 나누고 싶습니다.</p>
+            </div></div>
+            <nav className="contact-rows" aria-label="연락 및 외부 링크">
+              <a href={githubUrl} target="_blank" rel="noreferrer"><span>GitHub · doppelgoer1</span><span aria-hidden="true">↗</span><span className="sr-only"> (새 창)</span></a>
+              <a href={previousPortfolio} target="_blank" rel="noreferrer"><span>기존 포트폴리오</span><span aria-hidden="true">↗</span><span className="sr-only"> (새 창)</span></a>
+              <a href={previousPortfolio} target="_blank" rel="noreferrer"><span>연락처 · 기존 이력에서 확인</span><span aria-hidden="true">↗</span><span className="sr-only"> (새 창)</span></a>
+              <a href="#top"><span>처음으로</span><span aria-hidden="true">↑</span></a>
+            </nav>
+          </section>
+          <footer className="footer-line eyebrow"><span>장준영 · 풀스택 개발자</span><span>04 / 연락</span></footer>
         </div>
       </main>
     </>

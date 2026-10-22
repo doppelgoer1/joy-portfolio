@@ -12,7 +12,7 @@ for(const reduced of [false,true]){
 const p=await b.newPage({viewport:{width:1440,height:900},reducedMotion:reduced?'reduce':'no-preference'});p.on('pageerror',e=>report.errors.push(e.message));p.setDefaultTimeout(15000);
 await p.goto(url,{waitUntil:'networkidle'});
 await p.waitForTimeout(800);
-assert.equal(await p.locator('.pin-spacer').count(),reduced?0:4);
+assert.equal(await p.locator('.pin-spacer').count(),reduced?0:2);
 for(const hash of [...ids,...ids.slice(3).map(id=>'archive-'+id),'archive']){
  await p.evaluate(hash=>location.hash=hash,hash);const id=hash==='archive'?'eng-spark':hash.replace(/^archive-/,'');
  await p.waitForFunction(id=>document.querySelector('.stage-panel:not([hidden])')?.id===id&&document.querySelector('.t2').dataset.ready==='true',id);
@@ -21,7 +21,9 @@ for(const hash of [...ids,...ids.slice(3).map(id=>'archive-'+id),'archive']){
 }
 if(!reduced){
 for(const id of ids){await p.locator('.site-header a[href="#work"]').click();await p.locator(`.stage-index a[href="#${id}"]`).click();await p.waitForFunction(()=>document.querySelector('.t2').dataset.playing==='true');await p.waitForFunction(()=>!document.querySelector('.t2').dataset.playing);assert.equal(await p.locator('.t2').getAttribute('data-ready'),'true');assert.equal(await p.locator('.stage-panel:not([hidden])').getAttribute('id'),id);}
-await p.locator('.stage-panel:not([hidden]) .case-navigation a').last().click();await p.waitForFunction(()=>document.querySelector('.t2').dataset.next==='true'&&!document.querySelector('.t2').dataset.playing);assert.equal(await p.locator('.pin-spacer').count(),4);assert.equal(await p.locator('.stage-panel:not([hidden])').getAttribute('id'),'h-works');
+await p.mouse.wheel(0, await p.locator('.stage-panel:not([hidden]) .case-navigation').evaluate(e=>e.getBoundingClientRect().bottom-innerHeight+(+document.querySelector('.t2').dataset.end-scrollY)+100));
+await p.waitForTimeout(800);
+await p.locator('.stage-panel:not([hidden]) .case-navigation a').last().click();await p.waitForFunction(()=>document.querySelector('.t2').dataset.next==='true'&&!document.querySelector('.t2').dataset.playing);assert.equal(await p.locator('.pin-spacer').count(),2);assert.equal(await p.locator('.stage-panel:not([hidden])').getAttribute('id'),'h-works');
 await p.locator('.site-header a[href="#work"]').click();
 await p.locator('.stage-index a[href="#h-works"]').click();
 await p.waitForFunction(()=>document.querySelector('.t2').dataset.playing==='true');
@@ -36,16 +38,19 @@ await p.locator('#h-works .case-read-link').focus();
 assert.equal(await p.locator('.t2').getAttribute('data-playing'),null,'keyboard focus clears playback state');
 assert.ok(await p.locator('#h-works .case-read-link').evaluate(e=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}),'keyboard skips directly to an unobscured link');
 await p.evaluate(()=>location.hash='fatespoiler');await p.waitForFunction(()=>document.querySelector('.t2').dataset.next==='false');
-for(const scene of ['t2','t3','t4']){
+for(const scene of ['t2']){
  const bounds=await p.locator('.'+scene).evaluate(e=>({start:+e.dataset.start,end:+e.dataset.end,distance:+e.dataset.distance}));
  for(const at of [.36,.41,.36,1]){await p.evaluate(y=>scrollTo(0,y),bounds.start+(bounds.end-bounds.start)*at);await p.waitForTimeout(800);const y=await p.evaluate(()=>scrollY);await p.waitForTimeout(300);assert.ok(Math.abs(await p.evaluate(()=>scrollY)-y)<2,'no idle snap');const progress=+(await p.locator('.'+scene).getAttribute('data-progress'));assert.ok(Math.abs(progress-at)<.004,`${scene} follows native input ${at}: ${progress}`)}
  const box=await p.locator('.'+scene+' .scene-reading').boundingBox();await p.mouse.wheel(0,120);await p.waitForTimeout(500);const box2=await p.locator('.'+scene+' .scene-reading').boundingBox();if(scene!=='t4')assert.ok(Math.abs(box.y-box2.y-120)<2,'document unpinned after transition');report.scenes.push({scene,...bounds,readingHeight:box.height});
 }
-assert.notEqual(await p.locator('.t4 .scene-page').evaluate(e=>getComputedStyle(e).position),'fixed','footer releases its pin even at maximum scroll');
+assert.equal(await p.locator('#career .pin-spacer, #contact .pin-spacer').count(),0);
+await p.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
+await p.waitForTimeout(500);
+assert.equal(await p.locator('.contact-head').evaluate(e=>getComputedStyle(e).position),'sticky');
 assert.ok(await p.locator('#contact a').evaluateAll(links=>links.every(e=>{const r=e.getBoundingClientRect();return r.height>=44&&e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))})),'footer links stay exposed with 44px targets');
-}else{assert.equal(await p.locator('.t1-intro').evaluate(e=>e.offsetHeight),0);assert.equal(await p.locator('.t1-ceremony').evaluate(e=>e.offsetHeight),900);assert.equal(await p.locator('.scene-static-curtain:visible').count(),1)}
+}else{assert.equal(await p.locator('.t1-intro').evaluate(e=>e.offsetHeight),0);assert.equal(await p.locator('.t1-ceremony').evaluate(e=>e.offsetHeight),900);assert.equal(await p.locator('.scene-line-track:visible').count(),0);assert.equal(await p.locator('.contact-head').evaluate(e=>getComputedStyle(e).position),'static')}
 await p.close();}
-for(const width of [1200,1100,1024,390]){
+for(const width of [1440,1200,1100,1024,390]){
 const p=await b.newPage({viewport:{width,height:width===390?844:900}});p.on('pageerror',e=>report.errors.push(e.message));await p.goto(url+'/#work',{waitUntil:'networkidle'});await p.waitForFunction(()=>document.querySelector('.t1').dataset.ready==='true');
 const metrics=await p.evaluate(()=>{const rail=document.querySelector('.stage-index').getBoundingClientRect();const cards=[...document.querySelectorAll('.stage-card')].filter(e=>getComputedStyle(e).visibility==='visible').map(e=>e.getBoundingClientRect());return{width:innerWidth,railWidth:rail.width,overflow:document.documentElement.scrollWidth-innerWidth,overlaps:cards.filter(c=>c.left<rail.right&&c.right>rail.left&&c.top<rail.bottom&&c.bottom>rail.top).length,visibleCards:cards.length,labels:[...document.querySelectorAll('.stage-index a')].map(e=>({font:parseFloat(getComputedStyle(e).fontSize),line:parseFloat(getComputedStyle(e).lineHeight),height:e.offsetHeight}))}});
 assert.equal(metrics.overflow,0);assert.equal(metrics.overlaps,0);if(width===390){assert.equal(metrics.visibleCards,2);assert.ok(Math.abs(metrics.railWidth-width*.34)<1);assert.ok(metrics.labels.every(l=>l.font>=13&&l.height>=44&&l.line>=20.8-.01));}

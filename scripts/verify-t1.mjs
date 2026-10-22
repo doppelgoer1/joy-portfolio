@@ -109,7 +109,7 @@ try {
   await page.waitForTimeout(700);
   await page.evaluate(() => { location.hash = 'archive'; });
   await page.waitForTimeout(800);
-  assert.equal(await page.locator('.pin-spacer').count(), 4, 'one pin after breakpoint change');
+  assert.equal(await page.locator('.pin-spacer').count(), 2, 'T1 and T2 pins after breakpoint change');
   const mobile = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth - innerWidth,
     labels: [...document.querySelectorAll('.stage-index a')].map(a => ({ font: parseFloat(getComputedStyle(a).fontSize), height: a.getBoundingClientRect().height })),
@@ -131,7 +131,7 @@ try {
   }
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.waitForTimeout(700);
-  assert.equal(await page.locator('.pin-spacer').count(), 4, 'motion preference restores one T1 context');
+  assert.equal(await page.locator('.pin-spacer').count(), 2, 'motion preference restores T1 and T2 contexts');
   assert.deepEqual(errors, [], 'no browser errors throughout anchor, resize, and preference changes');
   console.log('T1 browser contract passed: pin, full red, anchor, native stop/reverse without snap, mobile sizes, reduced anchors, context cleanup');
 } finally {
