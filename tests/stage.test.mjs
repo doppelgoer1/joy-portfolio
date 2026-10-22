@@ -179,9 +179,10 @@ function mountStage(hash = "") {
   }).outputText;
   runInNewContext(code, {
     exports, window, setTimeout,
-    document: { getElementById: (id) => ({ scrollIntoView: () => scrolls.push({ id, hidden: nodes.find((node) => node.props.id === id)?.props.hidden }) }) },
+    document: { addEventListener() {}, removeEventListener() {}, getElementById: (id) => ({ scrollIntoView: () => scrolls.push({ id, hidden: nodes.find((node) => node.props.id === id)?.props.hidden }) }) },
     require: (name) => {
       if (name === "./stage-selection") return selection;
+      if (name === "./SceneTransition") return { SceneTransition: () => null };
       if (name === "./WorkTransition") return { WorkTransition: () => null };
       if (name === "./PhaseStrip") return { PhaseStrip: () => null };
       if (name === "react/jsx-runtime") return { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) };

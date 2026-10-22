@@ -129,20 +129,20 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
         .to(".t1-poster-caption", { opacity: 0, duration: .04 }, .55)
         .fromTo(panelName, { opacity: 0 }, { opacity: 1, duration: .08 }, .67)
         .to(panelName, { opacity: 0, duration: .07 }, .87)
-        .to(deck, { opacity: 1, duration: .06, ease: "none" }, .92)
-        .to(rail, { opacity: 1, duration: .02 }, .98)
+        .to(rail, { opacity: 1, duration: .02 }, .92)
+        .to(deck, { opacity: 1, duration: .035, ease: "none" }, .945)
         .to(".t1-ceremony, .t1-labels", { opacity: 0, duration: .02 }, .98);
 
       labels.forEach((label, index) => {
         const target = () => rect(destinations[index]);
-        const start = .56 + index * .04;
+        const start = .56 + index * .041;
         timeline.fromTo(label, {
           x: () => window.innerWidth / 2,
           y: () => window.innerHeight * .38,
           scale: 1,
           opacity: 0,
         }, { opacity: 1, duration: 0 }, start)
-          .to(label, { x: () => target().x, y: () => target().y, scale: .34, duration: .1, ease: easeInOut }, start)
+          .to(label, { x: () => target().x, y: () => target().y, scale: .34, duration: .075, ease: easeInOut }, start)
           .to(label, { opacity: 0, duration: .02 }, .98);
       });
 
@@ -193,13 +193,13 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
         if (!pointerSelecting && window.scrollY < trigger.end) settleReading();
       };
       const settleAnchor = () => {
-        if (!["#work", "#archive"].includes(window.location.hash)) return;
+        if (!["#work"].includes(window.location.hash)) return;
         settleReading();
         anchor.focus({ preventScroll: true });
       };
       const clickAnchor = (event: MouseEvent) => {
         if (event.button || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
-        const link = (event.target as Element).closest<HTMLAnchorElement>('a[href="#work"], a[href="#archive"]');
+        const link = (event.target as Element).closest<HTMLAnchorElement>('a[href="#work"]');
         if (!link) return;
         event.preventDefault();
         if (location.hash !== link.hash) history.pushState(null, "", link.hash);
@@ -253,7 +253,6 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
   return (
     <div className="t1" ref={scope}>
       <span id="work" className="t1-work-anchor" tabIndex={-1} />
-      <span id="archive" className="t1-work-anchor" aria-hidden="true" />
       <div className="t1-viewport">
         <div className="t1-intro" aria-hidden="true">
           <div className="t1-intro-left">

@@ -15,6 +15,8 @@ const projects = projectEntries.map(({ project }) => project);
 let browser;
 
 async function capture(page, name) {
+  // CI can omit diagnostic screenshots; all behavioral assertions still run.
+  if (process.env.PORTFOLIO_SCREENSHOTS === "0") return;
   await page.screenshot({ path: join(output, `${name}.png`), fullPage: false });
 }
 
@@ -128,7 +130,7 @@ async function checkSelection(page, name, reduced) {
     await assertSelected(page, project.id);
     await page.locator(".stage").scrollIntoViewIfNeeded();
     await page.waitForTimeout(800);
-    assert.equal(await page.locator(".stage-card:visible").count(), reduced ? 1 : 3);
+    assert.equal(await page.locator(".stage-card:visible").count(), reduced ? 1 : (page.viewportSize().width <= 780 ? 2 : 3));
     assert.equal(await page.locator('.stage-card[data-distant="true"]:visible').count(), 0);
     const size = await page.locator(`#${project.id}-tab`).evaluate((card) => {
       const style = getComputedStyle(card);
@@ -148,6 +150,16 @@ async function checkSelection(page, name, reduced) {
     const detail = page.locator(`#${project.id} .case-read-link`);
     assert.equal(await detail.getAttribute("href"), `/projects/${project.id}`);
     await detail.focus();
+    await page.waitForFunction(id => {
+      const link = document.querySelector(`#${id} .case-read-link`), rect = link.getBoundingClientRect();
+      return link.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
+    }, project.id).catch(async (error) => {
+      const state = await detail.evaluate(element => {
+        const rect = element.getBoundingClientRect();
+        return { scrollY, rect: rect.toJSON(), active: document.activeElement?.outerHTML.slice(0, 240), hit: document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)?.outerHTML.slice(0, 240), scene: document.querySelector(".t2")?.dataset };
+      });
+      throw new Error(`${name}: ${project.id} focused link obscured: ${JSON.stringify(state)}`, { cause: error });
+    });
     assert.equal(await detail.evaluate((element) => {
       const rect = element.getBoundingClientRect();
       return element.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
@@ -206,7 +218,8 @@ async function checkAnchorsAndDetails(page, name) {
       await page.goto(`${url}/#${anchor}`, { waitUntil: "networkidle" });
       await assertSelected(page, project.id);
       await page.waitForFunction((id) => {
-        const rect = document.getElementById(id).getBoundingClientRect();
+        const target = document.getElementById(id);
+        const rect = (target.querySelector(".case-meta") || target).getBoundingClientRect();
         const header = document.querySelector(".site-header").getBoundingClientRect();
         return rect.top >= header.bottom - 1 && rect.top < innerHeight;
       }, project.id);
@@ -228,7 +241,11 @@ async function checkAnchorsAndDetails(page, name) {
   await page.goto(`${url}/#archive`, { waitUntil: "networkidle" });
   await page.waitForFunction(() => {
     const rect = document.querySelector("#archive").getBoundingClientRect();
-    return rect.top >= 0 && rect.top < innerHeight;
+    // ScrollTrigger rounds its endpoint to an integer scroll offset; the
+    // zero-height anchor can land a fraction of a CSS pixel above zero.
+    return rect.top >= -1 && rect.top < innerHeight
+      && document.querySelector(".stage-panel:not([hidden])")?.id === "eng-spark"
+      && document.querySelector(".t2").dataset.ready === "true";
   });
   // Changing an old alias after hydration also selects the corresponding panel.
   await page.evaluate(() => { location.hash = "archive-myro"; });
@@ -251,7 +268,7 @@ try {
     { name: "mobile", viewport: { width: 390, height: 844 }, reducedMotion: "no-preference", isMobile: true, hasTouch: true },
     { name: "small-mobile", viewport: { width: 320, height: 740 }, reducedMotion: "no-preference", isMobile: true, hasTouch: true },
     { name: "reduced-motion", viewport: { width: 1440, height: 1100 }, reducedMotion: "reduce" },
-  ]) {
+  ].filter(config => !process.env.PORTFOLIO_VIEWPORTS || process.env.PORTFOLIO_VIEWPORTS.split(",").includes(config.name))) {
     const { name, ...options } = config;
     console.log(`Checking ${name}`);
     const page = await browser.newPage(options);

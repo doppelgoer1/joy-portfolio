@@ -55,7 +55,7 @@
 .portfolio-content .t1 .stage-card:nth-child(3n) { background: var(--t1-ink); color: var(--t1-paper); }
 .portfolio-content .t1 .stage::before { filter: none; }
 
-@media (min-width: 1200px) {
+@media (min-width: 1201px) {
   .t1-reading { padding-left: calc(7vw - 44px); }
   .t1-label { font-size: calc(28px / .34); }
   .portfolio-content .t1 .stage-index > p { display: none; }
@@ -63,12 +63,12 @@
   .portfolio-content .t1 .stage-index-number { flex: 0 0 20px; font-size: 11px; }
 }
 
-@media (max-width: 1199px) {
+@media (max-width: 1200px) {
   .t1-reading { grid-template-columns: minmax(0, 1fr); align-content: center; gap: 24px; padding: calc(var(--header-height) + 24px) 5vw 32px; }
   .portfolio-content .t1 .stage-index { width: 100%; min-width: 0; }
   .portfolio-content .t1 .stage-index > p { padding: 0 0 8px; }
   .portfolio-content .t1 .stage-index nav { flex-direction: row; overflow-x: auto; scrollbar-width: thin; gap: 8px; }
-  .portfolio-content .t1 .stage-index a { flex: 0 0 auto; min-height: 44px; font-size: 13px; padding: 8px 12px; border: 1px solid #c7c7c7; }
+  .portfolio-content .t1 .stage-index a { flex: 0 0 auto; min-height: 44px; font-size: 13px; padding: 8px 12px; border: 1px solid var(--t1-ink); }
   .portfolio-content .t1 .stage-index a[aria-current="true"] { border-color: var(--t1-red); }
   .t1-label { font-size: calc(13px / .34); }
   .t1-labels { clip-path: inset(0); position: absolute; inset: 0; }
@@ -95,8 +95,9 @@
 
 /* A static handoff, full red poster, then reading stage; no pin, scrub, or snap. */
 @media (prefers-reduced-motion: reduce) {
-  .t1 { --t1-distance: 200dvh; }
-  .t1 .t1-intro, .t1 .t1-ceremony { display: block; position: relative; height: 100dvh; overflow: clip; }
+  .t1 { --t1-distance: 100dvh; }
+  .t1 .t1-intro { display: none; }
+  .t1 .t1-ceremony { display: block; position: relative; height: 100dvh; overflow: clip; }
   .t1 .t1-poster { inset: 0; width: 100%; height: 100%; }
   .t1 .t1-number { left: 50%; top: 50%; transform: translate(-50%, -50%); }
   .t1 .t1-labels, .t1 .t1-plate-name { display: none; }
@@ -110,4 +111,28 @@
 @media print {
   .t1-intro, .t1-ceremony, .t1-labels { display: none !important; }
   .t1-viewport, .t1-reading { height: auto !important; }
+}
+
+/* Mobile keeps the hero's left rail axis (center -34vw), with a readable deck. */
+@media (max-width: 780px) {
+  .portfolio-content:has(.t1) { --header-height: 48px; }
+  .t1 { --header-height: 48px; }
+  .t1-reading { grid-template-columns: 34vw minmax(0, 1fr); padding: 64px 3vw 24px 0; gap: 2vw; }
+  .portfolio-content .t1 .stage-index { width: 34vw; }
+  .portfolio-content .t1 .stage-index > p { display: none; }
+  .portfolio-content .t1 .stage-index nav { flex-direction: column; overflow: visible; gap: 0; }
+  .portfolio-content .t1 .stage-index a { min-height: 44px; padding: 4px 6px; gap: 5px; border: 0; font-size: 13px; line-height: 1.6; }
+  .portfolio-content .t1 .stage-index a > span:nth-child(2) { white-space: normal; overflow-wrap: anywhere; }
+  .portfolio-content .t1 .stage-index-number { flex: 0 0 15px; font-size: 10px; }
+  .portfolio-content .t1 .stage-index-mark { display: none; }
+  .portfolio-content .t1 .stage, .portfolio-content .t1 .stage-card { --card-w: 50vw; --card-h: min(46dvh, 390px); }
+  .portfolio-content .t1 .stage-card { padding: 16px; }
+  .portfolio-content .t1 .stage-card[data-position="-1"] { visibility: hidden; pointer-events: none; }
+  .portfolio-content .t1 .stage-card[data-position="1"] { --x: 38; --ry: -36; }
+  .portfolio-content .t1 .stage-card-name { font-size: clamp(23px, 6.4vw, 30px); }
+  .portfolio-content .t1 .stage-card-category { font-size: 12px; }
+  .portfolio-content .t1 .stage-card-meta { font-size: 9px; flex-wrap: wrap; }
+  .portfolio-content .t1 .stage-controls { grid-template-columns: 1fr; }
+  .portfolio-content .t1 .stage-arrows { justify-content: flex-end; }
+  .portfolio-content .t1 .stage-hint { font-size: 10px; }
 }

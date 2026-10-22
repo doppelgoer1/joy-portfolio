@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import type { ProjectEntry } from "../data/portfolio";
+import { SceneTransition, type SceneController } from "./SceneTransition";
 import { WorkTransition } from "./WorkTransition";
 import { PhaseStrip } from "./PhaseStrip";
 import { cardPosition, keyTarget, projectIndexForHash, swipeTarget, wrapIndex } from "./stage-selection";
@@ -11,6 +12,8 @@ import { cardPosition, keyTarget, projectIndexForHash, swipeTarget, wrapIndex } 
 // Before hydration every panel is visible, so the page reads fully without JavaScript.
 export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
   const count = entries.length;
+  const detail = useRef<SceneController | null>(null);
+  const [opening, setOpening] = useState<{ index: number; next: boolean } | null>(null);
   const [selected, setSelected] = useState(0);
   const [enhanced, setEnhanced] = useState(false);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -22,21 +25,32 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
 
   useEffect(() => {
     const fromHash = () => {
-      const index = projectIndexForHash(window.location.hash, entries.map(({ project }) => project.id));
+      const index = window.location.hash === "#archive" ? entries.findIndex(entry => entry.kind === "archive") : projectIndexForHash(window.location.hash, entries.map(({ project }) => project.id));
       if (index < 0) return;
       setScrollTarget(entries[index].project.id);
       setSelected(index);
     };
     setEnhanced(true);
     fromHash();
+    const onAnchor = (event: MouseEvent) => {
+      if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const link = (event.target as Element).closest<HTMLAnchorElement>('a[href^="#"]');
+      if (!link || link.closest(".stage-index, .case-navigation")) return;
+      if (link.hash !== "#archive" && projectIndexForHash(link.hash, entries.map(({ project }) => project.id)) < 0) return;
+      event.preventDefault();
+      history.pushState(null, "", link.hash);
+      fromHash();
+    };
     window.addEventListener("hashchange", fromHash);
-    return () => window.removeEventListener("hashchange", fromHash);
+    document.addEventListener("click", onAnchor);
+    return () => { window.removeEventListener("hashchange", fromHash); document.removeEventListener("click", onAnchor); };
   }, [entries]);
 
   // A deep link such as /#fatespoiler selects that project, then realigns after the other panels hide.
   useEffect(() => {
     if (!enhanced || !scrollTarget) return;
-    document.getElementById(scrollTarget)?.scrollIntoView();
+    if (detail.current) detail.current.reveal(false);
+    else document.getElementById(scrollTarget)?.scrollIntoView();
     setScrollTarget(null);
   }, [selected, enhanced, scrollTarget]);
 
@@ -46,6 +60,20 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
     targets.current[selected]?.focus({ preventScroll: true });
     pendingFocus.current = null;
   }, [selected]);
+
+  useEffect(() => {
+    if (!opening) return;
+    const hash = `#${entries[opening.index].project.id}`;
+    if (window.location.hash !== hash) window.history?.pushState(null, "", hash);
+    detail.current?.reveal(true, opening.next);
+    setOpening(null);
+  }, [opening, entries]);
+
+  const openDetail = (index: number, next = false) => {
+    if (next) detail.current?.prepareNext();
+    setSelected(index);
+    setOpening({ index, next });
+  };
 
   const select = (index: number, focus: "card" | "index" | null = null) => {
     const next = wrapIndex(index, count);
@@ -83,7 +111,7 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
 
   const onCardClick = (index: number) => {
     if (swallowClick.current) return;
-    select(index);
+    openDetail(index);
   };
 
   return (
@@ -102,7 +130,7 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
               onClick={(event) => {
                 if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
                 event.preventDefault();
-                select(index);
+                openDetail(index);
               }}
             >
               <span className="stage-index-number" aria-hidden="true">0{index + 1}</span>
@@ -161,6 +189,8 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
         </div>
       </div>
       </WorkTransition>
+      <SceneTransition kind="t2" entries={entries} selected={selected} controller={detail}>
+      <span id="archive" className="project-anchor" aria-hidden="true" />
       <div className="stage-panels">
         {entries.map((entry, index) => {
           const { project } = entry;
@@ -170,6 +200,7 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
             <article
               key={project.id}
               id={project.id}
+              tabIndex={-1}
               role="tabpanel"
               aria-labelledby={`${project.id}-tab`}
               hidden={enhanced && !active}
@@ -233,10 +264,18 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
                 <p className="eyebrow">참여 흐름</p>
                 <PhaseStrip project={entry.project} compact />
               </div>}
+              <nav className="case-navigation" aria-label={`${project.name} 프로젝트 이동`}>
+                <a href="#work">← 무대로</a>
+                <a href={`#${entries[(index + 1) % count].project.id}`} onClick={event => {
+                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                  event.preventDefault(); openDetail((index + 1) % count, true);
+                }}>다음 {String((index + 1) % count + 1).padStart(2, "0")} {entries[(index + 1) % count].project.name} →</a>
+              </nav>
             </article>
           );
         })}
       </div>
+      </SceneTransition>
     </div>
   );
 }

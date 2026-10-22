@@ -1,0 +1,70 @@
+/* T2–T4 have one pin each and real, unpinned reading documents afterwards. */
+.motion-scene { position: relative; --ink: #050505; --paper: #f2f2f2; --red: #7a0c07; --accent: #f2f2f2; --muted: #f2f2f2; --line: #f2f2f2; }
+.scene-page { position: relative; min-height: 100dvh; background: var(--ink); }
+.scene-reading { position: relative; min-height: 100dvh; }
+.scene-source, .scene-front, .scene-static-curtain { display: none; }
+.motion-scene[data-motion="full"] .scene-source { display: block; position: absolute; inset: 0 0 auto; height: 100dvh; overflow: clip; background: var(--ink); pointer-events: none; }
+.motion-scene[data-motion="full"] .scene-front { display: block; position: absolute; top: -6dvh; left: -6%; width: 112%; height: 112dvh; pointer-events: none; }
+.motion-scene[data-motion="full"] .scene-page { overflow: clip; }
+.motion-scene[data-ready="true"] .scene-source, .motion-scene[data-ready="true"] .scene-front { visibility: hidden; }
+.scene-door { position: absolute; background: var(--red); color: var(--paper); overflow: clip; }
+.t2 .scene-door { left: 0; width: 100%; height: 50.02%; }
+.t2 .scene-door-0 { top: 0; }
+.t2 .scene-door-1 { bottom: 0; }
+.scene-door-content { position: absolute; width: 100%; height: 112dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 32px; padding: 6vw; }
+.scene-door-0 .scene-door-content { top: 0; }
+.scene-door-1 .scene-door-content { bottom: 0; }
+.scene-number { font: 400 18dvh/.9 Georgia, serif; }
+.scene-name { font-size: 96px; font-weight: 800; line-height: 1.1; letter-spacing: -.045em; text-align: center; }
+.t2[data-motion="full"] .scene-source { background: var(--paper); color: var(--ink); }
+.portfolio-content .t2 .stage-panels { margin: 0; }
+.portfolio-content .t2 .project-case { background: var(--ink); color: var(--paper); --muted: #f2f2f2; --line: #f2f2f2; --num: #f2f2f2; min-height: 100dvh; padding-top: calc(var(--header-height) + 36px); border: 0; scroll-margin-top: 0; }
+.portfolio-content .t2 .chapter-card { background: var(--ink); border-color: var(--paper); }
+.portfolio-content .t2 .chapter-items li { border-color: var(--paper); }
+.portfolio-content .t2 .project-case:has(.case-shot) .case-body { grid-template-columns: minmax(0, 1fr) 60vw; gap: 3vw; }
+.portfolio-content .t2 .archive-shot, .portfolio-content .t2 .archive-shot img { transform: none; transition: none; box-shadow: none; }
+.portfolio-content .case-navigation { display: flex; justify-content: space-between; gap: 24px; border-top: 1px solid var(--paper); margin-top: 64px; padding-top: 24px; }
+.portfolio-content .case-navigation a { display: flex; align-items: center; min-height: 44px; font-size: 16px; }
+.t3 { --accent: #7a0c07; --muted: #050505; --line: #050505; }
+.t3 .scene-page { background: var(--paper); color: var(--ink); }
+.t3 .scene-door { top: 0; height: 100%; width: 50.02%; }
+.t3 .scene-door-0 { left: 0; }
+.t3 .scene-door-1 { right: 0; }
+.portfolio-content .t3 .career-section { background: var(--paper); color: var(--ink); --num: #7a0c07; }
+.portfolio-content .t3 .career-list li::before, .portfolio-content .t3 .career-list li::after { display: none; }
+.portfolio-content .t3 .education-section { padding: 72px 0 0; margin-top: 48px; border-top: 1px solid var(--ink); }
+.t4 .scene-page { background: var(--paper); }
+.t4[data-motion="full"] .scene-source { background: var(--paper); }
+.t4[data-motion="full"] .scene-front { display: none; }
+.t4 .scene-reading { z-index: 1; }
+/* Keep the document endpoint beyond the pin endpoint so GSAP releases its
+   max-scroll fixed-pin fallback and the footer remains ordinary document flow. */
+.portfolio-content .t4 .contact-section { min-height: calc(100dvh + 2px); background: var(--red); color: var(--paper); display: flex; flex-direction: column; justify-content: space-between; }
+.portfolio-content .t4 .footer-line { border-color: var(--paper); }
+@media (max-width: 780px) {
+  .scene-name { font-size: clamp(32px, 10vw, 56px); overflow-wrap: anywhere; }
+  .scene-number { font-size: 20dvh; }
+  .portfolio-content .t2 .case-body, .portfolio-content .t2 .project-case:has(.case-shot) .case-body { grid-template-columns: minmax(0, 1fr); }
+  .portfolio-content .case-navigation { flex-direction: column; gap: 12px; }
+  .portfolio-content .t2 .project-case { padding-top: 88px; }
+  .portfolio-content .t3 .career-section { padding-top: 88px; }
+  .portfolio-content .t4 .contact-section { padding-top: 88px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .t3 .scene-static-curtain { display: block; height: 100dvh; background: var(--red); }
+  .motion-scene .scene-page, .motion-scene .scene-reading { transform: none; }
+  .motion-scene .scene-source, .motion-scene .scene-front { display: none; }
+}
+@media print {
+  .scene-front, .scene-source, .scene-static-curtain { display: none !important; }
+  .scene-page, .scene-reading { transform: none !important; position: static !important; }
+}
+
+.scene-echo { position: absolute; inset: 0; overflow: clip; pointer-events: none; }
+
+.t2[data-motion="full"][data-next="true"] .scene-source { background: var(--ink); }
+
+.scene-effects { position: absolute; top: 0; left: 0; width: 100%; height: 100dvh; overflow: clip; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .scene-effects { display: none; } }
+
+.motion-scene[data-motion="full"][data-ready="false"] .scene-reading { pointer-events: none; }
