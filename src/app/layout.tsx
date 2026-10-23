@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./view-transitions.css";
 
 export const metadata: Metadata = {
   title: "장준영 · Joy | 풀스택 개발자 포트폴리오",
@@ -18,7 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
+      <head><script src="/work-navigation.js" /></head>
       <body>{children}</body>
     </html>
   );

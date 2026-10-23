@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { PhaseStrip } from "../../../components/PhaseStrip";
-import { ProjectPlate } from "../../../components/ProjectPlate";
-import { projectEntries, returnAnchor, type ArchiveProject, type Project, type ProjectEntry } from "../../../data/portfolio";
+import { DetailFocus } from "../../../components/DetailFocus";
+import { projectEntries, type ArchiveProject, type Project, type ProjectEntry } from "../../../data/portfolio";
 import "../../portfolio-editorial.css";
+import "../../project-navigation.css";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -34,25 +35,27 @@ export default async function ProjectPage({ params }: Props) {
   const entry = projectEntries.find(({ project }) => project.id === slug);
   if (!entry) notFound();
   const index = projectEntries.indexOf(entry);
-  const next = projectEntries[(index + 1) % projectEntries.length];
   const { project } = entry;
 
   return (
     <div className={`portfolio-content project-detail project-detail--${entry.kind} project-detail--${project.id}`}>
+      <DetailFocus />
       <a className="skip-link" href="#case-overview">프로젝트 본문으로 바로가기</a>
       <header className="site-header">
         <a className="wordmark" href="/#work" aria-label="Joy 포트폴리오 작업 목록"><span aria-hidden="true">[ + ]</span> Joy</a>
-        <nav aria-label="프로젝트 메뉴"><a href={returnAnchor(entry)}>← 작업 목록</a><a href="/#contact">연락</a></nav>
+        <nav aria-label="프로젝트 메뉴"><a href={`/?project=${project.id}#work`}>← 무대로 돌아가기</a><a href="/#contact">연락</a></nav>
       </header>
       <main id="case-top">
         {entry.kind === "featured" ? <FeaturedBody project={entry.project} index={index} /> : <ArchiveBody project={entry.project} index={index} />}
         <nav className="detail-next" aria-label="다른 프로젝트">
-          <a className="detail-next-project" href={`/projects/${next.project.id}`}>
-            <span className="eyebrow">다음 프로젝트 / 0{projectEntries.indexOf(next) + 1}</span>
-            <span className="next-project-name">{next.project.name}<span aria-hidden="true">↗</span></span>
-            <span className="next-project-category">{categoryOf(next)}</span>
-          </a>
-          <div className="detail-return"><a className="text-link" href={returnAnchor(entry)}>← 작업 목록으로 돌아가기</a><a className="text-link" href="#case-top">위로 ↑</a></div>
+          <p className="eyebrow">다른 프로젝트 / 08</p>
+          <div className="detail-project-list">
+            {projectEntries.filter(other => other.project.id !== project.id).map(other => <a className="detail-other-project" key={other.project.id} href={`/projects/${other.project.id}`}>
+              <span className="eyebrow">{String(projectEntries.indexOf(other) + 1).padStart(2, "0")}</span>
+              <span>{other.project.name}<small>{categoryOf(other)}</small></span><span aria-hidden="true">↗</span>
+            </a>)}
+          </div>
+          <div className="detail-return"><a className="text-link" href={`/?project=${project.id}#work`}>← 무대로 돌아가기</a><a className="text-link" href="#case-top">위로 ↑</a></div>
         </nav>
       </main>
       <footer className="detail-footer eyebrow"><span>장준영 · 풀스택 개발자</span><a href="/#contact">함께 일하기 ↗</a></footer>
@@ -68,10 +71,10 @@ function FeaturedBody({ project, index }: { project: Project; index: number }) {
         <div className="detail-kicker eyebrow"><span>프로젝트 / 0{index + 1}</span><span>{project.company} · {project.period}</span></div>
         <div className="detail-cover-title">
           <span className="detail-cover-index" aria-hidden="true">0{index + 1}</span>
-          <h1>{project.name}</h1>
+          <h1 tabIndex={-1} style={{ viewTransitionName: `project-title-${project.id}` } as CSSProperties}>{project.name}</h1>
         </div>
         <div className="detail-cover-bottom">
-          <p>{project.headline}</p>
+          <p>{project.summary}</p>
           <a className="text-link" href={project.url} target="_blank" rel="noreferrer">서비스 방문<span aria-hidden="true">↗</span><span className="sr-only">: {project.name} (새 창)</span></a>
         </div>
         <ol className="detail-cover-scope" aria-label="담당 범위 요약">
@@ -88,8 +91,8 @@ function FeaturedBody({ project, index }: { project: Project; index: number }) {
             <div><dt>담당 범위</dt><dd>{project.role}</dd></div>
             <div><dt>사용 기술</dt><dd><ul className="tech-list">{project.stack.map((tech) => <li key={tech}>{tech}</li>)}</ul></dd></div>
           </dl>
+          <ul className="detail-contributions">{project.contributions.map(item => <li key={item}>{item}</li>)}</ul>
         </div>
-        <ProjectPlate project={project} index={index} />
       </section>
       <div className="detail-reading">
         <aside className="detail-contents">
@@ -142,7 +145,7 @@ function ArchiveBody({ project, index }: { project: ArchiveProject; index: numbe
         <div className="detail-kicker eyebrow"><span>프로젝트 / 0{index + 1}</span><span>{affiliation || "프로젝트 기록"}</span></div>
         <div className="detail-cover-title">
           <span className="detail-cover-index" aria-hidden="true">0{index + 1}</span>
-          <h1>{project.name}</h1>
+          <h1 tabIndex={-1} style={{ viewTransitionName: `project-title-${project.id}` } as CSSProperties}>{project.name}</h1>
         </div>
         <div className="detail-cover-bottom">
           <p>{project.detail}</p>
@@ -153,7 +156,7 @@ function ArchiveBody({ project, index }: { project: ArchiveProject; index: numbe
       <section className="detail-shot-section" aria-label={`${project.name} 서비스 화면`}>
         <figure className="detail-shot">
           <a className="archive-shot archive-shot--detail" href={project.image.src} target="_blank" rel="noreferrer">
-            <img src={project.image.src} alt={project.image.alt} width={project.image.width} height={project.image.height} decoding="async" />
+            <img style={{ viewTransitionName: `project-image-${project.id}` } as CSSProperties} src={project.image.src} alt={project.image.alt} width={project.image.width} height={project.image.height} decoding="async" />
             <span className="archive-shot-bar eyebrow">
               <span>실제 서비스 화면</span>
               <span className="archive-shot-cta">화면 크게 보기 <span aria-hidden="true">↗</span></span>

@@ -6,7 +6,8 @@ import { archive, career, projectEntries, projects } from "../src/data/portfolio
 const html = readFileSync(new URL("../out/index.html", import.meta.url), "utf8");
 // React separates adjacent text nodes with <!-- --> markers; drop them so text reads as rendered.
 const rendered = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "").replace(/<!--[\s\S]*?-->/g, "");
-const text = rendered.replace(/<[^>]+>/g, " ");
+const details = projectEntries.map(({ project }) => readFileSync(new URL(`../out/projects/${project.id}.html`, import.meta.url), "utf8").replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "").replace(/<!--[\s\S]*?-->/g, "")).join(" ");
+const text = (rendered + details).replace(/<[^>]+>/g, " ");
 
 test("선택 작업 순서와 실제 서비스 URL", () => {
   assert.deepEqual(projects.map(({ id, url }) => [id, url]), [
@@ -15,7 +16,7 @@ test("선택 작업 순서와 실제 서비스 URL", () => {
     ["moduerp", "https://mdm.club"],
   ]);
   for (const project of projects) {
-    assert.ok(rendered.includes(`href="${project.url}"`));
+    assert.ok(details.includes(`href="${project.url}"`));
     assert.ok(rendered.includes(`id="${project.id}"`));
     assert.ok(project.contributions.length >= 3);
     assert.ok(project.stack.length >= 3);
@@ -62,7 +63,7 @@ test("아홉 프로젝트를 한 무대에서 제공하고 기존 화면·역할
   assert.doesNotMatch(rendered, /archive-grid|archive-title|Previous projects|이전 프로젝트\./);
   for (const { project } of projectEntries) {
     assert.ok(rendered.includes(`id="${project.id}"`));
-    assert.ok(rendered.includes(`class="case-read-link" href="/projects/${project.id}"`));
+    assert.ok(rendered.includes(`href="/projects/${project.id}"`));
     if (project.role) assert.ok(text.includes(project.role), project.id);
     for (const item of project.contributions ?? []) assert.ok(text.includes(item), item);
   }
@@ -104,7 +105,7 @@ test("최신 prod의 CSS1 라벨·분할 마크업을 유지하고 새 본문의
   assert.doesNotMatch(text, /six years|frontend\s+product\s+builder/i);
   assert.doesNotMatch(text, /침투|RDS|무중단|자동 롤백|공식 API|정책 준수|심사 승인|스토어 출시|전체 웹서비스.*단독/);
   assert.match(text, /장준영 · 풀스택 개발자/);
-  assert.equal((rendered.match(/서비스 화면 아님/g) || []).length, 9);
+  assert.equal((rendered.match(/서비스 화면 아님/g) || []).length, 3);
   assert.doesNotMatch(rendered, /href="mailto:/);
 });
 

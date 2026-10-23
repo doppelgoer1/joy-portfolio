@@ -1,0 +1,53 @@
+.portfolio-content.project-detail { --ink: #050505; --paper: #f2f2f2; --red: #7a0c07; --accent: #7a0c07; }
+.portfolio-content .stage-card-image { display: block; width: 100%; height: 40%; min-height: 0; object-fit: cover; object-position: top; }
+.portfolio-content .stage-card:has(.stage-card-image) .stage-card-name { margin-top: 0; }
+.portfolio-content .stage-open { justify-self: start; min-height: 44px; font-size: 14px; }
+.portfolio-content .stage-fallback { display: grid; padding: 24px var(--gutter); }
+.portfolio-content .stage-fallback a { padding: 16px 0; }
+/* Consistent paper cover, red type and rules; no fabricated image plate. */
+.portfolio-content.project-detail .detail-cover { background: #f2f2f2; color: #050505; --red: #7a0c07; --num: #7a0c07; --cover-line: #050505; padding-block: 32px 48px; }
+.portfolio-content.project-detail .detail-cover-title { margin-block: 36px; }
+.portfolio-content.project-detail .detail-cover-index { font-size: clamp(64px, 10vw, 144px); }
+.portfolio-content.project-detail .detail-cover h1 { font-family: Helvetica, Arial, sans-serif; font-style: normal; font-weight: 800; font-size: clamp(40px, 7vw, 100px); line-height: 1.08; }
+.portfolio-content.project-detail .detail-cover-bottom > p { max-width: 64ch; font-size: clamp(16px, 1.6vw, 22px); line-height: 1.7; font-weight: 400; }
+.portfolio-content.project-detail .detail-cover-scope { margin-top: 32px; }
+.portfolio-content.project-detail .detail-status { color: #050505; }
+.portfolio-content.project-detail .detail-shot-section { padding-top: 0; }
+.portfolio-content.project-detail .detail-overview:has(> .detail-overview-copy:only-child) { grid-template-columns: 1fr; }
+.portfolio-content.project-detail .detail-contents { position: static; }
+.portfolio-content .detail-project-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; margin-block: 24px 48px; }
+.portfolio-content .detail-other-project { display: grid; grid-template-columns: 28px 1fr 20px; align-items: baseline; gap: 16px; border-top: 1px solid; padding-block: 24px; font-size: clamp(22px, 2.5vw, 36px); font-weight: 800; }
+.portfolio-content .detail-other-project small { display: block; font-size: 14px; font-weight: 400; line-height: 1.7; margin-top: 12px; }
+@media (max-width: 780px) {
+  .portfolio-content .stage-card-image { height: 30%; }
+  .portfolio-content .t1 .stage-card-category { font-size: 13px; line-height: 1.6; }
+  .portfolio-content .t1 .stage-card-meta { font-size: 10px; }
+  .portfolio-content .t1 .stage-card-foot, .portfolio-content .t1 .stage-counter, .portfolio-content .t1 .stage-hint { font-size: 13px; }
+  .portfolio-content .t1 .stage-card-foot { margin-top: 0; padding-top: 8px; }
+  .portfolio-content .t1 .stage-card { gap: 8px; }
+  .portfolio-content.project-detail .detail-cover-title { grid-template-columns: 1fr auto; gap: 16px; }
+  .portfolio-content.project-detail .detail-cover-index { order: 2; font-size: 48px; }
+  .portfolio-content.project-detail .detail-cover h1 { font-size: clamp(32px, 9vw, 42px); }
+  .portfolio-content .detail-project-list { grid-template-columns: 1fr; }
+  .portfolio-content.project-detail .detail-kicker, .portfolio-content.project-detail .detail-facts dt { font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  .portfolio-content .t1 .stage-card { transition: none; }
+}
+.portfolio-content .detail-contributions { margin-top: 32px; padding-left: 20px; max-width: 72ch; font-size: 15px; line-height: 1.8; }
+.portfolio-content .detail-contributions li + li { margin-top: 12px; }
+
+.portfolio-content .work-stage[data-restored="true"] .stage-card { transition: none; }
+
+.portfolio-content .work-stage { position: relative; }
+.portfolio-content .work-stage > .project-anchor { position: absolute; top: var(--project-anchor-offset, 360dvh); left: 0; width: 1px; }
+.portfolio-content.project-detail h1:focus { outline: 2px solid #7a0c07; outline-offset: 8px; }
+.portfolio-content.project-detail .detail-reading { --accent: #f2f2f2; }
+@media (max-width: 780px) { .portfolio-content .work-stage > .project-anchor { top: var(--project-anchor-offset, 280dvh); } }
+@media (prefers-reduced-motion: reduce) { .portfolio-content .work-stage > .project-anchor { top: var(--project-anchor-offset, 100dvh); } }
+/* Legacy aliases must target the pin endpoint without the document heading offset. */
+.portfolio-content .work-stage > .project-anchor,
+.portfolio-content .work-stage > .project-anchor span,
+.portfolio-content .t1-work-anchor { scroll-margin-top: 0; }

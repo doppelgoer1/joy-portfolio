@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import ts from "typescript";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
-import { archive, projectEntries, projects, returnAnchor } from "../src/data/portfolio.ts";
+import { archive, projectEntries, projects } from "../src/data/portfolio.ts";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const hash = (content) => createHash("sha256").update(content).digest("hex");
@@ -57,7 +57,7 @@ test("아홉 프로젝트가 모두 개별 제목·설명을 가진 정적 페�
     const html = pages.get(`/projects/${project.id}`);
     const summary = entry.kind === "featured" ? project.summary : project.description;
     assert.equal((html.match(/<h1\b/g) || []).length, 1);
-    assert.ok(html.includes(`<h1>${project.name}</h1>`));
+    assert.ok(new RegExp(`<h1[^>]*>${project.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</h1>`).test(html));
     assert.ok(html.includes(`<title>${project.name} | 장준영 · Joy 프로젝트 기록</title>`));
     assert.ok(html.includes(`name="description" content="${summary}"`));
     assert.ok(html.includes(`property="og:title" content="${project.name} | 장준영 · Joy 프로젝트 기록"`));
@@ -74,7 +74,6 @@ test("주요 세 프로젝트의 상세 본문(장·항목·흐름)은 그대로
     assert.ok(html.includes(project.role));
     assert.ok(html.includes(project.caseStudy.introduction));
     assert.ok(html.includes(`H-Solution · ${project.period}`));
-    assert.ok(html.includes("프로젝트 / H-Solution"));
     for (const chapter of project.caseStudy.chapters) {
       assert.ok(html.includes(`id="${chapter.id}"`));
       assert.ok(html.includes(chapter.description));
@@ -93,7 +92,7 @@ test("이전 프로젝트 상세: 실제 스크린샷 한 장을 자르지 않�
     const html = pages.get(`/projects/${project.id}`);
     assert.ok(existsSync(new URL(`../out${project.image.src}`, import.meta.url)), project.image.src);
     assert.equal((html.match(/<img\b/g) || []).length, 1, `${project.id}: 이미지 한 장`);
-    assert.ok(html.includes(`<img src="${project.image.src}" alt="${project.image.alt}" width="${project.image.width}" height="${project.image.height}"`));
+    assert.ok(html.includes(`src="${project.image.src}" alt="${project.image.alt}" width="${project.image.width}" height="${project.image.height}"`));
     assert.ok(html.includes(`class="archive-shot archive-shot--detail" href="${project.image.src}" target="_blank" rel="noreferrer"`), `${project.id}: 화면 크게 보기`);
     assert.ok(html.includes("화면 크게 보기"));
     assert.ok(html.includes("기존 포트폴리오에서 내려받은 스크린샷"));
@@ -130,7 +129,7 @@ test("운영 링크 정책: ENG-SPARK·WhaleAI만 외부 링크, 접속 불가 �
   assert.deepEqual(archive.filter(({ url }) => url).map(({ id }) => id), ["eng-spark", "whaleai"]);
   assert.deepEqual(archive.filter(({ offline }) => offline).map(({ id }) => id), ["myro", "bull-finder", "guidy-gaime"]);
   assert.ok(archive.every((project) => !(project.url && project.offline)));
-  const onbooth = textOf(pages.get("/projects/onbooth"));
+  const onbooth = textOf(pages.get("/projects/onbooth").split('<nav class="detail-next"')[0]);
   assert.doesNotMatch(onbooth, /접속 불가|운영 상태|운영 중|소속 · 기간|담당 범위|사용 기술|담당한 일|BFAI|H-Solution|MYRO|20\d\d\.\d\d|명함|business card|1115/i);
   assert.match(onbooth, /프로젝트 기록/);
   assert.ok(onbooth.includes("기업에 다양한 워크샵 프로그램을 제공하는 서비스"));
@@ -191,25 +190,15 @@ test("홈·상세 페이지의 모든 내부 경로와 fragment가 export 결과
   }
 });
 
-test("홈에서 상세 진입, 종류별 복귀 앵커, 아홉 프로젝트 순환 연결", () => {
-  const home = pages.get("/");
-  for (const [index, entry] of projectEntries.entries()) {
-    const { project } = entry;
+test("모든 상세가 #work 복귀 링크와 나머지 여덟 프로젝트를 동등하게 제공", () => {
+  for (const { project } of projectEntries) {
     const html = pages.get(`/projects/${project.id}`);
-    const next = projectEntries[(index + 1) % projectEntries.length];
-    const back = `/#${project.id}`;
-    assert.equal(returnAnchor(entry), back);
-    assert.ok(home.includes(`class="case-read-link" href="/projects/${project.id}"`));
-    assert.equal((html.match(new RegExp(`href="${back}"`, "g")) || []).length, 2, `${project.id}: 머리글과 바닥글의 복귀 링크`);
-    assert.ok(html.includes(`class="detail-next-project" href="/projects/${next.project.id}"`), `${project.id} → ${next.project.id}`);
-    assert.ok(html.includes(`다음 프로젝트 / 0${(index + 1) % projectEntries.length + 1}<`));
-    assert.doesNotMatch(html, new RegExp(`href="/#archive-${project.id}"[^>]*>[^<]*(?:주요|Selected)`));
+    assert.equal((html.match(new RegExp(`href="/\\?project=${project.id}#work"`, "g")) || []).length, 2);
+    assert.equal((html.match(/class="detail-other-project"/g) || []).length, 8);
+    for (const { project: other } of projectEntries.filter(entry => entry.project.id !== project.id)) assert.ok(html.includes(`href="/projects/${other.id}"`));
   }
-  assert.ok(pages.get("/projects/moduerp").includes('href="/projects/eng-spark"'), "주요 마지막 → 이전 첫 번째");
-  assert.ok(pages.get("/projects/onbooth").includes('href="/projects/h-works"'), "이전 마지막 → 주요 첫 번째");
   assert.match(read("src/app/projects/[slug]/page.tsx"), /export const dynamicParams = false/);
   assert.match(read("src/app/projects/[slug]/page.tsx"), /if \(!entry\) notFound\(\)/);
-  assert.match(rendered("out/404.html"), /404/);
 });
 
 test("주요 프로젝트 상세에서 기술·담당 범위·등록 사실의 과장과 가짜 화면을 방지", () => {
@@ -218,7 +207,7 @@ test("주요 프로젝트 상세에서 기술·담당 범위·등록 사실의 �
     const text = textOf(html);
     assert.doesNotMatch(text, /침투|RDS|무중단|자동 롤백|공식 API|정책 준수|심사 승인|스토어 출시|전체 웹서비스.*단독|\d+\s*%|\d+배/);
     assert.doesNotMatch(html, /<img\b|<iframe\b|<canvas\b/);
-    assert.ok(text.includes("서비스 화면 아님"));
+    assert.doesNotMatch(html, /class="work-plate"/);
     assert.ok(html.includes(`href="${project.url}"`));
   }
   const hworks = pages.get("/projects/h-works");

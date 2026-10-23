@@ -1,40 +1,5 @@
-/* T2 reveals real content. T3 is a spread; T4 closes through normal scroll. */
+/* Unpinned editorial career and contact flow. */
 .portfolio-content :is(.career-section, .contact-section, .footer-line) { --ink: #050505; --paper: #f2f2f2; --red: #7a0c07; }
-.portfolio-content :is(.t2, .career-section, .contact-section) .eyebrow { font-family: Helvetica, Arial, sans-serif; font-weight: 800; }
-.motion-scene { position: relative; --ink: #050505; --paper: #f2f2f2; --red: #7a0c07; --accent: #7a0c07; --muted: #f2f2f2; --line: #f2f2f2; }
-.work-stage:has(.t2[data-motion="full"]) .work-stage-backdrop { position: sticky; top: -360dvh; }
-.work-stage[data-refreshing="true"]:has(.t2[data-motion="full"]) .work-stage-backdrop { position: relative; top: auto; }
-.t2[data-motion="full"] { margin-top: -100dvh; pointer-events: none; }
-.scene-page { pointer-events: none; }
-.scene-reading { pointer-events: auto; }
-.scene-page, .scene-reading { position: relative; min-height: 100dvh; }
-.scene-reading { background: var(--ink); }
-.t2[data-motion="full"] .scene-reading { clip-path: inset(0 var(--wipe-right, 100%) 0 0); }
-.t2[data-motion="full"][data-next="true"] .scene-reading { clip-path: none; background: transparent; }
-.t2[data-motion="full"][data-next="true"] .stage-panel:not([hidden]) { clip-path: inset(0 var(--wipe-right, 100%) 0 0); z-index: 1; }
-.t2[data-next="true"][data-ready="false"] .stage-panel[data-outgoing="true"] { display: block; position: absolute; inset: 0 0 auto; pointer-events: none; }
-.scene-line-track { display: none; position: absolute; inset: 0 0 auto; height: 100dvh; overflow: clip; pointer-events: none; }
-.t2[data-motion="full"][data-ready="false"] .scene-line-track { display: block; }
-.scene-line { position: absolute; top: 0; left: -1px; height: 100%; width: 2px; background: var(--red); box-shadow: 0 0 0 1px rgb(242 242 242 / 25%); }
-.t2[data-motion="full"][data-ready="false"] .scene-reading { pointer-events: none; }
-.portfolio-content .t2 .stage-panels { margin: 0; }
-.portfolio-content .t2 .project-case { position: relative; background: var(--ink); color: var(--paper); --muted: #f2f2f2; --line: rgb(242 242 242 / 25%); --num: #7a0c07; min-height: 100dvh; padding: 0 var(--gutter) 64px; border: 0; scroll-margin-top: 0; animation: none; }
-.portfolio-content .case-band { height: 62dvh; margin: 0 calc(-1 * var(--gutter)); border-bottom: 1px solid rgb(242 242 242 / 25%); overflow: clip; background: var(--ink); }
-.portfolio-content .case-band > a { display: block; width: 100%; height: 100%; padding-top: var(--header-height); }
-.portfolio-content .case-band img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
-.portfolio-content .case-type-plate { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 3vw; padding: var(--header-height) var(--gutter) 24px; }
-.portfolio-content .case-type-plate span { font: 400 50dvh/.85 Georgia, serif; letter-spacing: -.07em; }
-.portfolio-content .case-type-plate strong { font: 800 clamp(24px, 4vw, 64px)/1.05 Helvetica, Arial, sans-serif; overflow-wrap: anywhere; }
-.portfolio-content .t2 .case-heading { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; gap: 24px; margin: 24px 0; }
-.portfolio-content .case-number { font: 400 96px/.9 Georgia, serif; color: var(--red); }
-.portfolio-content .t2 .case-heading h3 { font: 800 112px/1.05 Helvetica, Arial, sans-serif; letter-spacing: -.045em; }
-.portfolio-content .t2 .case-meta { padding-block: 20px; }
-.portfolio-content .t2 .case-body { margin-top: 40px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.portfolio-content .t2 .chapter-card { background: var(--ink); border-color: var(--line); }
-.portfolio-content .t2 .chapter-card > .eyebrow { color: var(--paper); }
-.portfolio-content .t2 .chapter-items li { border-color: var(--line); }
-.portfolio-content .case-navigation { display: flex; justify-content: space-between; gap: 24px; border-top: 1px solid var(--line); margin-top: 64px; padding-top: 24px; }
-.portfolio-content .case-navigation a { display: flex; align-items: center; min-height: 44px; font-size: 16px; }
 .portfolio-content .career-section { background: var(--paper); color: var(--ink); --accent: #7a0c07; --muted: #050505; --line: #050505; border-top: 1px solid var(--ink); }
 .portfolio-content .career-section .section-heading { grid-template-columns: 1fr 1fr 1fr; gap: 48px; }
 .portfolio-content .career-section .section-heading h2 { font-size: 64px; font-weight: 800; }
@@ -62,9 +27,6 @@
 .portfolio-content .contact-rows a:focus-visible { outline: 2px solid var(--red); outline-offset: -2px; }
 .portfolio-content .footer-line { background: var(--paper); color: var(--ink); margin: 0; min-height: 64px; padding: 16px var(--gutter); border-top: 1px solid var(--ink); }
 @media (min-width: 781px) and (max-width: 1200px) {
-  .portfolio-content .case-band { height: 58dvh; }
-  .portfolio-content .t2 .case-heading h3 { font-size: clamp(64px, 7.5vw, 112px); }
-  .portfolio-content .case-number { font-size: 72px; }
   .portfolio-content .career-list, .portfolio-content .career-section .section-heading { gap: 32px; }
   .portfolio-content .career-year { font-size: 64px; }
   .portfolio-content .career-company h3 { font-size: 30px; }
@@ -72,19 +34,6 @@
   .portfolio-content .contact-rows a { min-height: 96px; }
 }
 @media (max-width: 780px) {
-  .work-stage:has(.t2[data-motion="full"]) .work-stage-backdrop { top: -280dvh; }
-  .work-stage[data-refreshing="true"]:has(.t2[data-motion="full"]) .work-stage-backdrop { top: auto; }
-  .portfolio-content .case-band { height: 44dvh; }
-  .portfolio-content .case-band img { object-position: 0 0; }
-  .portfolio-content .case-type-plate { gap: 12px; padding-top: 56px; }
-  .portfolio-content .case-type-plate span { font-size: 30dvh; }
-  .portfolio-content .case-type-plate strong { font-size: 24px; }
-  .portfolio-content .t2 .case-heading { grid-template-columns: auto minmax(0, 1fr); gap: 12px; margin: 20px 0; }
-  .portfolio-content .case-number { font-size: 34px; }
-  .portfolio-content .t2 .case-heading h3 { font-size: 46px; }
-  .portfolio-content .t2 .case-heading > .text-link { grid-column: 2; }
-  .portfolio-content .t2 .case-body { grid-template-columns: minmax(0, 1fr); }
-  .portfolio-content .case-navigation { flex-direction: column; gap: 12px; }
   .portfolio-content .career-section .section-heading { display: block; }
   .portfolio-content .career-section .section-heading h2 { font-size: 42px; }
   .portfolio-content .career-list { grid-template-columns: minmax(0, 1fr); gap: 0; }
@@ -104,10 +53,4 @@
 @media (prefers-reduced-motion: reduce) {
   .portfolio-content .contact-section { min-height: 100dvh; }
   .portfolio-content .contact-head { position: static; }
-  .portfolio-content .stage-panel.is-active { animation: none; }
-}
-@media print {
-  .work-stage-backdrop, .scene-page, .contact-head { position: static !important; }
-  .scene-reading { clip-path: none !important; }
-  .scene-line-track { display: none; }
 }

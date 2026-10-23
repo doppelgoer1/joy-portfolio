@@ -1,0 +1,13 @@
+/* Only the real image and title participate; page surfaces cut immediately. */
+@view-transition { navigation: auto; }
+:root { view-transition-name: root; }
+::view-transition-group(root), ::view-transition-new(root) { animation: none; }
+::view-transition-old(root) { display: none; }
+::view-transition-group(*) { animation-duration: 360ms; animation-timing-function: ease-in-out; }
+::view-transition-old(*), ::view-transition-new(*) { animation-duration: 360ms; animation-timing-function: ease-in-out; mix-blend-mode: normal; }
+html[data-work-restoring] body { visibility: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}

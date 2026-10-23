@@ -28,7 +28,7 @@ try {
   assert.ok(Math.abs(await page.evaluate(() => scrollY) - end) < 2, 'hash lands at the pin endpoint');
   assert.equal(await page.locator('.t1-reading').evaluate(e => e.inert), false);
   await page.getByRole('button', { name: '다음 프로젝트 선택', exact: true }).click();
-  assert.equal(await page.locator('#fatespoiler-tab').getAttribute('aria-selected'), 'true');
+  assert.equal(await page.locator('#fatespoiler-tab').getAttribute('data-position'), '0');
   for (const progress of [.32, .15, .3, .84, .67, .45]) {
     await page.evaluate(y => scrollTo(0, y), start + (end - start) * progress);
     await page.waitForTimeout(1900);
@@ -109,7 +109,7 @@ try {
   await page.waitForTimeout(700);
   await page.evaluate(() => { location.hash = 'archive'; });
   await page.waitForTimeout(800);
-  assert.equal(await page.locator('.pin-spacer').count(), 2, 'T1 and T2 pins after breakpoint change');
+  assert.equal(await page.locator('.pin-spacer').count(), 1, 'only T1 pin after breakpoint change');
   const mobile = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth - innerWidth,
     labels: [...document.querySelectorAll('.stage-index a')].map(a => ({ font: parseFloat(getComputedStyle(a).fontSize), height: a.getBoundingClientRect().height })),
@@ -131,7 +131,7 @@ try {
   }
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.waitForTimeout(700);
-  assert.equal(await page.locator('.pin-spacer').count(), 2, 'motion preference restores T1 and T2 contexts');
+  assert.equal(await page.locator('.pin-spacer').count(), 1, 'motion preference restores only T1 context');
   assert.deepEqual(errors, [], 'no browser errors throughout anchor, resize, and preference changes');
   console.log('T1 browser contract passed: pin, full red, anchor, native stop/reverse without snap, mobile sizes, reduced anchors, context cleanup');
 } finally {

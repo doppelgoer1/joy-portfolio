@@ -5,6 +5,7 @@ import { career, githubUrl, previousPortfolio, projectEntries } from "../data/po
 import "./portfolio-editorial.css";
 import "./work-transition.css";
 import "./full-motion.css";
+import "./project-navigation.css";
 
 export default function Home() {
   return (

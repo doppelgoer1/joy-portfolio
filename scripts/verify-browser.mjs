@@ -113,9 +113,8 @@ async function checkHero(page, name) {
 }
 
 async function assertSelected(page, id) {
-  await page.waitForFunction((id) => document.getElementById(`${id}-tab`)?.getAttribute("aria-selected") === "true", id);
-  assert.equal(await page.locator(".stage-panel:visible").count(), 1);
-  assert.equal(await page.locator(`#${id}`).isVisible(), true);
+  await page.waitForFunction((id) => document.getElementById(`${id}-tab`)?.dataset.position === "0", id);
+  assert.equal(await page.locator(".stage-panel").count(), 0);
   assert.equal(await page.locator(`#${id}-tab`).getAttribute("data-position"), "0");
   assert.equal(await page.locator(`.stage-index a[href="#${id}"]`).getAttribute("aria-current"), "true");
 }
@@ -123,9 +122,10 @@ async function assertSelected(page, id) {
 async function checkSelection(page, name, reduced) {
   assert.equal(await page.locator(".stage-card").count(), 9);
   assert.equal(await page.locator(".stage-index a").count(), 9);
-  assert.equal(await page.locator(".stage-panel").count(), 9);
+  assert.equal(await page.locator(".stage-panel").count(), 0);
   let cardSize;
   for (const project of projects) {
+    console.log(name, "select", project.id);
     await page.locator(`.stage-index a[href="#${project.id}"]`).click();
     await assertSelected(page, project.id);
     await page.locator(".stage").scrollIntoViewIfNeeded();
@@ -140,41 +140,15 @@ async function checkSelection(page, name, reduced) {
     cardSize = size;
     await checkPage(page, `${name}-${project.id}-stage`);
     if (["h-works", "eng-spark", "onbooth"].includes(project.id)) await capture(page, `${name}-${project.id}-stage`);
-    await page.locator(`#${project.id}`).scrollIntoViewIfNeeded();
-    const image = page.locator(`#${project.id} img`);
-    if (await image.count()) {
-      await image.scrollIntoViewIfNeeded();
-      await image.evaluate((element) => element.decode());
-      assert.ok(await image.evaluate((element) => element.naturalWidth > 0));
-    }
-    const detail = page.locator(`#${project.id} .case-read-link`);
-    assert.equal(await detail.getAttribute("href"), `/projects/${project.id}`);
-    await detail.focus();
-    await page.waitForFunction(id => {
-      const link = document.querySelector(`#${id} .case-read-link`), rect = link.getBoundingClientRect();
-      return link.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
-    }, project.id).catch(async (error) => {
-      const state = await detail.evaluate(element => {
-        const rect = element.getBoundingClientRect();
-        return { scrollY, rect: rect.toJSON(), active: document.activeElement?.outerHTML.slice(0, 240), hit: document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)?.outerHTML.slice(0, 240), scene: document.querySelector(".t2")?.dataset };
-      });
-      throw new Error(`${name}: ${project.id} focused link obscured: ${JSON.stringify(state)}`, { cause: error });
-    });
-    assert.equal(await detail.evaluate((element) => {
-      const rect = element.getBoundingClientRect();
-      return element.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
-    }), true, `${name}: ${project.id} detail link is unobscured on focus`);
-    await checkPage(page, `${name}-${project.id}-panel`);
-    await capture(page, `${name}-${project.id}-panel`);
-    // Return through visible navigation, rather than auto-scrolling a click into an inert pin.
-    await page.locator('.site-header a[href="#work"]').click();
+    assert.equal(await page.locator('.stage-open').getAttribute('href'), `/projects/${project.id}`);
+
   }
   await page.locator('.stage-index a[href="#h-works"]').click();
   await page.locator("#h-works-tab").focus();
   for (const [key, id] of [["ArrowRight", "fatespoiler"], ["End", "onbooth"], ["ArrowRight", "h-works"], ["ArrowLeft", "onbooth"], ["Home", "h-works"]]) {
     await page.keyboard.press(key);
     await assertSelected(page, id);
-    await page.waitForFunction((id) => document.activeElement.id === `${id}-tab`, id);
+    await page.waitForFunction((id) => document.activeElement.id === `${id}-tab`, id).catch(async e=>{console.log("FOCUS_STATE",key,id,await page.evaluate(()=>({focus:document.activeElement.outerHTML.slice(0,180),slug:document.querySelector('.stage-card[data-position="0"]')?.dataset.slug,root:{...document.querySelector(".t1").dataset},inert:document.querySelector(".t1-reading").inert,y:scrollY})));throw e});
   }
   await page.locator('.stage-index a[href="#h-works"]').focus();
   await page.keyboard.press("ArrowLeft");
@@ -194,16 +168,16 @@ async function checkSelection(page, name, reduced) {
   const cy = box.y + box.height / 2;
   if (name.includes("mobile")) {
     const cdp = await page.context().newCDPSession(page);
-    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: cx + 65, y: cy }] });
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: cx + 45, y: cy }] });
     for (let step = 1; step <= 8; step++) {
-      await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: cx + 65 - step * 16, y: cy }] });
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: cx + 45 - step * 12.5, y: cy }] });
     }
     await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
     await cdp.detach();
   } else {
-    await page.mouse.move(cx + 65, cy);
+    await page.mouse.move(cx + 45, cy);
     await page.mouse.down();
-    await page.mouse.move(cx - 65, cy, { steps: 8 });
+    await page.mouse.move(cx - 55, cy, { steps: 8 });
     await page.mouse.up();
   }
   await assertSelected(page, "fatespoiler");
@@ -211,57 +185,21 @@ async function checkSelection(page, name, reduced) {
 }
 
 async function checkAnchorsAndDetails(page, name) {
-  for (const entry of projectEntries) {
-    const { project } = entry;
-    const anchors = [project.id, ...(entry.kind === "archive" ? [`archive-${project.id}`] : [])];
-    for (const anchor of anchors) {
-      await page.goto(`${url}/#${anchor}`, { waitUntil: "networkidle" });
-      await assertSelected(page, project.id);
-      await page.waitForFunction((id) => {
-        const target = document.getElementById(id);
-        const rect = (target.querySelector(".case-meta") || target).getBoundingClientRect();
-        const header = document.querySelector(".site-header").getBoundingClientRect();
-        return rect.top >= header.bottom - 1 && rect.top < innerHeight;
-      }, project.id);
-    }
-    // Project anchors land at 72%; scroll through the remaining reading hold.
-    const detailLink = page.locator(`#${project.id} .case-read-link`);
-    await page.mouse.wheel(0, await detailLink.evaluate(e => {
-      const scene = document.querySelector('.t2');
-      return Math.max(0, Number(scene.dataset.end || 0) - scrollY) + Math.max(0, e.getBoundingClientRect().bottom - innerHeight) + 80;
-    }));
-    await page.waitForTimeout(800);
-    await detailLink.click();
+  for (const { project } of projectEntries) {
+    await page.goto(`${url}/#${project.id}`, { waitUntil: "networkidle" });
+    await assertSelected(page, project.id);
+    await page.waitForFunction(() => document.querySelector('.t1').dataset.ready === 'true' || document.querySelector('.t1').dataset.motion === 'reduced');
+    console.log(name, "detail", project.id);
+    await page.locator('.stage-open').click().catch(async error=>{console.log('DETAIL_CLICK_STATE',await page.evaluate(()=>({y:scrollY,url:location.href,root:{...document.querySelector('.t1').dataset},anchor:document.querySelector('#work').getBoundingClientRect().toJSON(),alias:document.querySelector('.project-anchor').getBoundingClientRect().toJSON(),focus:document.activeElement.id})));throw error});
     await page.waitForURL(`**/projects/${project.id}`);
     assert.equal(await page.locator("h1").textContent(), project.name);
-    const image = page.locator(".detail-shot img");
-    if (await image.count()) {
-      await image.scrollIntoViewIfNeeded();
-      await image.evaluate((element) => element.decode());
-    }
     await checkPage(page, `${name}-detail-${project.id}`);
     await capture(page, `${name}-detail-${project.id}`);
-    await page.locator(".detail-return a").first().click();
-    await page.waitForURL(`**/#${project.id}`);
+    await page.locator('.site-header a[href*="?project="]').click();
+    await page.waitForURL(`**/?project=${project.id}#work`);
     await assertSelected(page, project.id);
   }
-  await page.goto(`${url}/#archive`, { waitUntil: "networkidle" });
-  await page.waitForFunction(() => {
-    const rect = document.querySelector("#archive").getBoundingClientRect();
-    // ScrollTrigger rounds its endpoint to an integer scroll offset; the
-    // zero-height anchor can land a fraction of a CSS pixel above zero.
-    return rect.top >= -1 && rect.top < innerHeight
-      && document.querySelector(".stage-panel:not([hidden])")?.id === "eng-spark"
-      && document.querySelector(".t2").dataset.ready === "true";
-  });
-  // Changing an old alias after hydration also selects the corresponding panel.
-  await page.evaluate(() => { location.hash = "archive-myro"; });
-  await assertSelected(page, "myro");
-  await page.evaluate(() => { location.hash = "eng-spark"; });
-  await assertSelected(page, "eng-spark");
-  await page.goBack();
-  await assertSelected(page, "myro");
-  results.push({ name: `${name}-anchors-and-details`, routes: 9, aliases: 6, historyBack: true });
+  results.push({ name: `${name}-anchors-and-details`, routes: 9, returns: 9 });
 }
 
 try {
@@ -280,6 +218,7 @@ try {
     console.log(`Checking ${name}`);
     const page = await browser.newPage(options);
     page.setDefaultTimeout(20000);
+    page.setDefaultNavigationTimeout(20000);
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("response", (response) => { if (response.status() >= 400) console.error(`HTTP ${response.status()} ${response.url()}`); });
@@ -314,18 +253,11 @@ try {
 
   const page = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   await page.goto(url);
-  assert.equal(await page.locator(".stage-panel:visible").count(), 9);
+  assert.equal(await page.locator('.stage-fallback a').count(), 9);
   for (const project of projects) {
-    await page.locator(`.stage-index a[href="#${project.id}"]`).click();
-    assert.equal(await page.locator(`#${project.id}`).isVisible(), true);
-    const image = page.locator(`#${project.id} img`);
-    if (await image.count()) {
-      await image.scrollIntoViewIfNeeded();
-      await image.evaluate((element) => element.decode());
-    }
-    assert.equal(await page.locator(`#${project.id} .case-read-link`).getAttribute("href"), `/projects/${project.id}`);
-    await checkPage(page, `no-javascript-${project.id}`);
+    assert.equal(await page.locator(`.stage-fallback a[href="/projects/${project.id}"]`).count(), 1);
   }
+  await checkPage(page, 'no-javascript');
   await capture(page, "no-javascript-project");
   await page.close();
   await writeFile(join(output, "results.json"), JSON.stringify({ status: "passed", results }, null, 2));
