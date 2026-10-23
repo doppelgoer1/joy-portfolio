@@ -61,3 +61,4 @@
 @media (max-width: 780px) {
   .portfolio-content .t1 .stage-hint::before { content: "왼쪽 목록에서 프로젝트 선택\A"; white-space: pre-line; }
 }
+html[data-detail-pointer-entry] .portfolio-content.project-detail h1:focus { outline: none; }
