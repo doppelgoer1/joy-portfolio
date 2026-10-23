@@ -15,7 +15,9 @@
 .portfolio-content .stage-index nav { display: flex; flex-direction: column; border-top: 1px solid oklch(0.7 0.01 65); }
 .portfolio-content .stage-index a { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 12px 16px; border-bottom: 1px solid oklch(0.7 0.01 65); font-size: 15px; font-weight: 600; line-height: 1.5; transition: background 200ms ease-out, color 200ms ease-out; }
 .portfolio-content .stage-index a[aria-current="true"] { background: var(--red); color: var(--paper); }
-.portfolio-content .stage-index a:hover { background: var(--ink); color: var(--paper); }
+@media (hover: hover) {
+  .portfolio-content .stage-index a:hover { background: var(--ink); color: var(--paper); }
+}
 .portfolio-content .stage-index a:focus-visible { position: relative; z-index: 1; outline: 3px solid var(--red); outline-offset: 3px; }
 .portfolio-content .stage-index-number { font-family: var(--serif); font-size: 14px; font-weight: 400; }
 .portfolio-content .stage-index-mark { margin-left: auto; font-size: 11px; }
@@ -190,7 +192,7 @@
 /* Previous projects: the real screenshot first, whole and uncropped, then only the facts on record. */
 .portfolio-content .detail-shot-section { padding: clamp(40px, 6vw, 88px) var(--gutter) 0; background: var(--paper); color: var(--ink); }
 .portfolio-content .detail-shot { display: grid; gap: 12px; }
-.portfolio-content .archive-shot--detail { align-self: auto; border-color: oklch(0.73 0.005 25); }
+.portfolio-content .archive-shot--detail { background: var(--paper); align-self: auto; border-color: oklch(0.73 0.005 25); }
 .portfolio-content .archive-shot--detail img { object-fit: contain; }
 .portfolio-content .detail-shot figcaption { color: oklch(0.42 0.005 25); }
 .portfolio-content .detail-overview--archive { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); padding-top: clamp(48px, 6vw, 88px); }
