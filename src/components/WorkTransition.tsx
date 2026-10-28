@@ -258,11 +258,11 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
           <div className="t1-intro-left">
             <span>프로젝트 / 09</span>
             <h2>설계부터<br />개발까지</h2>
-            <p>각 프로젝트에서 맡은 업무와 개발 기록을 소개합니다.</p>
+            <p>프로젝트마다 맡은 일과 사용한 기술을 정리했습니다.</p>
           </div>
           <div className="t1-intro-right">
             <h2>풀스택<br /><span>개발자</span><br />장준영</h2>
-            <p>프론트엔드·백엔드·DB 설계, 업무 자동화와 앱 개발, AWS 인프라와 CI/CD 배포 자동화까지 맡았습니다.</p>
+            <p>프론트엔드·백엔드·DB 설계와 개발을 맡았습니다. 업무 자동화와 앱 개발, AWS 인프라와 CI/CD 배포 자동화도 담당했습니다.</p>
           </div>
           <div className="t1-intro-nav"><span>[ + ] Joy</span><span>장준영 · 풀스택 개발자</span><span>개발 기록</span></div>
           <div className="t1-intro-progress" />
@@ -270,7 +270,7 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
         <div className="t1-ceremony" aria-hidden="true">
           <div className="t1-poster" />
           <span className="t1-number">09</span>
-          <span className="t1-poster-caption t1-chapter">02 / 프로젝트 무대</span>
+          <span className="t1-poster-caption t1-chapter">02 / 프로젝트</span>
           <span className="t1-poster-caption t1-subtitle">직접 참여한 아홉 프로젝트</span>
           <span className="t1-plate-name">{String(selected + 1).padStart(2, "0")}&nbsp; {entries[selected].project.name}</span>
         </div>
@@ -278,7 +278,7 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
         <div className="t1-reading">
           <div className="section-intro sr-only">
             <p className="eyebrow">01 / 프로젝트</p>
-            <div className="intro-heading"><h2 id="work-title">직접 참여한<br /><span>아홉 프로젝트</span></h2><p>풀스택 개발자 장준영입니다.<br />프론트엔드·백엔드·DB 설계부터 업무 자동화, 앱 개발, AWS 인프라와 CI/CD 배포 자동화까지 맡았습니다.</p></div>
+            <div className="intro-heading"><h2 id="work-title">직접 참여한<br /><span>아홉 프로젝트</span></h2><p>풀스택 개발자 장준영입니다.<br />프론트엔드·백엔드·DB 설계와 개발을 맡았고, 업무 자동화와 앱 개발, AWS 인프라와 CI/CD 배포 자동화도 담당했습니다.</p></div>
           </div>
           {children}
         </div>

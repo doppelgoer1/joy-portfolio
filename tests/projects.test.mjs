@@ -26,7 +26,9 @@ test("9a4ec88 기준 원본 히어로 snapshot·CSS prefix 보존", () => {
 
 test("아홉 프로젝트의 모든 기존 데이터·역할·스크린샷·caseStudy 보존", async () => {
   const source = execFileSync("git", ["show", "dd250bc:src/data/portfolio.ts"], { encoding: "utf8" });
-  const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText;
+  const copyChanges = JSON.parse(read("tests/fixtures/approved-copy.json"));
+  const expectedSource = copyChanges.reduce((text, [before, after]) => text.replaceAll(JSON.stringify(before), JSON.stringify(after)), source);
+  const js = ts.transpileModule(expectedSource, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText;
   const original = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
   assert.deepEqual(projects, original.projects);
   assert.deepEqual(archive, original.archive);
@@ -95,10 +97,10 @@ test("이전 프로젝트 상세: 실제 스크린샷 한 장을 자르지 않�
     assert.ok(html.includes(`src="${project.image.src}" alt="${project.image.alt}" width="${project.image.width}" height="${project.image.height}"`));
     assert.ok(html.includes(`class="archive-shot archive-shot--detail" href="${project.image.src}" target="_blank" rel="noreferrer"`), `${project.id}: 화면 크게 보기`);
     assert.ok(html.includes("화면 크게 보기"));
-    assert.ok(html.includes("기존 포트폴리오에서 내려받은 스크린샷"));
+    assert.ok(html.includes("이전 포트폴리오에 실린 서비스 화면"));
     assert.doesNotMatch(html, /<iframe\b|<canvas\b|<svg\b|서비스 화면 아님/);
     assert.ok(html.includes(project.description));
-    assert.ok(html.includes(`<h2 id="overview-title">서비스 소개.</h2>`));
+    assert.ok(html.includes(`<h2 id="overview-title">서비스 소개</h2>`));
     assert.ok(html.includes(`href="${project.image.src}"`));
   }
   const css = read("src/app/portfolio-editorial.css");
@@ -114,12 +116,12 @@ test("운영 링크 정책: ENG-SPARK·WhaleAI만 외부 링크, 접속 불가 �
     if (project.url) {
       assert.deepEqual([...new Set(external(html))], [project.url], `${project.id}: 서비스 URL만 외부 링크`);
       assert.ok(html.includes(`href="${project.url}" target="_blank" rel="noreferrer"`));
-      assert.match(text, /서비스 방문/);
+      assert.match(text, /서비스 보기/);
       assert.match(text, /운영 상태\s+운영 중/);
       assert.doesNotMatch(text, /접속 불가|운영 종료/);
     } else {
       assert.deepEqual(external(html), [], `${project.id}: 외부 링크 없음`);
-      assert.doesNotMatch(text, /서비스 방문/);
+      assert.doesNotMatch(text, /서비스 보기/);
     }
     if (project.offline) {
       assert.equal((text.match(/현재 사이트 접속 불가/g) || []).length, 2, `${project.id}: 표지와 사실 표에 상태 표기`);
@@ -132,7 +134,7 @@ test("운영 링크 정책: ENG-SPARK·WhaleAI만 외부 링크, 접속 불가 �
   const onbooth = textOf(pages.get("/projects/onbooth").split('<nav class="detail-next"')[0]);
   assert.doesNotMatch(onbooth, /접속 불가|운영 상태|운영 중|소속 · 기간|담당 범위|사용 기술|담당한 일|BFAI|H-Solution|MYRO|20\d\d\.\d\d|명함|business card|1115/i);
   assert.match(onbooth, /프로젝트 기록/);
-  assert.ok(onbooth.includes("기업에 다양한 워크샵 프로그램을 제공하는 서비스"));
+  assert.ok(onbooth.includes("기업을 위한 워크숍 프로그램 서비스"));
 });
 
 test("선택 항목만 표시: 확인된 소속·기간·담당·기술만 행으로 두고 없는 항목은 비움", () => {

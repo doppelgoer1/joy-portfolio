@@ -37,7 +37,7 @@ test("H-Works의 확정 담당 범위·기술·초기 기간", () => {
 test("FateSpoiler의 단독 담당 범위와 앱 개발 시작일", () => {
   const project = projects[1];
   assert.equal(project.period, "2026.06 ~ 현재");
-  assert.equal(project.role, "이메일 자동화·Apple 로그인·앱 개발 및 등록 단독 수행");
+  assert.equal(project.role, "이메일 자동화·Apple 로그인·앱 개발과 등록을 각각 단독으로 담당");
   assert.ok(project.contributions.some((item) => item.includes("2026.08") && item.includes("Capacitor")));
   assert.deepEqual(project.stack.slice(0, 4), ["Node.js", "Express", "Next.js", "MariaDB"]);
 });

@@ -42,8 +42,8 @@ export default async function ProjectPage({ params }: Props) {
       <DetailFocus />
       <a className="skip-link" href="#case-overview">프로젝트 본문으로 바로가기</a>
       <header className="site-header">
-        <a className="wordmark" href="/#work" aria-label="Joy 포트폴리오 작업 목록"><span aria-hidden="true">[ + ]</span> Joy</a>
-        <nav aria-label="프로젝트 메뉴"><a href={`/?project=${project.id}#work`}>← 무대로 돌아가기</a><a href="/#contact">연락</a></nav>
+        <a className="wordmark" href="/#work" aria-label="Joy 포트폴리오 프로젝트 목록"><span aria-hidden="true">[ + ]</span> Joy</a>
+        <nav aria-label="프로젝트 메뉴"><a href={`/?project=${project.id}#work`}>← 프로젝트 목록으로</a><a href="/#contact">연락</a></nav>
       </header>
       <main id="case-top">
         {entry.kind === "featured" ? <FeaturedBody project={entry.project} index={index} /> : <ArchiveBody project={entry.project} index={index} />}
@@ -55,7 +55,7 @@ export default async function ProjectPage({ params }: Props) {
               <span>{other.project.name}<small>{categoryOf(other)}</small></span><span aria-hidden="true">↗</span>
             </a>)}
           </div>
-          <div className="detail-return"><a className="text-link" href={`/?project=${project.id}#work`}>← 무대로 돌아가기</a><a className="text-link" href="#case-top">위로 ↑</a></div>
+          <div className="detail-return"><a className="text-link" href={`/?project=${project.id}#work`}>← 프로젝트 목록으로</a><a className="text-link" href="#case-top">위로 ↑</a></div>
         </nav>
       </main>
       <footer className="detail-footer eyebrow"><span>장준영 · 풀스택 개발자</span><a href="/#contact">함께 일하기 ↗</a></footer>
@@ -75,7 +75,7 @@ function FeaturedBody({ project, index }: { project: Project; index: number }) {
         </div>
         <div className="detail-cover-bottom">
           <p>{project.summary}</p>
-          <a className="text-link" href={project.url} target="_blank" rel="noreferrer">서비스 방문<span aria-hidden="true">↗</span><span className="sr-only">: {project.name} (새 창)</span></a>
+          <a className="text-link" href={project.url} target="_blank" rel="noreferrer">서비스 보기<span aria-hidden="true">↗</span><span className="sr-only">: {project.name} (새 창)</span></a>
         </div>
         <ol className="detail-cover-scope" aria-label="담당 범위 요약">
           {project.focus.map((item) => <li key={item.label}><span className="eyebrow">{item.label}</span><span>{item.value}</span></li>)}
@@ -101,7 +101,7 @@ function FeaturedBody({ project, index }: { project: Project; index: number }) {
             {project.caseStudy.chapters.map((chapter, chapterIndex) => (
               <a href={`#${chapter.id}`} key={chapter.id}><span>0{chapterIndex + 1}</span>{chapter.label}</a>
             ))}
-            <a href="#timeline"><span>↘</span>참여 흐름</a>
+            <a href="#timeline"><span>↘</span>참여 과정</a>
           </nav>
         </aside>
         <div className="detail-chapters">
@@ -120,8 +120,8 @@ function FeaturedBody({ project, index }: { project: Project; index: number }) {
           ))}
           <section className="detail-chapter detail-timeline" id="timeline" aria-labelledby="timeline-title">
             <span className="detail-chapter-index" aria-hidden="true">↘</span>
-            <p className="eyebrow">참여 흐름</p>
-            <h2 id="timeline-title">참여의 흐름.</h2>
+            <p className="eyebrow">참여 과정</p>
+            <h2 id="timeline-title">시기별로 맡은 일</h2>
             <PhaseStrip project={project} titleTag="h3" />
           </section>
         </div>
@@ -149,7 +149,7 @@ function ArchiveBody({ project, index }: { project: ArchiveProject; index: numbe
         </div>
         <div className="detail-cover-bottom">
           <p>{project.detail}</p>
-          {project.url && <a className="text-link" href={project.url} target="_blank" rel="noreferrer">서비스 방문<span aria-hidden="true">↗</span><span className="sr-only">: {project.name} (새 창)</span></a>}
+          {project.url && <a className="text-link" href={project.url} target="_blank" rel="noreferrer">서비스 보기<span aria-hidden="true">↗</span><span className="sr-only">: {project.name} (새 창)</span></a>}
           {project.offline && <p className="detail-status eyebrow">현재 사이트 접속 불가</p>}
         </div>
       </header>
@@ -163,13 +163,13 @@ function ArchiveBody({ project, index }: { project: ArchiveProject; index: numbe
             </span>
             <span className="sr-only">: {project.name} 스크린샷 원본 (새 창)</span>
           </a>
-          <figcaption className="eyebrow">기존 포트폴리오에서 내려받은 스크린샷 · 가공하지 않은 원본</figcaption>
+          <figcaption className="eyebrow">이전 포트폴리오에 실린 서비스 화면 · 원본 스크린샷</figcaption>
         </figure>
       </section>
       <section id="case-overview" className="detail-overview detail-overview--archive" aria-labelledby="overview-title">
         <div className="detail-overview-copy">
           <p className="eyebrow">프로젝트 소개</p>
-          <h2 id="overview-title">서비스 소개.</h2>
+          <h2 id="overview-title">서비스 소개</h2>
           <p className="detail-lead">{project.description}</p>
         </div>
         {facts.length > 0 && (
@@ -183,7 +183,7 @@ function ArchiveBody({ project, index }: { project: ArchiveProject; index: numbe
           <section className="detail-chapter" id="contributions" aria-labelledby="contributions-title">
             <span className="detail-chapter-index" aria-hidden="true">01</span>
             <p className="eyebrow">01 / 담당 업무</p>
-            <h2 id="contributions-title">담당한 일.</h2>
+            <h2 id="contributions-title">담당한 일</h2>
             <ol className="contribution-list" aria-label={`${project.name} 담당 내역`}>
               {project.contributions.map((item, itemIndex) => <li key={item}><span aria-hidden="true">0{itemIndex + 1}</span>{item}</li>)}
             </ol>

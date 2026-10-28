@@ -24,14 +24,14 @@ test("히어로는 확인된 한국어 문구·제목 활자 속성 외에 원�
     .replace("                  <h2>", '                  <h2 style={{ fontSize: "clamp(42px, 8vw, 120px)", lineHeight: 1.15, letterSpacing: "-.05em" }}>')
     .replace("Selected", "설계부터")
     .replace("Product Work", "개발까지")
-    .replace("Case studies, shipped interfaces, and product systems continue here.", "각 프로젝트에서 맡은 업무와 개발 기록을 소개합니다.")
+    .replace("Case studies, shipped interfaces, and product systems continue here.", "프로젝트마다 맡은 일과 사용한 기술을 정리했습니다.")
     .replace("          <h2>", '          <h2 style={{ fontSize: "clamp(34px, 7.5vw, 72px)", lineHeight: 1.15, letterSpacing: "-.04em" }}>')
     .replace("            Frontend", "            풀스택")
     .replace("<span>Product</span>", "<span>개발자</span>")
     .replace("            Builder", "            장준영")
     .replace(
       "            Six years building React and Next.js products with TypeScript,\n            backend fluency, and motion-focused interface craft.",
-      "            프론트엔드·백엔드·DB 설계, 업무 자동화와 앱 개발,\n            AWS 인프라와 CI/CD 배포 자동화까지 맡았습니다.",
+      "            프론트엔드·백엔드·DB 설계와 개발을 맡았습니다.\n            업무 자동화와 앱 개발, AWS 인프라와 CI/CD 배포 자동화도 담당했습니다.",
     );
   assert.equal(hero, expected);
 });

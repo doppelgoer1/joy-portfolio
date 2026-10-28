@@ -5,7 +5,7 @@ import type { Project } from "../data/portfolio";
 export function PhaseStrip({ project, compact = false, titleTag = "p" }: { project: Project; compact?: boolean; titleTag?: "p" | "h3" }) {
   const Title = titleTag;
   return (
-    <ol className={`phase-strip${compact ? " phase-strip--compact" : ""}`} aria-label={`${project.name} 참여 흐름`}>
+    <ol className={`phase-strip${compact ? " phase-strip--compact" : ""}`} aria-label={`${project.name} 참여 과정`}>
       {project.caseStudy.phases.map((phase, index) => (
         <li key={phase.period} className={phase.period.includes("현재") ? "phase--ongoing" : undefined}>
           <span className="phase-index" aria-hidden="true">0{index + 1}</span>

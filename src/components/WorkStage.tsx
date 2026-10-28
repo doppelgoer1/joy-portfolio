@@ -170,7 +170,7 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
                     style={{ viewTransitionName: active ? `project-image-${project.id}` : "none" } as CSSProperties} />}
                   <span className="stage-card-name" style={{ viewTransitionName: active ? `project-title-${project.id}` : "none" } as CSSProperties}>{project.name}</span>
                   <span className="stage-card-category">{entry.kind === "featured" ? entry.project.category : entry.project.detail}</span>
-                  <span className="stage-card-foot eyebrow"><span>{active ? "자세히 보기 →" : "선택"}</span><span>{entry.kind === "archive" ? "실제 서비스 화면" : "프로젝트 타이포그래피 · 서비스 화면 아님"}</span></span>
+                  <span className="stage-card-foot eyebrow"><span>{active ? "자세히 보기 →" : "선택"}</span><span>{entry.kind === "archive" ? "실제 서비스 화면" : "프로젝트 표지 · 서비스 화면 아님"}</span></span>
                 </Card>;
               })}
             </div>
@@ -181,7 +181,7 @@ export function WorkStage({ entries }: { entries: ProjectEntry[] }) {
                 <button type="button" className="stage-arrow" onClick={() => select(selected + 1)} aria-label="다음 프로젝트 선택"><span aria-hidden="true">→</span></button>
               </div>
               <a className="stage-open text-link" href={`/projects/${current.id}`} onClick={() => rememberWork(current.id)} onAuxClick={() => rememberWork(current.id)}>자세히 보기 →<span className="sr-only">: {current.name}</span></a>
-              <p className="stage-hint eyebrow">← → 선택 · 선택한 카드로 상세 보기</p>
+              <p className="stage-hint eyebrow">← →로 선택 · 카드를 눌러 자세히 보기</p>
             </div>
           </div>
         </WorkTransition>
