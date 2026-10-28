@@ -55,7 +55,7 @@ test("회사 기간, Bull-Finder 기간, Azure OpenAI, 이름 변경의 단일 �
   assert.equal(archive.find(({ name }) => name === "Bull-Finder").period, "2025.03 ~ 2025.05");
   assert.match(archive.find(({ name }) => name === "ENG-SPARK").detail, /Azure OpenAI/);
   assert.equal(archive.filter(({ name }) => /Guidy|Gaime/.test(name)).length, 1);
-  assert.match(archive.find(({ name }) => name.includes("Guidy")).detail, /하나의 서비스/);
+  assert.match(archive.find(({ name }) => name.includes("Guidy")).detail, /같은 서비스/);
 });
 
 test("아홉 프로젝트를 한 무대에서 제공하고 기존 화면·역할·앵커를 유지", () => {

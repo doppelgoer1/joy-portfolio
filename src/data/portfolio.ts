@@ -169,7 +169,7 @@ export const projects: Project[] = [
       { label: "사용 기술", value: "Next.js · Spring Boot · PostgreSQL" },
     ],
     caseStudy: {
-      introduction: "모두ERP에는 프론트엔드 개발자로 참여해 Next.js로 기본 기능을 개발했습니다. 이후 유지보수는 프론트엔드뿐 아니라 Spring Boot 백엔드도 맡고 있습니다.",
+      introduction: "모두ERP에는 프론트엔드 개발자로 참여해 Next.js로 기본 기능을 개발했습니다. 이후에는 프론트엔드와 Spring Boot 백엔드 유지보수를 함께 맡고 있습니다.",
       chapters: [
         {
           id: "frontend", label: "프론트엔드 개발", title: "Next.js 프론트엔드 개발",
@@ -270,7 +270,7 @@ export const archive: ArchiveProject[] = [
   },
   {
     id: "whaleai", name: "WhaleAI", detail: "프로젝트 발주자와 수행자를 연결하는 B2B 매칭 서비스",
-    description: "프로젝트 발주자(Buyer)와 수행자(Seller)를 연결하는 AI 기반 B2B 매칭 서비스로, 소셜 로그인과 프로젝트 등록·관리, 지원자 관리 및 매칭 기능을 갖추고 있습니다.",
+    description: "프로젝트 발주자(Buyer)와 수행자(Seller)를 연결하는 AI 기반 B2B 매칭 서비스로, 소셜 로그인과 프로젝트 등록·관리, 지원자 관리와 매칭 기능을 갖췄습니다.",
     url: "https://whaleai.ai",
     company: "BFAI", period: "2024.09 ~ 2025.01",
     role: "웹 서비스 프론트엔드 개발·배포 · Flutter 앱 개발",
@@ -305,7 +305,7 @@ export const archive: ArchiveProject[] = [
     image: { src: "/images/projects/bullfinder.png", alt: "Bull-Finder 홈 화면: 초기 고객 발굴 소개 문구와 AI 리드 탐색 버튼", width: 1902, height: 948 },
   },
   {
-    id: "guidy-gaime", name: "Gaime (구 Guidy)", detail: "게임 가이드 AI 챗봇 · Guidy에서 이름을 바꾼 하나의 서비스",
+    id: "guidy-gaime", name: "Gaime (구 Guidy)", detail: "게임 가이드 AI 챗봇 · Guidy에서 이름을 바꾼 같은 서비스",
     description: "Guidy에서 Gaime으로 이름을 바꾼 게임 가이드 AI 챗봇으로, Azure OpenAI를 사용해 게임 공략과 보스 전략, 빌드, 숨은 팁을 대화로 안내합니다.",
     offline: true,
     company: "BFAI", period: "2025.06부터",

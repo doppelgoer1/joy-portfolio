@@ -138,7 +138,7 @@ function ArchiveBody({ project, index }: { project: ArchiveProject; index: numbe
   if (project.role) facts.push(["담당 범위", project.role]);
   if (project.stack) facts.push(["사용 기술", <ul className="tech-list">{project.stack.map((tech) => <li key={tech}>{tech}</li>)}</ul>]);
   if (project.url) facts.push(["운영 상태", <>운영 중 · <a className="text-link" href={project.url} target="_blank" rel="noreferrer">{project.url.replace(/^https?:\/\//, "")}<span aria-hidden="true">↗</span><span className="sr-only"> (새 창)</span></a></>]);
-  if (project.offline) facts.push(["운영 상태", "현재 사이트 접속 불가 · 화면은 기존 포트폴리오 스크린샷"]);
+  if (project.offline) facts.push(["운영 상태", "현재 사이트 접속 불가 · 화면은 이전 포트폴리오 스크린샷"]);
   return (
     <>
       <header className="detail-cover">

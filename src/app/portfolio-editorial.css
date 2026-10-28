@@ -179,7 +179,7 @@
 .portfolio-content .detail-overview { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(40px, 8vw, 128px); padding: clamp(64px, 8vw, 128px) var(--gutter); background: var(--paper); color: var(--ink); --num: var(--red); }
 .portfolio-content .detail-overview-copy { padding-block: 8px; }
 .portfolio-content .detail-overview h2 { font-size: clamp(28px, 3vw, 46px); line-height: 1.4; letter-spacing: -.06em; margin-top: 32px; word-break: keep-all; overflow-wrap: anywhere; }
-.portfolio-content .detail-lead { margin-top: 28px; font-size: 17px; line-height: 1.95; max-width: 65ch; }
+.portfolio-content .detail-lead { margin-top: 28px; font-size: 17px; line-height: 1.95; max-width: 65ch; word-break: keep-all; }
 .portfolio-content .detail-facts { margin: 48px 0 0; }
 .portfolio-content .detail-facts > div { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 20px; padding-block: 22px; border-top: 1px solid oklch(0.73 0.005 25); }
 .portfolio-content .detail-facts dt { font-size: 12px; line-height: 1.85; color: oklch(0.42 0.005 25); }

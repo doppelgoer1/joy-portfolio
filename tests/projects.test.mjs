@@ -17,10 +17,13 @@ const pages = new Map([
 ]);
 const textOf = (html) => html.replace(/<[^>]*>/g, " ");
 
-test("9a4ec88 기준 원본 히어로 snapshot·CSS prefix 보존", () => {
+test("9a4ec88 기준 히어로 snapshot·승인된 줄바꿈 외 CSS prefix 보존", () => {
   assert.equal(baseline.sourceCommit, "9a4ec88fabe7159458a33848d320cae911a4e130");
   assert.equal(hash(execFileSync("git", ["show", `${baseline.sourceCommit}:src/components/JoyHero.tsx`])), baseline.productionHeroSha256);
-  const css = Buffer.from(read("src/app/globals.css"));
+  const sourceCss = read("src/app/globals.css");
+  const approvedWrapping = "\n.dock-copy p {\n  word-break: keep-all;\n";
+  assert.equal(sourceCss.split(approvedWrapping).length - 1, 1);
+  const css = Buffer.from(sourceCss.replace(approvedWrapping, "\n.dock-copy p {\n"));
   assert.equal(hash(css.subarray(0, baseline.cssPrefixBytes)), baseline.cssPrefixSha256);
 });
 
@@ -165,7 +168,7 @@ test("BFAI 기록의 '~ 현재'를 옮기지 않고, Guidy/Gaime은 Azure OpenAI
   assert.deepEqual(archive.filter(({ name }) => /Guidy|Gaime/.test(name)).map(({ id }) => id), ["guidy-gaime"]);
   const gaime = textOf(pages.get("/projects/guidy-gaime"));
   assert.match(gaime, /Azure OpenAI/);
-  assert.match(gaime, /하나의 서비스/);
+  assert.match(gaime, /같은 서비스/);
   assert.match(textOf(pages.get("/projects/eng-spark")), /Azure OpenAI/);
   assert.match(textOf(pages.get("/projects/bull-finder")), /2025\.03 ~ 2025\.05/);
   assert.match(textOf(pages.get("/projects/myro")), /2021\.09 ~ 2024\.02/);

@@ -19,7 +19,7 @@
 .t1 .t1-intro-right { position: absolute; right: 7vw; bottom: 12dvh; width: min(38vw, 520px); mix-blend-mode: difference; color: #f2f2f2; }
 .t1 .t1-intro-right h2 { font-size: clamp(34px, 7.5vw, 72px); line-height: 1.15; letter-spacing: -.04em; font-weight: 900; }
 .t1 .t1-intro-right h2 span { font-family: Georgia, "Times New Roman", serif; font-weight: 400; color: var(--t1-red); }
-.t1 .t1-intro-right p { margin: 18px 0 0; max-width: 420px; color: #d8d8d8; font-size: 13px; line-height: 1.45; word-break: normal; overflow-wrap: normal; }
+.t1 .t1-intro-right p { margin: 18px 0 0; max-width: 420px; color: #d8d8d8; font-size: 13px; line-height: 1.45; word-break: keep-all; overflow-wrap: normal; }
 .t1-intro-nav { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; padding: 14px 18px; font-size: 11px; font-weight: 800; color: #f2f2f2; mix-blend-mode: difference; text-transform: uppercase; }
 .t1-intro-progress { position: absolute; right: 18px; bottom: 18px; width: 180px; height: 2px; background: #fff; mix-blend-mode: difference; }
 .t1-ceremony { z-index: 3; }

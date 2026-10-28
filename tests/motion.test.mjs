@@ -11,7 +11,11 @@ const original = (path) => execFileSync("git", ["show", `${baseline}:${path}`], 
 const hero = read("src/components/JoyHero.tsx");
 const originalHero = original("src/components/JoyHero.tsx");
 const css = read("src/app/globals.css");
-const originalCss = original("src/app/globals.css");
+// JOY-623 permits only this wrapping declaration within the original hero CSS.
+const originalCss = original("src/app/globals.css").replace(
+  "\n.dock-copy p {\n",
+  "\n.dock-copy p {\n  word-break: keep-all;\n",
+);
 const motionCode = (source) => source.slice(source.indexOf("const clamp"), source.indexOf("  return (\n    <section"));
 
 test("히어로는 확인된 한국어 문구·제목 활자 속성 외에 원문과 동일", () => {
@@ -41,7 +45,7 @@ test("최신 prod CSS1 문·텍스트 분할·퇴장·0.12 보간·resize·p 로
   assert.doesNotMatch(hero, /matchMedia|is-animated|--hero-progress/);
 });
 
-test("최신 prod CSS 전체와 CSS1·780px·1023px 반응형 규칙 보존", () => {
+test("승인된 도킹 카피 줄바꿈 외 prod CSS·CSS1·780px·1023px 규칙 보존", () => {
   assert.ok(css.startsWith(originalCss));
   const additions = css.slice(originalCss.length);
   assert.doesNotMatch(additions, /\.(?:joy-stage|joy-pin|joy-nav|portfolio-title|stack-card|stack-text|dock-copy|vertical-curtain|curtain-split|door-reveal-layer|split-text|scroll-progress)\b|--css1-/);
