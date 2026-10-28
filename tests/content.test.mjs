@@ -52,6 +52,8 @@ test("모두ERP의 초기 프론트 개발과 이후 유지보수 구분", () =>
 
 test("회사 기간, Bull-Finder 기간, Azure OpenAI, 이름 변경의 단일 기록", () => {
   assert.deepEqual(career.map(({ period }) => period), ["2025.12 ~ 현재", "2024.09 ~ 2025.12", "2021.09 ~ 2024.02"]);
+  assert.deepEqual(career.map(({ title }) => title), ["풀스택 개발", "프론트엔드 개발자", "주니어 개발자 → 프론트엔드 개발자"]);
+  for (const { title } of career) assert.ok(rendered.includes(`<span>${title}</span>`));
   assert.equal(archive.find(({ name }) => name === "Bull-Finder").period, "2025.03 ~ 2025.05");
   assert.match(archive.find(({ name }) => name === "ENG-SPARK").detail, /Azure OpenAI/);
   assert.equal(archive.filter(({ name }) => /Guidy|Gaime/.test(name)).length, 1);

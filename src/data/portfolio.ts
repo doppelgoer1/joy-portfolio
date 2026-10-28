@@ -211,7 +211,7 @@ export const career = [
   {
     company: "비에프에이아이",
     period: "2024.09 ~ 2025.12",
-    title: "웹·앱 개발 · 백엔드 개발",
+    title: "프론트엔드 개발자",
     description: "React·Next.js 기반 웹과 Flutter 앱 개발에 참여했습니다. ENG-SPARK에서는 Spring Boot 기반 백엔드 프로모션 시스템도 개발했습니다.",
     links: [
       { label: "ENG-SPARK", href: "/projects/eng-spark" },
@@ -223,7 +223,7 @@ export const career = [
   {
     company: "엠와이알오",
     period: "2021.09 ~ 2024.02",
-    title: "MYRO",
+    title: "주니어 개발자 → 프론트엔드 개발자",
     description: "MYRO에서 주니어 개발자로 시작해 프론트엔드 개발을 맡았습니다. jQuery 서비스를 Next.js로 옮기고 로그인·관리자 기능의 백엔드도 개발했습니다.",
     links: [{ label: "MYRO", href: "/projects/myro" }],
   },
@@ -333,7 +333,7 @@ export const returnAnchor = (entry: ProjectEntry) => `/#${entry.project.id}`;
 export const previousPortfolio = "https://portfolio-joy.vercel.app";
 export const githubUrl = "https://github.com/doppelgoer1";
 
-// 구 포트폴리오의 프로젝트 아이콘·경력 표에서 확인한 기술만 요약한다.
+// 구 포트폴리오의 프로젝트 아이콘·경력 표·카드 본문에서 확인한 기술만 요약한다.
 // 제공사 충돌·출처별 처리 결과: docs/source-integration.md.
 export const technologyGroups = [
   { category: "프론트엔드", items: ["TypeScript", "JavaScript", "React", "Next.js", "HTML", "CSS", "jQuery", "Vite", "Tailwind CSS", "Vanilla Extract", "Material UI"] },

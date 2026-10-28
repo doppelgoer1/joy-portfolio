@@ -17,9 +17,9 @@
 |---|---|---|---|
 | Hi, I'm JoY / 6년차 개발자 | JoyHero.tsx | 유지(미수입) | 원본 히어로 보존. 근속 연수는 시점 의존 표현이므로 새로 복사하지 않음 |
 | 구 사이트 9개 대상 프로젝트의 기술 아이콘·경력 기술 메뉴 | technologyGroups[0..5] | 추가 | 프론트엔드 / 상태·데이터 관리 / 백엔드 / DB·ORM / 앱 / 인증·결제 6개 범주. 구 소스에 없는 AWS·Docker·CI/CD·Capacitor·MariaDB·Express는 이 **소스 요약**에 추가하지 않음. 기존 프로젝트 기술은 보존 |
-| BFAI 회사 소개와 웹·앱/백엔드 참여 | career[1].title/description | 갱신 | React·Next.js, Flutter, ENG-SPARK Spring Boot 개발을 확인. 총괄·단독·숙련도 상승·지표 주장은 추가하지 않음 |
+| BFAI 원문 직무명·웹/앱/백엔드 참여 | career[1].title/description | 갱신 | 직무명은 “프론트엔드 개발자” 그대로, 설명은 React·Next.js, Flutter, ENG-SPARK Spring Boot 개발을 확인. 총괄·단독·숙련도 상승·지표 주장은 추가하지 않음 |
 | BFAI 2024.09 ~ 현재 | career[1].period | 보류(구 라벨), 현재 값 유지 | 정전은 2024.09 ~ 2025.12. 충돌 절 참조 |
-| MYRO 주니어 → 프론트엔드, jQuery 리팩토링 및 로그인/관리자 백엔드 | career[2].description | 갱신 | 회사 소개 + 펼친 업무 표. 재직 2021.09 ~ 2024.02는 유지 |
+| MYRO 주니어 → 프론트엔드, jQuery 리팩토링 및 로그인/관리자 백엔드 | career[2].title/description | 갱신 | 직무명은 “주니어 개발자 → 프론트엔드 개발자” 그대로. 회사 소개 + 펼친 업무 표. 재직 2021.09 ~ 2024.02는 유지 |
 | H-Solution | career[0] | 유지 | 구 사이트에 없음. 정전 2025.12 ~ 현재 및 현 담당 범위를 보존 |
 | 베이징대학교 / 중어중문과 졸업 / 2013.09 ~ 2017.07 | education[0] | 추가 | Education 렌더 원문, 졸업 표현 보존 |
 | 폴리텍대학 강서캠퍼스 / 스마트금융과 이수 / 2021.03 ~ 2021.09 | education[1] | 추가 | 졸업으로 확장하지 않고 이수 유지 |
@@ -118,3 +118,9 @@ MYRO 개별 행의 월별 기간은 위 근거 표에 보존하되 화면에서�
 - sticky 표제와 행 도킹 유지: 기존 스크롤 연속성을 보존하며 거대 활자와 불필요한 체류 길이만 줄였다. reduced-motion의 static 표제 유지.
 - CSS 수정 파일은 `src/app/full-motion.css`의 `.contact-*` 선택자뿐. `contact-css.diff`에 전체 diff. 다른 CSS·JoyHero.tsx·WorkTransition.tsx diff 0.
 - 스크린샷: `before/contact-{1440,390}.png`와 `after/contact-{1440,390}.png`. 상세 9개×2너비는 `after/detail-*.png`. 기술/업무 개수는 `project-counts.json`; 개수가 다른 것은 원문 정보량 차이이며 같은 무대·같은 상세 구조·나머지 여덟 링크를 유지.
+
+## 독립 검수 반영 — [JOY-625](/JOY/issues/JOY-625)
+
+필수 7항목 GO-WITH-NOTES. 권장 A·B는 BFAI/MYRO 부제를 원문 역할명으로 변경해 동일 위치에 역할 정보를 표시했다. C는 기술 요약 주석에 카드 본문을 추가해 Toss Payments 출처를 정확하게 반영했다. 기술 요약은 대표 기술을 범주별로 요약한 것으로, 상세의 모든 항목을 반복하지 않으며 Material Design 3는 Bull-Finder 상세에 유지한다.
+
+선택 D는 원문 소터블 업무를 구체화한 현 문구를 유지했다. 회사 단위 성능 이슈 표현을 다시 합치지 않았다. 선택 E는 승인 범위 내 선택인 sticky/행 도킹과 85dvh를 유지한다. 선택 F의 div 라벨/메일 아이콘은 이번 사실·카피 교정 범위를 추가로 넓히지 않았다. 모두 검수자가 비차단으로 판정한 선택 사항이다.
