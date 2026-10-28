@@ -1,7 +1,7 @@
 import { JoyHero } from "../components/JoyHero";
 import { SmoothHeader } from "../components/SmoothHeader";
 import { WorkStage } from "../components/WorkStage";
-import { career, githubUrl, previousPortfolio, projectEntries } from "../data/portfolio";
+import { career, contactEmail, education, githubUrl, previousPortfolio, projectEntries, technologyGroups } from "../data/portfolio";
 import "./portfolio-editorial.css";
 import "./work-transition.css";
 import "./full-motion.css";
@@ -25,6 +25,14 @@ export default function Home() {
           </section>
           <section tabIndex={-1} className="career-section section-pad" id="career" aria-labelledby="career-title">
             <div className="section-heading"><p className="eyebrow">02 / 경력</p><h2 id="career-title">개발 이력</h2><p>재직 기간과<br />회사별 참여 프로젝트입니다.</p></div>
+            <div className="section-heading" aria-labelledby="technology-title">
+              <h3 className="eyebrow" id="technology-title">사용 기술</h3>
+              {[technologyGroups.slice(0, 3), technologyGroups.slice(3)].map((groups, index) => (
+                <dl className="detail-facts" key={index}>
+                  {groups.map((group) => <div key={group.category}><dt className="eyebrow">{group.category}</dt><dd><ul className="tech-list">{group.items.map((item) => <li key={item}>{item}</li>)}</ul></dd></div>)}
+                </dl>
+              ))}
+            </div>
             <ol className="career-list">
               {career.map((job) => (
                 <li key={job.company}>
@@ -40,19 +48,22 @@ export default function Home() {
               ))}
             </ol>
           <div className="education-section section-pad" id="education" aria-labelledby="education-title">
-            <div className="education"><div><p className="eyebrow">03 / 학력 · 교육</p><h2 id="education-title">학력 · 교육</h2></div><a className="text-link" href={previousPortfolio} target="_blank" rel="noreferrer">이전 포트폴리오에서 확인 <span aria-hidden="true">↗</span><span className="sr-only"> (새 창)</span></a></div>
+            <div className="education"><div><p className="eyebrow">03 / 학력 · 교육</p><h2 id="education-title">학력 · 교육</h2></div></div>
+            <ol className="career-list">
+              {education.map((item) => <li key={item.school}><div><p className="eyebrow">{item.period}</p></div><div><h3>{item.school}</h3><p>{item.course}</p></div></li>)}
+            </ol>
           </div>
           </section>
           <section tabIndex={-1} className="contact-section section-pad" id="contact" aria-labelledby="contact-title">
             <div className="contact-heading-space"><div className="contact-head">
               <p className="eyebrow">04 / 연락</p>
-              <h2 id="contact-title">함께할 일을<br /><span>기다립니다.</span></h2>
-              <p>채용과 프로젝트 협업에 관한<br />이야기를 나누고 싶습니다.</p>
+              <h2 id="contact-title">연락</h2>
+              <p>채용이나 프로젝트 협업에 관한 문의는 이메일로 보내 주세요.</p>
             </div></div>
             <nav className="contact-rows" aria-label="연락 및 외부 링크">
               <a href={githubUrl} target="_blank" rel="noreferrer"><span>GitHub · doppelgoer1</span><span aria-hidden="true">↗</span><span className="sr-only"> (새 창)</span></a>
               <a href={previousPortfolio} target="_blank" rel="noreferrer"><span>이전 포트폴리오</span><span aria-hidden="true">↗</span><span className="sr-only"> (새 창)</span></a>
-              <a href={previousPortfolio} target="_blank" rel="noreferrer"><span>연락처 · 이전 포트폴리오에서 확인</span><span aria-hidden="true">↗</span><span className="sr-only"> (새 창)</span></a>
+              <a href={`mailto:${contactEmail}`}><span>{contactEmail}</span><span aria-hidden="true">↗</span></a>
               <a href="#top"><span>처음으로</span><span aria-hidden="true">↑</span></a>
             </nav>
           </section>

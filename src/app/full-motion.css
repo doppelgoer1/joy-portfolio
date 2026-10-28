@@ -15,23 +15,22 @@
 .portfolio-content .career-work-links { display: grid; gap: 0; }
 .portfolio-content .career-work-links a { display: flex; justify-content: space-between; }
 .portfolio-content .career-section .education-section { padding: 64px 0 0; margin-top: 64px; border-top: 1px solid var(--ink); }
-.portfolio-content .contact-section { min-height: 160dvh; background: var(--paper); color: var(--ink); --muted: #050505; --line: #050505; display: flex; flex-direction: column; padding-top: 0; padding-bottom: 0; border-top: 1px solid var(--ink); }
+.portfolio-content .contact-section { min-height: 85dvh; background: var(--paper); color: var(--ink); --muted: #050505; --line: #050505; display: flex; flex-direction: column; padding-top: 0; padding-bottom: 0; border-top: 1px solid var(--ink); }
 .portfolio-content .contact-heading-space { flex: 1; }
 .portfolio-content .contact-head { position: sticky; top: var(--header-height); display: grid; grid-template-columns: 2fr 1fr; gap: 12px 24px; padding-block: 16px 12px; }
 .portfolio-content .contact-head > .eyebrow { grid-column: 1 / -1; }
-.portfolio-content .contact-section h2 { font: 800 120px/1 Helvetica, Arial, sans-serif; letter-spacing: -.055em; margin: 0; }
-.portfolio-content .contact-section h2 span { font-family: Georgia, serif; font-weight: 400; color: var(--red); }
+.portfolio-content .contact-section h2 { font: 800 64px/1.2 Helvetica, Arial, sans-serif; letter-spacing: -.055em; margin: 0; }
 .portfolio-content .contact-head > p:last-child { align-self: end; font-size: 15px; line-height: 1.7; }
 .portfolio-content .contact-rows { position: relative; display: grid; margin-top: 0; padding-top: 0; background: var(--paper); }
-.portfolio-content .contact-rows a { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 112px; border-top: 1px solid var(--ink); font-size: 24px; font-weight: 800; }
+.portfolio-content .contact-rows a { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 80px; border-top: 1px solid var(--ink); font-size: 24px; font-weight: 800; }
 .portfolio-content .contact-rows a:focus-visible { outline: 2px solid var(--red); outline-offset: -2px; }
 .portfolio-content .footer-line { background: var(--paper); color: var(--ink); margin: 0; min-height: 64px; padding: 16px var(--gutter); border-top: 1px solid var(--ink); }
 @media (min-width: 781px) and (max-width: 1200px) {
   .portfolio-content .career-list, .portfolio-content .career-section .section-heading { gap: 32px; }
   .portfolio-content .career-year { font-size: 64px; }
   .portfolio-content .career-company h3 { font-size: 30px; }
-  .portfolio-content .contact-section h2 { font-size: clamp(72px, 8.5vw, 120px); }
-  .portfolio-content .contact-rows a { min-height: 96px; }
+  .portfolio-content .contact-section h2 { font-size: 64px; }
+  .portfolio-content .contact-rows a { min-height: 80px; }
 }
 @media (max-width: 780px) {
   .portfolio-content .career-section .section-heading { display: block; }
@@ -43,14 +42,14 @@
   .portfolio-content .career-period { font-size: 10px; line-height: 1.6; }
   .portfolio-content .career-company h3 { font-size: 24px; }
   .portfolio-content .career-work-links a { font-size: 12px; }
-  .portfolio-content .contact-section { min-height: 130dvh; }
+  .portfolio-content .contact-section { min-height: 85dvh; }
   .portfolio-content .contact-head { display: block; padding-block: 24px; }
   .portfolio-content .contact-head h2 { margin-block: 20px; }
-  .portfolio-content .contact-section h2 { font-size: 52px; }
+  .portfolio-content .contact-section h2 { font-size: 42px; }
   .portfolio-content .contact-rows { padding-top: 0; }
   .portfolio-content .contact-rows a { min-height: 72px; font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .portfolio-content .contact-section { min-height: 100dvh; }
+  .portfolio-content .contact-section { min-height: 85dvh; }
   .portfolio-content .contact-head { position: static; }
 }

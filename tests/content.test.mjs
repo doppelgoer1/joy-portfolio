@@ -106,7 +106,9 @@ test("최신 prod의 CSS1 라벨·분할 마크업을 유지하고 새 본문의
   assert.doesNotMatch(text, /침투|RDS|무중단|자동 롤백|공식 API|정책 준수|심사 승인|스토어 출시|전체 웹서비스.*단독/);
   assert.match(text, /장준영 · 풀스택 개발자/);
   assert.equal((rendered.match(/서비스 화면 아님/g) || []).length, 3);
-  assert.doesNotMatch(rendered, /href="mailto:/);
+  assert.match(rendered, /href="mailto:doppelgoer1@naver\.com"/);
+  assert.match(rendered, /<h2 id="contact-title">연락<\/h2>/);
+  assert.doesNotMatch(rendered, /함께할 일을|기다립니다\./);
 });
 
 test("정적 내비게이션·헤딩·키보드 링크의 접근성 구조", () => {

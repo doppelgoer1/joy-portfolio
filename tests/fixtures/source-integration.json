@@ -1,0 +1,87 @@
+{
+  "eng-spark": {
+    "stack": [
+      "Azure OpenAI",
+      "Spring Boot",
+      "Firebase",
+      "Toss Payments",
+      "TypeScript",
+      "Next.js",
+      "React",
+      "Zustand",
+      "Tailwind CSS",
+      "Java"
+    ]
+  },
+  "whaleai": {
+    "stack": [
+      "Flutter",
+      "Firebase",
+      "TypeScript",
+      "React",
+      "Vite",
+      "Recoil",
+      "Vanilla Extract",
+      "Axios",
+      "Dart",
+      "WebView"
+    ]
+  },
+  "myro": {
+    "stack": [
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Next.js",
+      "Node.js",
+      "MySQL",
+      "HTML",
+      "CSS",
+      "jQuery",
+      "RTK Query",
+      "Tailwind CSS",
+      "Material UI"
+    ],
+    "contributions": [
+      "레거시 jQuery 서비스를 Next.js로 전면 리팩토링",
+      "장소 카드 드래그 앤 드롭 정렬 기능 구현과 정렬 페이지 비즈니스 로직 리팩토링",
+      "소셜 로그인을 포함한 프론트엔드·백엔드 로그인, 장소 댓글·조회·추천, 블로그 미리보기·추천 장소 추가 기능 개발",
+      "관리자 페이지의 가입자·접속자·일정 생성 통계 조회, 텍스트 에디터와 이메일 시스템 개발",
+      "장소 광고 관리자 페이지 마이로_Ads 신규 구축"
+    ]
+  },
+  "bull-finder": {
+    "stack": [
+      "Toss Payments",
+      "Material Design 3",
+      "TypeScript",
+      "React",
+      "Vite",
+      "TanStack Query",
+      "Zustand",
+      "Tailwind CSS"
+    ]
+  },
+  "guidy-gaime": {
+    "stack": [
+      "Azure OpenAI",
+      "TypeScript",
+      "Next.js",
+      "React",
+      "Zustand",
+      "Tailwind CSS"
+    ],
+    "description": "Guidy에서 Gaime으로 이름을 바꾼 게임 가이드 AI 챗봇으로, Azure OpenAI를 사용해 게임 공략과 보스 전략, 빌드, 숨은 팁을 대화로 안내합니다. Markdown 렌더링과 타이핑 애니메이션을 제공합니다."
+  },
+  "onbooth": {
+    "stack": [
+      "Next.js",
+      "Jotai",
+      "TypeScript",
+      "Tailwind CSS",
+      "NestJS",
+      "Prisma",
+      "PostgreSQL"
+    ]
+  }
+}

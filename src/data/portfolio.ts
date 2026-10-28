@@ -211,8 +211,8 @@ export const career = [
   {
     company: "비에프에이아이",
     period: "2024.09 ~ 2025.12",
-    title: "BFAI",
-    description: "ENG-SPARK, WhaleAI, Bull-Finder, Guidy / Gaime 프로젝트에 참여했습니다.",
+    title: "웹·앱 개발 · 백엔드 개발",
+    description: "React·Next.js 기반 웹과 Flutter 앱 개발에 참여했습니다. ENG-SPARK에서는 Spring Boot 기반 백엔드 프로모션 시스템도 개발했습니다.",
     links: [
       { label: "ENG-SPARK", href: "/projects/eng-spark" },
       { label: "WhaleAI", href: "/projects/whaleai" },
@@ -224,7 +224,7 @@ export const career = [
     company: "엠와이알오",
     period: "2021.09 ~ 2024.02",
     title: "MYRO",
-    description: "MYRO에서 주니어 개발자로 시작해 프론트엔드 개발을 맡았습니다.",
+    description: "MYRO에서 주니어 개발자로 시작해 프론트엔드 개발을 맡았습니다. jQuery 서비스를 Next.js로 옮기고 로그인·관리자 기능의 백엔드도 개발했습니다.",
     links: [{ label: "MYRO", href: "/projects/myro" }],
   },
 ];
@@ -250,8 +250,9 @@ export type ArchiveProject = {
   stack?: string[];
 };
 
-// 사용자 확인 사항: Bull-Finder 기간, ENG-SPARK·Gaime의 Azure OpenAI, Guidy=Gaime 동일 서비스,
+// 기존 데이터 유지: Bull-Finder 정정 기간, ENG-SPARK·Gaime의 제공사 표기, Guidy=Gaime 동일 서비스,
 // BFAI 재직 종료 2025.12, 운영 중 URL 두 건, 나머지 세 건의 접속 불가.
+// 제공사 충돌과 미확정 이력은 docs/source-integration.md에 보류로 기록한다.
 // 서비스 설명·참여 시작 시점·담당 내역은 기존 포트폴리오 원문을 짧게 옮긴 것이다.
 // 기존 포트폴리오의 "~ 현재"는 BFAI 재직 종료 이전 기록이므로 시작 시점만 적는다.
 export const archive: ArchiveProject[] = [
@@ -265,7 +266,7 @@ export const archive: ArchiveProject[] = [
       "영어 학습 플랫폼 프론트엔드 개발 (2025.08부터)",
       "Spring Boot 기반 백엔드 프로모션 시스템 개발: 친구 초대 기능과 이중 크레딧 시스템 (2025.10 ~ 2025.11)",
     ],
-    stack: ["Azure OpenAI", "Spring Boot", "Firebase", "Toss Payments"],
+    stack: ["Azure OpenAI", "Spring Boot", "Firebase", "Toss Payments", "TypeScript", "Next.js", "React", "Zustand", "Tailwind CSS", "Java"],
     image: { src: "/images/projects/engspark.png", alt: "ENG-SPARK 화면: 영어 아티클을 시험 지문에 맞게 변경하는 입력 화면과 난이도·길이 옵션", width: 1917, height: 896 },
   },
   {
@@ -278,7 +279,7 @@ export const archive: ArchiveProject[] = [
       "웹 서비스 프론트엔드 개발 및 배포 (2024.09 ~ 2024.11)",
       "웹뷰를 활용한 Flutter 기반 하이브리드 모바일 앱 개발 (2024.12 ~ 2025.01)",
     ],
-    stack: ["Flutter", "Firebase"],
+    stack: ["Flutter", "Firebase", "TypeScript", "React", "Vite", "Recoil", "Vanilla Extract", "Axios", "Dart", "WebView"],
     image: { src: "/images/projects/whaleai.png", alt: "WhaleAI 홈 화면: 소개 문구와 Explore 버튼, Featured Projects 목록", width: 1902, height: 950 },
   },
   {
@@ -289,11 +290,12 @@ export const archive: ArchiveProject[] = [
     role: "주니어 개발자 → 프론트엔드 개발자",
     contributions: [
       "레거시 jQuery 서비스를 Next.js로 전면 리팩토링",
-      "장소 카드 드래그 앤 드롭 정렬 기능 구현과 레거시 성능 이슈 해결",
-      "로그인, 댓글, 블로그, 관리자 페이지 등 풀스택 개발",
+      "장소 카드 드래그 앤 드롭 정렬 기능 구현과 정렬 페이지 비즈니스 로직 리팩토링",
+      "소셜 로그인을 포함한 프론트엔드·백엔드 로그인, 장소 댓글·조회·추천, 블로그 미리보기·추천 장소 추가 기능 개발",
+      "관리자 페이지의 가입자·접속자·일정 생성 통계 조회, 텍스트 에디터와 이메일 시스템 개발",
       "장소 광고 관리자 페이지 마이로_Ads 신규 구축",
     ],
-    stack: ["JavaScript", "TypeScript", "React", "Next.js", "Node.js", "MySQL"],
+    stack: ["JavaScript", "TypeScript", "React", "Next.js", "Node.js", "MySQL", "HTML", "CSS", "jQuery", "RTK Query", "Tailwind CSS", "Material UI"],
     image: { src: "/images/projects/myro.png", alt: "MYRO 홈 화면: 새로운 여행 플래너 소개 문구와 제주 일정·지도 화면", width: 1554, height: 685 },
   },
   {
@@ -301,20 +303,21 @@ export const archive: ArchiveProject[] = [
     description: "국내 B2B 영업에서 세부 산업 분류로 잠재 고객을 찾는 AI 기반 리드 발굴 서비스로, 구독 결제를 지원합니다.",
     offline: true,
     company: "BFAI", period: "2025.03 ~ 2025.05",
-    stack: ["Toss Payments", "Material Design 3"],
+    stack: ["Toss Payments", "Material Design 3", "TypeScript", "React", "Vite", "TanStack Query", "Zustand", "Tailwind CSS"],
     image: { src: "/images/projects/bullfinder.png", alt: "Bull-Finder 홈 화면: 초기 고객 발굴 소개 문구와 AI 리드 탐색 버튼", width: 1902, height: 948 },
   },
   {
     id: "guidy-gaime", name: "Gaime (구 Guidy)", detail: "게임 가이드 AI 챗봇 · Guidy에서 이름을 바꾼 같은 서비스",
-    description: "Guidy에서 Gaime으로 이름을 바꾼 게임 가이드 AI 챗봇으로, Azure OpenAI를 사용해 게임 공략과 보스 전략, 빌드, 숨은 팁을 대화로 안내합니다.",
+    description: "Guidy에서 Gaime으로 이름을 바꾼 게임 가이드 AI 챗봇으로, Azure OpenAI를 사용해 게임 공략과 보스 전략, 빌드, 숨은 팁을 대화로 안내합니다. Markdown 렌더링과 타이핑 애니메이션을 제공합니다.",
     offline: true,
     company: "BFAI", period: "2025.06부터",
-    stack: ["Azure OpenAI"],
+    stack: ["Azure OpenAI", "TypeScript", "Next.js", "React", "Zustand", "Tailwind CSS"],
     image: { src: "/images/projects/guidy.png", alt: "Gaime 로그인 화면: 게임 가이드 소개 문구와 Google 로그인 버튼", width: 1476, height: 809 },
   },
   {
     id: "onbooth", name: "온부스", detail: "기업을 위한 워크숍 프로그램 서비스",
     description: "기업에 워크숍 프로그램을 제공하는 서비스입니다.",
+    stack: ["Next.js", "Jotai", "TypeScript", "Tailwind CSS", "NestJS", "Prisma", "PostgreSQL"],
     image: { src: "/images/projects/onbooth.png", alt: "온부스 홈 화면: 워크숍 프로그램 안내 배너와 교육 담당자의 고민을 담은 소개", width: 946, height: 546 },
   },
 ];
@@ -329,3 +332,23 @@ export const returnAnchor = (entry: ProjectEntry) => `/#${entry.project.id}`;
 
 export const previousPortfolio = "https://portfolio-joy.vercel.app";
 export const githubUrl = "https://github.com/doppelgoer1";
+
+// 구 포트폴리오의 프로젝트 아이콘·경력 표에서 확인한 기술만 요약한다.
+// 제공사 충돌·출처별 처리 결과: docs/source-integration.md.
+export const technologyGroups = [
+  { category: "프론트엔드", items: ["TypeScript", "JavaScript", "React", "Next.js", "HTML", "CSS", "jQuery", "Vite", "Tailwind CSS", "Vanilla Extract", "Material UI"] },
+  { category: "상태·데이터 관리", items: ["Zustand", "Recoil", "Jotai", "TanStack Query", "RTK Query", "Axios"] },
+  { category: "백엔드", items: ["Node.js", "NestJS", "Java", "Spring Boot"] },
+  { category: "DB·ORM", items: ["MySQL", "PostgreSQL", "Prisma"] },
+  { category: "앱", items: ["Flutter", "Dart", "WebView"] },
+  { category: "인증·결제", items: ["Firebase", "Toss Payments"] },
+];
+
+export const education = [
+  { school: "베이징대학교", course: "중어중문과 졸업", period: "2013.09 ~ 2017.07" },
+  { school: "폴리텍대학 강서캠퍼스", course: "스마트금융과 이수", period: "2021.03 ~ 2021.09" },
+  { school: "중국 대련 제8고등학교", course: "인문계열 이과 졸업", period: "2010.09 ~ 2013.07" },
+];
+
+// 구 사이트 EMAIL 버튼의 실제 clipboard.writeText 값으로 확인.
+export const contactEmail = "doppelgoer1@naver.com";

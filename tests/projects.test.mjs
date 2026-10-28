@@ -27,14 +27,15 @@ test("9a4ec88 기준 히어로 snapshot·승인된 줄바꿈 외 CSS prefix 보�
   assert.equal(hash(css.subarray(0, baseline.cssPrefixBytes)), baseline.cssPrefixSha256);
 });
 
-test("아홉 프로젝트의 모든 기존 데이터·역할·스크린샷·caseStudy 보존", async () => {
+test("아홉 프로젝트의 승인 카피·소스 통합 외 데이터·역할·스크린샷·caseStudy 보존", async () => {
   const source = execFileSync("git", ["show", "dd250bc:src/data/portfolio.ts"], { encoding: "utf8" });
   const copyChanges = JSON.parse(read("tests/fixtures/approved-copy.json"));
   const expectedSource = copyChanges.reduce((text, [before, after]) => text.replaceAll(JSON.stringify(before), JSON.stringify(after)), source);
   const js = ts.transpileModule(expectedSource, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText;
   const original = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
   assert.deepEqual(projects, original.projects);
-  assert.deepEqual(archive, original.archive);
+  const integration = JSON.parse(read("tests/fixtures/source-integration.json"));
+  assert.deepEqual(archive, original.archive.map(project => ({ ...project, ...integration[project.id] })));
   assert.equal(projectEntries.length, 9);
   assert.match(pages.get("/"), /class="stage-counter eyebrow" aria-live="polite">01 \/ 09 · H-Works</);
 });
@@ -135,7 +136,7 @@ test("운영 링크 정책: ENG-SPARK·WhaleAI만 외부 링크, 접속 불가 �
   assert.deepEqual(archive.filter(({ offline }) => offline).map(({ id }) => id), ["myro", "bull-finder", "guidy-gaime"]);
   assert.ok(archive.every((project) => !(project.url && project.offline)));
   const onbooth = textOf(pages.get("/projects/onbooth").split('<nav class="detail-next"')[0]);
-  assert.doesNotMatch(onbooth, /접속 불가|운영 상태|운영 중|소속 · 기간|담당 범위|사용 기술|담당한 일|BFAI|H-Solution|MYRO|20\d\d\.\d\d|명함|business card|1115/i);
+  assert.doesNotMatch(onbooth, /접속 불가|운영 상태|운영 중|소속 · 기간|담당 범위|담당한 일|BFAI|H-Solution|MYRO|20\d\d\.\d\d|명함|business card|1115/i);
   assert.match(onbooth, /프로젝트 기록/);
   assert.ok(onbooth.includes("기업을 위한 워크숍 프로그램 서비스"));
 });
@@ -147,7 +148,7 @@ test("선택 항목만 표시: 확인된 소속·기간·담당·기술만 행�
   assert.deepEqual(rows(pages.get("/projects/myro")), ["소속 · 기간", "담당 범위", "사용 기술", "운영 상태"]);
   assert.deepEqual(rows(pages.get("/projects/bull-finder")), ["소속 · 기간", "사용 기술", "운영 상태"]);
   assert.deepEqual(rows(pages.get("/projects/guidy-gaime")), ["소속 · 기간", "사용 기술", "운영 상태"]);
-  assert.deepEqual(rows(pages.get("/projects/onbooth")), []);
+  assert.deepEqual(rows(pages.get("/projects/onbooth")), ["사용 기술"]);
   for (const project of archive) {
     const html = pages.get(`/projects/${project.id}`);
     const text = textOf(html);
@@ -182,7 +183,7 @@ test("홈·상세 페이지의 모든 내부 경로와 fragment가 export 결과
     assert.equal(new Set(ids).size, ids.length, `${path}: 중복 ID`);
     for (const [, href] of html.matchAll(/<a\b[^>]*\bhref="([^"]*)"/g)) {
       assert.ok(href && href !== "#" && !href.startsWith("javascript:"));
-      if (/^https?:/.test(href)) continue;
+      if (/^(?:https?:|mailto:)/.test(href)) continue;
       const target = new URL(href, `https://portfolio.test${path}`);
       if (/\.\w+$/.test(target.pathname)) {
         assert.ok(existsSync(new URL(`../out${target.pathname}`, import.meta.url)), `${path} → ${href}: 누락된 정적 파일`);
