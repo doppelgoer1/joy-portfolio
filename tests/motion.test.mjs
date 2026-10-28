@@ -31,7 +31,7 @@ test("히어로는 확인된 한국어 문구·제목 활자 속성 외에 원�
     .replace("            Builder", "            장준영")
     .replace(
       "            Six years building React and Next.js products with TypeScript,\n            backend fluency, and motion-focused interface craft.",
-      "            프론트엔드·백엔드·DB 설계와 개발을 맡았습니다.\n            업무 자동화와 앱 개발, AWS 인프라와 CI/CD 배포 자동화도 담당했습니다.",
+      "            프론트엔드·백엔드·DB 설계와 개발, 업무 자동화·앱 개발,\n            AWS 인프라와 CI/CD 배포 자동화를 맡았습니다.",
     );
   assert.equal(hero, expected);
 });

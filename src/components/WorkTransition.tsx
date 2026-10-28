@@ -262,7 +262,7 @@ export function WorkTransition({ entries, selected, children }: { entries: Proje
           </div>
           <div className="t1-intro-right">
             <h2>풀스택<br /><span>개발자</span><br />장준영</h2>
-            <p>프론트엔드·백엔드·DB 설계와 개발을 맡았습니다. 업무 자동화와 앱 개발, AWS 인프라와 CI/CD 배포 자동화도 담당했습니다.</p>
+            <p>프론트엔드·백엔드·DB 설계와 개발, 업무 자동화·앱 개발, AWS 인프라와 CI/CD 배포 자동화를 맡았습니다.</p>
           </div>
           <div className="t1-intro-nav"><span>[ + ] Joy</span><span>장준영 · 풀스택 개발자</span><span>개발 기록</span></div>
           <div className="t1-intro-progress" />
